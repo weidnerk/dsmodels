@@ -21,5 +21,12 @@ namespace dsmodels
         }
 
         public DbSet<PostedListing> PostedListings { get; set; }
+
+        public async Task<PostedListing> GetPostedListing(string listedItemId)
+        {
+            var found = await this.PostedListings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemId);
+            return found;
+        }
+
     }
 }
