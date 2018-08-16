@@ -36,6 +36,7 @@ namespace dsmodels
         public bool? InventoryException { get; set; }
         public byte SoldQty { get; set; }
 
+        public decimal MinPrice { get; set; }
     }
 
     [Table("PostedListings")]
