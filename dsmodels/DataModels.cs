@@ -35,6 +35,8 @@ namespace dsmodels
         public byte ListedQty { get; set; }
         public bool? InventoryException { get; set; }
         public byte SoldQty { get; set; }
+        public string Availability { get; set; }
+        public string Limit { get; set; }
 
         public decimal MinPrice { get; set; }
     }
@@ -65,6 +67,7 @@ namespace dsmodels
         public DateTime? Removed { get; set; }
         public byte ListedQty { get; set; }
         public bool? InventoryException { get; set; }
+        public DateTime? Updated { get; set; }
     }
 
     // Listing is used for the research reporting.

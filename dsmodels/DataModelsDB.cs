@@ -41,6 +41,12 @@ namespace dsmodels
             return found;
         }
 
+        // listedItemId is my id
+        public async Task<PostedListing> GetPostedListingFromListId(string listedItemId)
+        {
+            var found = await this.PostedListings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemId);
+            return found;
+        }
 
         public List<StagedListing> GetToList(int categoryId, int listedQty)
         {
@@ -102,6 +108,27 @@ namespace dsmodels
 
             return p;
         }
+
+        public async Task<bool> UpdatePrice(PostedListing listing, decimal price)
+        {
+            bool ret = false;
+            var rec = await this.PostedListings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
+            if (rec != null)
+            {
+                ret = true;
+                rec.Price = price;
+                rec.Updated = DateTime.Now;
+
+                using (var context = new DataModelsDB())
+                {
+                    // Pass the entity to Entity Framework and mark it as modified
+                    context.Entry(rec).State = EntityState.Modified;
+                    context.SaveChanges();
+                }
+            }
+            return ret;
+        }
+
 
     }
 }
