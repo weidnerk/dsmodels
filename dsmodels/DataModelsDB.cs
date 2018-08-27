@@ -41,7 +41,7 @@ namespace dsmodels
             return found;
         }
 
-
+        // Produce a list of records for listing for some category excluding those that have already been listed.
         public List<StagedListing> GetToList(int categoryId, int listedQty)
         {
             List<StagedListing> data =
