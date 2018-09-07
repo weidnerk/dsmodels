@@ -112,5 +112,14 @@ namespace dsmodels
         public string ItemId { get; set; }
     }
 
+    [Table("SourceCategories")]
+    public class SourceCategories
+    {
+        public int ID { get; set; }
+        public int SourceID { get; set; }
+        public string Category { get; set; }
+        public string SubCategory { get; set; }
+        public string URL { get; set; }
+    }
 
 }

@@ -22,6 +22,7 @@ namespace dsmodels
         }
 
         public DbSet<PostedListing> PostedListings { get; set; }
+        public DbSet<SourceCategories> Categories { get; set; }
 
         //public async Task<PostedListing> GetPostedListing(string listedItemId)
         //{
@@ -129,6 +130,14 @@ namespace dsmodels
             return ret;
         }
 
+        public string getUrl(int categoryId)
+        {
+            string url = null;
+            var r = this.Categories.Find(categoryId);
+            if (r != null)
+                url = r.URL;
+            return url;
+        }
 
     }
 }
