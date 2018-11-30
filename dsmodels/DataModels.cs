@@ -41,43 +41,57 @@ namespace dsmodels
         public decimal MinPrice { get; set; }
     }
 
-    [Table("PostedListings")]
-    public class PostedListing
+    [Table("SearchHistory")]
+    public class SearchHistory
     {
-        public string EbaySeller { get; set; }
-        public string EbayItemID { get; set; }
-        public string EbayUrl { get; set; }
-        [Key]
-        [Column(Order = 1)]
-        public int SourceID { get; set; }
-        [Key]
-        [Column(Order = 2)]
-        public string SupplierItemID { get; set; }
-        public string SourceUrl { get; set; }
-        public decimal SupplierPrice { get; set; }
-        public string Title { get; set; }
-        public decimal Price { get; set; }
-        public string Description { get; set; }
-        public string Pictures { get; set; }
-        public int CategoryID { get; set; }
-        public string PrimaryCategoryID { get; set; }
-        public string PrimaryCategoryName { get; set; }
-        public string ListedItemID { get; set; }
-        public DateTime? Listed { get; set; }
-        public DateTime? Removed { get; set; }
-        public byte ListedQty { get; set; }
-        public bool? InventoryException { get; set; }
-        public DateTime? Updated { get; set; }
+        public int Id { get; set; }
+        public string Seller { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime Updated { get; set; }
+        public string UserId { get; set; }
+        public int DaysBack { get; set; }
+        public int MinSoldFilter { get; set; }
     }
+
+
+    //[Table("PostedListings")]
+    //public class PostedListing
+    //{
+    //    public string EbaySeller { get; set; }
+    //    public string EbayItemID { get; set; }
+    //    public string EbayUrl { get; set; }
+    //    [Key]
+    //    [Column(Order = 1)]
+    //    public int SourceID { get; set; }
+    //    [Key]
+    //    [Column(Order = 2)]
+    //    public string SupplierItemID { get; set; }
+    //    public string SourceUrl { get; set; }
+    //    public decimal SupplierPrice { get; set; }
+    //    public string Title { get; set; }
+    //    public decimal Price { get; set; }
+    //    public string Description { get; set; }
+    //    public string Pictures { get; set; }
+    //    public int CategoryID { get; set; }
+    //    public string PrimaryCategoryID { get; set; }
+    //    public string PrimaryCategoryName { get; set; }
+    //    public string ListedItemID { get; set; }
+    //    public DateTime? Listed { get; set; }
+    //    public DateTime? Removed { get; set; }
+    //    public byte ListedQty { get; set; }
+    //    public bool? InventoryException { get; set; }
+    //    public DateTime? Updated { get; set; }
+    //}
 
     // Listing is used for the research reporting.
     // SingleItem is used for the detail page.
     // Case can be made to just use the Listing class.
     [Table("Listing")]
-    public class Listing
+    public class ListingX
     {
         [Key]
-        public string ItemId { get; set; }
+        public string ItemId { get; set; }  // ebay eller listing id
         public string Title { get; set; }
         public string ListingTitle { get; set; }
         public List<OrderHistory> Orders { get; set; }
@@ -86,20 +100,23 @@ namespace dsmodels
         public decimal SupplierPrice { get; set; }
         public string PictureUrl { get; set; }   // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
-        public string Source { get; set; }
+        public string Source { get; set; }          // source url
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
-        public byte SourceId { get; set; }
-        public int Qty { get; set; }
+        public byte Qty { get; set; }
         public string ListingStatus { get; set; }
-
+        public DateTime? Listed { get; set; }
+        public byte SourceID { get; set; }
+        public string ListedItemID { get; set; }
+        public string SupplierItemID { get; set; }
     }
+
     [Table("OrderHistory")]
     public class OrderHistory
     {
         public int ID { get; set; }
         public string Title { get; set; }
-        public string SupplierPrice { get; set; }
+        public string SellerPrice { get; set; }
         public string Qty { get; set; }
         //public string DateOfPurchaseStr { get; set; }
         public DateTime? DateOfPurchase { get; set; }
@@ -110,6 +127,40 @@ namespace dsmodels
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
         public string ItemId { get; set; }
+        public int SourceID { get; set; }
+        public string SupplierItemId { get; set; }
+        public string SourceDescription { get; set; }
+        public string PrimaryCategoryID { get; set; }
+        public string PrimaryCategoryName { get; set; }
+        public string PictureUrl { get; set; }
+        public string Description { get; set; }
+        public string EbaySeller { get; set; }
+        public decimal? EbaySellerPrice { get; set; }
+        public int CategoryId { get; set; }
+        public decimal? ShippingAmount { get; set; }
+        public string SellingState { get; set; }
+        public string ListingStatus { get; set; }
+    }
+
+    [Table("vwSellerOrderHistory")]  // this view is not updatable
+    public class SellerOrderHistory
+    {
+        public int ID { get; set; }
+        public string Title { get; set; }
+        public string SellerPrice { get; set; }
+        public string Qty { get; set; }
+        //public string DateOfPurchaseStr { get; set; }
+        public DateTime? DateOfPurchase { get; set; }
+        public int RptNumber { get; set; }
+        public string EbayUrl { get; set; }
+
+        public string ImageUrl { get; set; }
+        public bool ListingEnded { get; set; }
+        public int PageNumber { get; set; }
+        public string ItemId { get; set; }
+        public DateTime? Listed { get; set; }
+        public string SellingState { get; set; }
+        public string ListingStatus { get; set; }
     }
 
     [Table("SourceCategories")]
@@ -121,5 +172,55 @@ namespace dsmodels
         public string SubCategory { get; set; }
         public string URL { get; set; }
     }
+    [Table("WalItems")]
+    public class WalItem
+    {
+        public int ID { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public string DetailUrl { get; set; }
+        public int CategoryID { get; set; }
+        public string ItemId { get; set; }
 
+        public string PictureUrl { get; set; }
+        public bool OutOfStock { get; set; }
+    }
+
+    [Table("UserSettings")]
+    public class UserSettings
+    {
+        [Key]
+        [Column(Order = 1)]
+        public string UserID { get; set; }
+        [Key]
+        [Column(Order = 2)]
+        public int ApplicationID { get; set; }
+        public string AppID { get; set; }
+    }
+
+    public class AppIDSelect
+    {
+        public string value { get; set; }
+        public string viewValue { get; set; }
+    }
+
+    [Table("UserProfile")]
+    public class UserProfile
+    {
+        public string Id { get; set; }
+        public string AppID { get; set; }
+        public string DevID { get; set; }
+        public string CertID { get; set; }
+        public string UserToken { get; set; }
+        public string Firstname { get; set; }
+        public string Lastname { get; set; }
+    }
+
+    [Table("AspNetUsers")]
+    public class AspNetUser
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; }
+    }
 }
