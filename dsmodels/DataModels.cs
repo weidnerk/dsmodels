@@ -103,12 +103,13 @@ namespace dsmodels
         public string Source { get; set; }          // source url
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
-        public byte Qty { get; set; }
+        public int Qty { get; set; }
         public string ListingStatus { get; set; }
         public DateTime? Listed { get; set; }
         public byte SourceID { get; set; }
         public string ListedItemID { get; set; }
         public string SupplierItemID { get; set; }
+        public bool OOS { get; set; }
     }
 
     [Table("OrderHistory")]

@@ -337,6 +337,26 @@ namespace dsmodels
             return ret;
         }
 
+        public async Task<bool> UpdateOOS(string listedItemID, bool OOS)
+        {
+            bool ret = false;
+            // find item by looking up seller's listing id
+            var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemID);
+            if (rec != null)
+            {
+                ret = true;
+                rec.OOS = OOS;
+
+                using (var context = new DataModelsDB())
+                {
+                    // Pass the entity to Entity Framework and mark it as modified
+                    context.Entry(rec).State = EntityState.Modified;
+                    context.SaveChanges();
+                }
+            }
+            return ret;
+        }
+
         public async Task<bool> UpdateRemovedDate(ListingX listing)
         {
             bool ret = false;
