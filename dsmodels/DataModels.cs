@@ -186,6 +186,7 @@ namespace dsmodels
 
         public string PictureUrl { get; set; }
         public bool OutOfStock { get; set; }
+        public bool ShippingNotAvailable { get; set; }
     }
 
     [Table("UserSettings")]
