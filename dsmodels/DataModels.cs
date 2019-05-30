@@ -88,7 +88,7 @@ namespace dsmodels
     // SingleItem is used for the detail page.
     // Case can be made to just use the Listing class.
     [Table("Listing")]
-    public class ListingX
+    public class Listing
     {
         [Key]
         public string ItemId { get; set; }  // ebay eller listing id
@@ -110,6 +110,10 @@ namespace dsmodels
         public string ListedItemID { get; set; }
         public string SupplierItemID { get; set; }
         public bool OOS { get; set; }
+        public string Seller { get; set; }
+        public DateTime? Updated { get; set; }
+        public bool Variation { get; set; }
+        public string VariationDescription { get; set; }
     }
 
     [Table("OrderHistory")]
@@ -162,6 +166,7 @@ namespace dsmodels
         public DateTime? Listed { get; set; }
         public string SellingState { get; set; }
         public string ListingStatus { get; set; }
+        public decimal? ListingPrice { get; set; }
     }
 
     [Table("SourceCategories")]
@@ -187,6 +192,7 @@ namespace dsmodels
         public string PictureUrl { get; set; }
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
+        public bool FulfilledByWalmart { get; set; }
     }
 
     [Table("UserSettings")]

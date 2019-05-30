@@ -21,7 +21,7 @@ namespace dsmodels
             : base("name=OPWContext")
         {
         }
-        public DbSet<ListingX> Listings { get; set; }
+        public DbSet<Listing> Listings { get; set; }
 
         //public DbSet<PostedListing> PostedListings { get; set; }
         public DbSet<SourceCategories> SourceCategories { get; set; }
@@ -82,20 +82,20 @@ namespace dsmodels
             return sourceId;
         }
 
-        public async Task<ListingX> GetPostedListing(int sourceID, string supplierItemID)
+        public async Task<Listing> GetPostedListing(int sourceID, string supplierItemID)
         {
             var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == sourceID && r.SupplierItemID == supplierItemID);
             return found;
         }
 
-        public async Task<ListingX> GetPostedListing(string itemId)
+        public async Task<Listing> GetPostedListing(string itemId)
         {
             var found = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == itemId);
             return found;
         }
 
         // listedItemId is my id
-        public async Task<ListingX> GetPostedListingFromListId(string listedItemId)
+        public async Task<Listing> GetPostedListingFromListId(string listedItemId)
         {
             var found = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemId);
             return found;
@@ -112,7 +112,7 @@ namespace dsmodels
             return data;
         }
 
-        public async Task PostedListingSaveAsync(ListingX listing)
+        public async Task PostedListingSaveAsync(Listing listing)
         {
             var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == listing.SourceID && r.SupplierItemID == listing.SupplierItemID);
             if (found == null)
@@ -162,15 +162,16 @@ namespace dsmodels
         //    return p;
         //}
 
-        public async Task<bool> UpdatePrice(ListingX listing, decimal price)
+        public async Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice)
         {
             bool ret = false;
             var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
             if (rec != null)
             {
                 ret = true;
-                //rec.Price = price;
-                //rec.Updated = DateTime.Now;
+                rec.ListingPrice = price;
+                rec.SupplierPrice = supplierPrice;
+                rec.Updated = DateTime.Now;
 
                 using (var context = new DataModelsDB())
                 {
@@ -253,7 +254,7 @@ namespace dsmodels
             return ret;
         }
 
-        public async Task ListingSave(ListingX listing)
+        public async Task ListingSave(Listing listing)
         {
             try
             {
@@ -273,6 +274,7 @@ namespace dsmodels
                     found.Description = listing.Description;
                     found.SourceID = listing.SourceID;
                     found.Qty = listing.Qty;
+                    found.Seller = listing.Seller;
                     this.Entry(found).State = EntityState.Modified;
                 }
                 await this.SaveChangesAsync();
@@ -282,13 +284,18 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
             }
         }
+        public List<Listing> GetListings()
+        {
+            var found = this.Listings.ToList();
+            return found;
+        }
 
-        public async Task<ListingX> GetListing(string itemId)
+        public async Task<Listing> GetListing(string itemId)
         {
             var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == itemId);
             return found;
         }
-        public async Task<ListingX> ListingGet(string itemId)
+        public async Task<Listing> ListingGet(string itemId)
         {
             try
             {
@@ -302,21 +309,7 @@ namespace dsmodels
             }
         }
 
-        public async Task<ListingX> ListingXGet(string itemId)
-        {
-            try
-            {
-                var listing = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == itemId);
-                return listing;
-            }
-            catch (Exception exc)
-            {
-                string msg = dsutil.DSUtil.ErrMsg("", exc);
-                return null;
-            }
-        }
-
-        public async Task<bool> UpdateListedItemID(ListingX listing, string listedItemID)
+        public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID)
         {
             bool ret = false;
             // find item by looking up seller's listing id
@@ -357,7 +350,7 @@ namespace dsmodels
             return ret;
         }
 
-        public async Task<bool> UpdateRemovedDate(ListingX listing)
+        public async Task<bool> UpdateRemovedDate(Listing listing)
         {
             bool ret = false;
             var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
