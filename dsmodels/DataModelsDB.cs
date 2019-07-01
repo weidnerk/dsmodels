@@ -27,7 +27,7 @@ namespace dsmodels
         public DbSet<SourceCategories> SourceCategories { get; set; }
         public DbSet<SearchHistory> SearchHistory { get; set; }
         public DbSet<OrderHistory> OrderHistory { get; set; }
-        public DbSet<UserSettings> UserSettings { get; set; }
+        public DbSet<UserSettings> UserSettings { get; set; }   // user's current selection
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
 
@@ -45,7 +45,7 @@ namespace dsmodels
         public List<AppIDSelect> GetAppIDs(string userid)
         {
             var x = from a in this.UserProfiles
-                    where a.Id == userid
+                    where a.UserID == userid
                     select new AppIDSelect
                     {
                         value = a.AppID,
@@ -62,8 +62,15 @@ namespace dsmodels
         /// <returns></returns>
         public UserProfile GetUserProfile(string userid)
         {
+            // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
             var setting = this.UserSettings.Find(userid, 1);
             var profile = this.UserProfiles.Where(r => r.AppID == setting.AppID).First();
+
+            // db issue storing first/last name in UserProfile since user may have multiple API keys
+            var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
+            profile.Firstname = names.Firstname;
+            profile.Lastname = names.Lastname;
+
             return profile;
         }
 

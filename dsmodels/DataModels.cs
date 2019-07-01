@@ -216,7 +216,8 @@ namespace dsmodels
     [Table("UserProfile")]
     public class UserProfile
     {
-        public string Id { get; set; }
+        public int ID { get; set; }
+        public string UserID { get; set; }
         public string AppID { get; set; }
         public string DevID { get; set; }
         public string CertID { get; set; }
