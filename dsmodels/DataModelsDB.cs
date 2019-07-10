@@ -64,14 +64,17 @@ namespace dsmodels
         {
             // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
             var setting = this.UserSettings.Find(userid, 1);
-            var profile = this.UserProfiles.Where(r => r.AppID == setting.AppID).First();
+            if (setting != null)    // user may have registered but has not updated API keys yet
+            {
+                var profile = this.UserProfiles.Where(r => r.AppID == setting.AppID).First();
 
-            // db issue storing first/last name in UserProfile since user may have multiple API keys
-            var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
-            profile.Firstname = names.Firstname;
-            profile.Lastname = names.Lastname;
-
-            return profile;
+                // db issue storing first/last name in UserProfile since user may have multiple API keys
+                var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
+                profile.Firstname = names.Firstname;
+                profile.Lastname = names.Lastname;
+                return profile;
+            }
+            return null;
         }
 
         //public async Task<PostedListing> GetPostedListing(string listedItemId)

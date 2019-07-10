@@ -163,10 +163,10 @@ namespace dsmodels
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
         public string ItemId { get; set; }
-        public DateTime? Listed { get; set; }
+        public DateTime? Listed { get; set; }               // listed by user
         public string SellingState { get; set; }
-        public string ListingStatus { get; set; }
-        public decimal? ListingPrice { get; set; }
+        public string ListingStatus { get; set; }           // status of scanned eBay seller
+        public decimal? ListingPrice { get; set; }          // user's listing price
     }
 
     [Table("SourceCategories")]
