@@ -56,32 +56,46 @@ namespace dsmodels
         }
 
         /// <summary>
-        /// return user profile based in his appID setting in UserSetting
+        /// Return user profile based in his appID setting in UserSetting
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
         public UserProfile GetUserProfile(string userid)
         {
-            // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
-            var setting = this.UserSettings.Find(userid, 1);
-            if (setting != null)    // user may have registered but has not updated API keys yet
+            try
             {
-                var profile = this.UserProfiles.Where(r => r.AppID == setting.AppID).First();
+                // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
+                var setting = this.UserSettings.Find(userid, 1);
+                if (setting != null)    // user may have registered but has not updated API keys yet
+                {
+                    var profile = this.UserProfiles.Where(r => r.AppID == setting.AppID).First();
 
-                // db issue storing first/last name in UserProfile since user may have multiple API keys
-                var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
-                profile.Firstname = names.Firstname;
-                profile.Lastname = names.Lastname;
-                return profile;
+                    // db issue storing first/last name in UserProfile since user may have multiple API keys
+                    var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
+                    profile.Firstname = names.Firstname;
+                    profile.Lastname = names.Lastname;
+
+                    profile.UserName = this.AspNetUsers.Where(r => r.Id == userid).Select(s => s.UserName).First();
+                    return profile;
+                }
+                return null;
             }
-            return null;
+            catch (Exception exc)
+            {
+                return null;
+            }
         }
 
-        //public async Task<PostedListing> GetPostedListing(string listedItemId)
-        //{
-        //    var found = await this.PostedListings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemId);
-        //    return found;
-        //}
+        public UserProfile GetUserProfile(string userid, string appID)
+        {
+            var profile = this.UserProfiles.Where(r => r.AppID == appID).First();
+
+            // db issue storing first/last name in UserProfile since user may have multiple API keys
+            var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
+            profile.Firstname = names.Firstname;
+            profile.Lastname = names.Lastname;
+            return profile;
+        }
 
         public int SourceIDFromCategory(int categoryId)
         {
@@ -148,30 +162,6 @@ namespace dsmodels
             await this.SaveChangesAsync();
         }
 
-        //public static ListingX CopyStagedToPostedListing(StagedListing staged)
-        //{
-        //    var p = new ListingX();
-
-        //    p.SourceID = staged.SourceID;
-        //    p.SupplierItemID = staged.SupplierItemID;
-        //    p.SourceUrl = staged.SourceUrl;
-        //    p.SupplierPrice = staged.SupplierPrice;
-        //    p.Title = staged.Title;
-        //    p.Price = staged.Price;
-        //    p.Description = staged.Description;
-        //    p.Pictures = staged.Pictures;
-        //    p.CategoryID = staged.CategoryID;
-        //    p.PrimaryCategoryID = staged.PrimaryCategoryID;
-        //    p.PrimaryCategoryName = staged.PrimaryCategoryName;
-        //    p.ListedItemID = staged.ListedItemID;
-        //    p.Listed = staged.Listed;
-        //    p.Removed = staged.Removed;
-        //    p.ListedQty = staged.ListedQty;
-        //    p.InventoryException = staged.InventoryException;
-
-        //    return p;
-        //}
-
         public async Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice)
         {
             bool ret = false;
@@ -202,13 +192,25 @@ namespace dsmodels
             return url;
         }
 
-        public async Task<SearchHistory> SearchHistorySave(SearchHistory sh)
+        public async Task<SearchHistory> SearchHistoryAdd(SearchHistory sh)
         {
             try
             {
                 SearchHistory.Add(sh);
                 await this.SaveChangesAsync();
                 return sh;
+            }
+            catch (Exception exc)
+            {
+            }
+            return null;
+        }
+        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh)
+        {
+            try
+            {
+                this.Entry(sh).State = EntityState.Modified;
+                await this.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -378,7 +380,7 @@ namespace dsmodels
             }
             return ret;
         }
-        public async Task<string> UserSettingSaveAsync(UserSettings p, string username)
+        public async Task<string> UserProfileSaveAsync(UserProfile p, string username)
         {
             string ret = string.Empty;
             try
@@ -389,6 +391,18 @@ namespace dsmodels
                 //{
                 //    return "user does not exist";
                 //}
+
+                var profile = this.UserProfiles.Where(k => k.AppID == p.AppID).FirstOrDefault();
+                if (profile == null)
+                {
+                    var newprofile = new UserProfile();
+                    newprofile.AppID = p.AppID;
+                    newprofile.CertID = p.CertID;
+                    newprofile.DevID = p.DevID;
+                    newprofile.UserToken = p.UserToken;
+                    newprofile.UserID = userid;
+                    UserProfiles.Add(newprofile);
+                }
 
                 var settings = this.UserSettings.Find(userid, 1);
                 if (settings != null)

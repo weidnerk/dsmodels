@@ -52,6 +52,7 @@ namespace dsmodels
         public string UserId { get; set; }
         public int DaysBack { get; set; }
         public int MinSoldFilter { get; set; }
+        public bool? Running { get; set; }
     }
 
 
@@ -213,7 +214,7 @@ namespace dsmodels
         public string viewValue { get; set; }
     }
 
-    [Table("UserProfile")]
+    [Table("vwUserProfile")]
     public class UserProfile
     {
         public int ID { get; set; }
@@ -224,6 +225,7 @@ namespace dsmodels
         public string UserToken { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
+        public string UserName { get; set; }
     }
 
     [Table("AspNetUsers")]
