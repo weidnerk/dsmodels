@@ -28,6 +28,7 @@ namespace dsmodels
         public DbSet<SearchHistory> SearchHistory { get; set; }
         public DbSet<OrderHistory> OrderHistory { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }   // user's current selection
+        public DbSet<UserProfileView> UserProfilesView { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
 
@@ -44,7 +45,7 @@ namespace dsmodels
         /// <returns></returns>
         public List<AppIDSelect> GetAppIDs(string userid)
         {
-            var x = from a in this.UserProfiles
+            var x = from a in this.UserProfilesView
                     where a.UserID == userid
                     select new AppIDSelect
                     {
@@ -60,7 +61,7 @@ namespace dsmodels
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
-        public UserProfile GetUserProfile(string userid)
+        public UserProfileView GetUserProfile(string userid)
         {
             try
             {
@@ -68,10 +69,10 @@ namespace dsmodels
                 var setting = this.UserSettings.Find(userid, 1);
                 if (setting != null)    // user may have registered but has not updated API keys yet
                 {
-                    var profile = this.UserProfiles.Where(r => r.AppID == setting.AppID).First();
+                    var profile = this.UserProfilesView.Where(r => r.AppID == setting.AppID).First();
 
                     // db issue storing first/last name in UserProfile since user may have multiple API keys
-                    var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
+                    var names = this.UserProfilesView.Where(p => p.UserID == userid && p.Firstname != null).First();
                     profile.Firstname = names.Firstname;
                     profile.Lastname = names.Lastname;
 
@@ -86,12 +87,12 @@ namespace dsmodels
             }
         }
 
-        public UserProfile GetUserProfile(string userid, string appID)
+        public UserProfileView GetUserProfile(string userid, string appID)
         {
-            var profile = this.UserProfiles.Where(r => r.AppID == appID).First();
+            var profile = this.UserProfilesView.Where(r => r.AppID == appID).First();
 
             // db issue storing first/last name in UserProfile since user may have multiple API keys
-            var names = this.UserProfiles.Where(p => p.UserID == userid && p.Firstname != null).First();
+            var names = this.UserProfilesView.Where(p => p.UserID == userid && p.Firstname != null).First();
             profile.Firstname = names.Firstname;
             profile.Lastname = names.Lastname;
             return profile;
@@ -228,6 +229,18 @@ namespace dsmodels
                 var sh = new SearchHistory() { Id = rptNumber };
                 this.SearchHistory.Attach(sh);
                 this.SearchHistory.Remove(sh);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+            }
+        }
+
+        public async Task AppIDRemove(string appID)
+        {
+            try
+            {
+                this.UserProfilesView.RemoveRange(this.UserProfilesView.Where(x => x.AppID == appID));
                 await this.SaveChangesAsync();
             }
             catch (Exception exc)
@@ -380,18 +393,18 @@ namespace dsmodels
             }
             return ret;
         }
-        public async Task<string> UserProfileSaveAsync(UserProfile p, string username)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="userid"></param>
+        /// <returns>null if success</returns>
+        public async Task<string> UserProfileSaveAsync(UserProfileView p, string userid)
         {
-            string ret = string.Empty;
+            string ret = null;
             try
             {
-                var userid = GetUserIDFromName(username);
-                //var user = await UserManager.FindByNameAsync(username);
-                //if (user == null)
-                //{
-                //    return "user does not exist";
-                //}
-
                 var profile = this.UserProfiles.Where(k => k.AppID == p.AppID).FirstOrDefault();
                 if (profile == null)
                 {
@@ -439,7 +452,7 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                ret = exc.Message;
+                ret = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
             }
             return ret;
         }

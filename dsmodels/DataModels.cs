@@ -214,8 +214,11 @@ namespace dsmodels
         public string viewValue { get; set; }
     }
 
+    /// <summary>
+    /// Nearly same as UserProfile but includes UserName property.
+    /// </summary>
     [Table("vwUserProfile")]
-    public class UserProfile
+    public class UserProfileView
     {
         public int ID { get; set; }
         public string UserID { get; set; }
@@ -226,6 +229,18 @@ namespace dsmodels
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public string UserName { get; set; }
+    }
+    [Table("UserProfile")]
+    public class UserProfile
+    {
+        public int ID { get; set; }
+        public string UserID { get; set; }
+        public string AppID { get; set; }
+        public string DevID { get; set; }
+        public string CertID { get; set; }
+        public string UserToken { get; set; }
+        public string Firstname { get; set; }
+        public string Lastname { get; set; }
     }
 
     [Table("AspNetUsers")]
