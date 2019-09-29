@@ -145,7 +145,9 @@ namespace dsmodels
         public int CategoryId { get; set; }
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
-        public string ListingStatus { get; set; }
+        public string ListingStatus { get; set; }   // Active, Completed
+        public bool? IsMultiVariationListing { get; set; }
+
     }
 
     [Table("vwSellerOrderHistory")]  // this view is not updatable
