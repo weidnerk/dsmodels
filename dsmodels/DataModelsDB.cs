@@ -300,6 +300,7 @@ namespace dsmodels
                     found.SourceID = listing.SourceID;
                     found.Qty = listing.Qty;
                     found.Seller = listing.Seller;
+                    found.Updated = DateTime.Now;
                     this.Entry(found).State = EntityState.Modified;
                 }
                 await this.SaveChangesAsync();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -115,6 +116,14 @@ namespace dsmodels
         public DateTime? Updated { get; set; }
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
+        public decimal SellerPrice { get; set; }
+        public bool CheckShipping { get; set; }
+    }
+
+    public class ShippingCostSummary
+    {
+        public string ShippingServiceCost { get; set; }
+        public string ShippingServiceName { get; set; }
     }
 
     [Table("OrderHistory")]
@@ -147,6 +156,9 @@ namespace dsmodels
         public string SellingState { get; set; }
         public string ListingStatus { get; set; }   // Active, Completed
         public bool? IsMultiVariationListing { get; set; }
+        public string ShippingServiceName { get; set; }
+        public string ShippingServiceCost { get; set; }
+
 
     }
 
@@ -184,9 +196,12 @@ namespace dsmodels
     [Table("WalItems")]
     public class WalItem
     {
-        public int ID { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }                 // identity field - but still can use this class if no db involved
         public string Title { get; set; }
         public string Description { get; set; }
+
+        [JsonProperty(PropertyName = "price")]
         public decimal Price { get; set; }
         public string DetailUrl { get; set; }
         public int CategoryID { get; set; }
