@@ -118,6 +118,10 @@ namespace dsmodels
         public string VariationDescription { get; set; }
         public decimal SellerPrice { get; set; }
         public bool CheckShipping { get; set; }
+        public bool CheckSource { get; set; }
+        public bool CheckVero { get; set; }
+        public bool CheckCategory { get; set; }
+        public byte? CheckCompetition { get; set; }
     }
 
     public class ShippingCostSummary
