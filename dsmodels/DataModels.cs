@@ -122,6 +122,7 @@ namespace dsmodels
         public bool CheckVero { get; set; }
         public bool CheckCategory { get; set; }
         public byte? CheckCompetition { get; set; }
+        public string Note { get; set; }
     }
 
     public class ShippingCostSummary
