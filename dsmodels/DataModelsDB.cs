@@ -31,6 +31,7 @@ namespace dsmodels
         public DbSet<UserProfileView> UserProfilesView { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
+        public DbSet<SellerProfile> SellerProfiles { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -334,6 +335,29 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
             }
         }
+        public async Task SellerProfileSave(SellerProfile sellerProfile)
+        {
+            try
+            {
+                var found = await this.SellerProfiles.FirstOrDefaultAsync(r => r.Seller == sellerProfile.Seller);
+                if (found == null)
+                {
+                    sellerProfile.Updated = DateTime.Now;
+                    SellerProfiles.Add(sellerProfile);
+                }
+                else
+                {
+                    found.Note = sellerProfile.Note;
+                    found.Updated = DateTime.Now;
+                    this.Entry(found).State = EntityState.Modified;
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("", exc);
+            }
+        }
         public List<Listing> GetListings()
         {
             var found = this.Listings.ToList();
@@ -351,6 +375,20 @@ namespace dsmodels
             {
                 var listing = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == itemId);
                 return listing;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("", exc);
+                return null;
+            }
+        }
+
+        public async Task<SellerProfile> SellerProfileGet(string seller)
+        {
+            try
+            {
+                var sellerprofile = await this.SellerProfiles.FirstOrDefaultAsync(r => r.Seller == seller);
+                return sellerprofile;
             }
             catch (Exception exc)
             {

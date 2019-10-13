@@ -248,4 +248,14 @@ namespace dsmodels
         public string Id { get; set; }
         public string UserName { get; set; }
     }
+
+    [Table("SellerProfile")]
+    public class SellerProfile
+    {
+        [Key]
+        public string Seller { get; set; }
+        [JsonProperty(PropertyName = "note")]
+        public string Note { get; set; }
+        public DateTime Updated { get; set; }
+    }
 }
