@@ -311,6 +311,29 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
             }
         }
+        public async Task NoteSave(Listing listing)
+        {
+            try
+            {
+                var found = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
+                if (found == null)
+                {
+                    // error
+                    //   Listings.Add(listing);
+                }
+                else
+                {
+                    found.Note = listing.Note;
+                    found.Updated = DateTime.Now;
+                    this.Entry(found).State = EntityState.Modified;
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("", exc);
+            }
+        }
         public List<Listing> GetListings()
         {
             var found = this.Listings.ToList();

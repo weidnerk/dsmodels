@@ -57,35 +57,6 @@ namespace dsmodels
     }
 
 
-    //[Table("PostedListings")]
-    //public class PostedListing
-    //{
-    //    public string EbaySeller { get; set; }
-    //    public string EbayItemID { get; set; }
-    //    public string EbayUrl { get; set; }
-    //    [Key]
-    //    [Column(Order = 1)]
-    //    public int SourceID { get; set; }
-    //    [Key]
-    //    [Column(Order = 2)]
-    //    public string SupplierItemID { get; set; }
-    //    public string SourceUrl { get; set; }
-    //    public decimal SupplierPrice { get; set; }
-    //    public string Title { get; set; }
-    //    public decimal Price { get; set; }
-    //    public string Description { get; set; }
-    //    public string Pictures { get; set; }
-    //    public int CategoryID { get; set; }
-    //    public string PrimaryCategoryID { get; set; }
-    //    public string PrimaryCategoryName { get; set; }
-    //    public string ListedItemID { get; set; }
-    //    public DateTime? Listed { get; set; }
-    //    public DateTime? Removed { get; set; }
-    //    public byte ListedQty { get; set; }
-    //    public bool? InventoryException { get; set; }
-    //    public DateTime? Updated { get; set; }
-    //}
-
     // Listing is used for the research reporting.
     // SingleItem is used for the detail page.
     // Case can be made to just use the Listing class.
@@ -117,12 +88,18 @@ namespace dsmodels
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
         public decimal SellerPrice { get; set; }
-        public bool CheckShipping { get; set; }
+        public bool CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
         public bool CheckSource { get; set; }
         public bool CheckVero { get; set; }
         public bool CheckCategory { get; set; }
         public byte? CheckCompetition { get; set; }
         public string Note { get; set; }
+        public bool CheckSellerShipping { get; set; }   // seller offers free shipping
+        public decimal Profit { get; set; }
+        public double ProfitMargin { get; set; }
+        public int RptNumber { get; set; }
+        public byte SellerSold { get; set; }
+
     }
 
     public class ShippingCostSummary
