@@ -349,6 +349,7 @@ namespace dsmodels
                 {
                     found.Note = sellerProfile.Note;
                     found.Updated = DateTime.Now;
+                    found.UpdatedBy = sellerProfile.UpdatedBy;
                     this.Entry(found).State = EntityState.Modified;
                 }
                 await this.SaveChangesAsync();

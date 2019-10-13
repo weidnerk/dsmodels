@@ -256,6 +256,9 @@ namespace dsmodels
         public string Seller { get; set; }
         [JsonProperty(PropertyName = "note")]
         public string Note { get; set; }
+        [JsonProperty(PropertyName = "updated")] 
         public DateTime Updated { get; set; }
+        [JsonProperty(PropertyName = "updatedBy")] 
+        public string UpdatedBy { get; set; }
     }
 }
