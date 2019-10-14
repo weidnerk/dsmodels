@@ -102,6 +102,10 @@ namespace dsmodels
         public string ListedBy { get; set; }
         public bool CheckSupplierPrice { get; set; }    // confirm supplier's price
         public bool CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
+        public bool ListedWithAPI { get; set; }
+        public bool CheckMainCompetitor { get; set; }
+        public string ListedResponse { get; set; }
+        public DateTime? ListedUpdated { get; set; }
     }
 
     public class ShippingCostSummary

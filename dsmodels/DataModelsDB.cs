@@ -398,7 +398,7 @@ namespace dsmodels
             }
         }
 
-        public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID, string userId)
+        public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null)
         {
             bool ret = false;
             // find item by looking up seller's listing id
@@ -407,8 +407,17 @@ namespace dsmodels
             {
                 ret = true;
                 rec.ListedItemID = listedItemID;
-                rec.Listed = listing.Listed;
+                if (updated.HasValue)
+                {
+                    rec.ListedUpdated = DateTime.Now;
+                }
+                else
+                {
+                    rec.Listed = listing.Listed;
+                }
                 rec.ListedBy = userId;
+                rec.ListedWithAPI = listedWithAPI;
+                rec.ListedResponse = listedResponse;
 
                 using (var context = new DataModelsDB())
                 {
