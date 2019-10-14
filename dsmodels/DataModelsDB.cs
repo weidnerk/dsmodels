@@ -316,7 +316,7 @@ namespace dsmodels
         {
             try
             {
-                var found = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
+                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 if (found == null)
                 {
                     // error
@@ -398,7 +398,7 @@ namespace dsmodels
             }
         }
 
-        public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID)
+        public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID, string userId)
         {
             bool ret = false;
             // find item by looking up seller's listing id
@@ -408,6 +408,7 @@ namespace dsmodels
                 ret = true;
                 rec.ListedItemID = listedItemID;
                 rec.Listed = listing.Listed;
+                rec.ListedBy = userId;
 
                 using (var context = new DataModelsDB())
                 {

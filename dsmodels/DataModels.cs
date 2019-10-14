@@ -99,7 +99,9 @@ namespace dsmodels
         public double ProfitMargin { get; set; }
         public int RptNumber { get; set; }
         public byte SellerSold { get; set; }
-
+        public string ListedBy { get; set; }
+        public bool CheckSupplierPrice { get; set; }    // confirm supplier's price
+        public bool CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
     }
 
     public class ShippingCostSummary
