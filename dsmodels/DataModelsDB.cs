@@ -22,6 +22,7 @@ namespace dsmodels
         {
         }
         public DbSet<Listing> Listings { get; set; }
+        public DbSet<ItemSpecific> ItemSpecifics { get; set; }
 
         //public DbSet<PostedListing> PostedListings { get; set; }
         public DbSet<SourceCategories> SourceCategories { get; set; }
@@ -230,6 +231,24 @@ namespace dsmodels
                 var sh = new SearchHistory() { Id = rptNumber };
                 this.SearchHistory.Attach(sh);
                 this.SearchHistory.Remove(sh);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+            }
+        }
+
+        public async Task DeleteListingRecord(string sellerItemId)
+        {
+            try
+            {
+                // first remove item specifics
+                this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemId == sellerItemId));
+                await this.SaveChangesAsync();
+
+                var sh = new Listing() { ItemId = sellerItemId };
+                this.Listings.Attach(sh);
+                this.Listings.Remove(sh);
                 await this.SaveChangesAsync();
             }
             catch (Exception exc)
