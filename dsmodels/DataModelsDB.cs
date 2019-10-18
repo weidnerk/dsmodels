@@ -284,26 +284,34 @@ namespace dsmodels
         {
             try
             {
+                // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 if (found == null)
+                {
                     Listings.Add(listing);
+                }
                 else
                 {
-                    found.ListingPrice = listing.ListingPrice;
-                    found.Source = listing.Source;
-                    found.PictureUrl = listing.PictureUrl;
-                    found.Title = listing.Title;
-                    found.ListingTitle = listing.ListingTitle;
-                    found.EbayUrl = listing.EbayUrl;
-                    found.PrimaryCategoryID = listing.PrimaryCategoryID;
-                    found.PrimaryCategoryName = listing.PrimaryCategoryName;
-                    found.Description = listing.Description;
-                    found.SourceID = listing.SourceID;
-                    found.Qty = listing.Qty;
-                    found.Seller = listing.Seller;
-                    found.Note = listing.Note;
-                    found.Updated = DateTime.Now;
                     this.Entry(found).State = EntityState.Modified;
+
+                    // https://stackoverflow.com/questions/10822656/entity-framework-include-multiple-levels-of-properties
+                    // this.Entry(found).Property(e => e.ItemSpecifics.Select(y => y.Listing)).IsModified = true;
+
+                    found.ListingPrice = listing.ListingPrice;
+                    // found.Source = listing.Source;
+                    // found.PictureUrl = listing.PictureUrl;
+                    // found.Title = listing.Title;
+                    found.ListingTitle = listing.ListingTitle;
+                    // found.EbayUrl = listing.EbayUrl;
+                    // found.PrimaryCategoryID = listing.PrimaryCategoryID;
+                    // found.PrimaryCategoryName = listing.PrimaryCategoryName;
+                    // found.Description = listing.Description;
+                    // found.SourceID = listing.SourceID;
+                    found.Qty = listing.Qty;
+                    // found.Seller = listing.Seller;
+                    found.Note = listing.Note;
+                    // found.ItemSpecifics = listing.ItemSpecifics; // store when created, don't need to update
+                    found.Updated = DateTime.Now;
                 }
                 await this.SaveChangesAsync();
             }
@@ -400,32 +408,52 @@ namespace dsmodels
 
         public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null)
         {
+            string errStr; 
             bool ret = false;
-            // find item by looking up seller's listing id
-            var rec = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-            if (rec != null)
+            try
             {
-                ret = true;
-                rec.ListedItemID = listedItemID;
-                if (updated.HasValue)
+                // find item by looking up seller's listing id
+                var rec = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                if (rec != null)
                 {
-                    rec.ListedUpdated = DateTime.Now;
-                }
-                else
-                {
-                    rec.Listed = listing.Listed;
-                }
-                rec.ListedBy = userId;
-                rec.ListedWithAPI = listedWithAPI;
-                rec.ListedResponse = listedResponse;
+                    ret = true;
+                    rec.ListedItemID = listedItemID;
+                    if (updated.HasValue)
+                    {
+                        rec.ListedUpdated = DateTime.Now;
+                    }
+                    else
+                    {
+                        rec.Listed = listing.Listed;
+                    }
+                    rec.ListedBy = userId;
+                    rec.ListedWithAPI = listedWithAPI;
+                    rec.ListedResponse = listedResponse;
 
-                using (var context = new DataModelsDB())
-                {
-                    // Pass the entity to Entity Framework and mark it as modified
-                    context.Entry(rec).State = EntityState.Modified;
-                    context.SaveChanges();
+                    //using (var context = new DataModelsDB())
+                    //{
+                        // Pass the entity to Entity Framework and mark it as modified
+                        this.Entry(rec).State = EntityState.Modified;
+                        this.SaveChanges();
+                    //}
                 }
             }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    errStr = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        errStr += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                errStr = dsutil.DSUtil.ErrMsg("UpdateListedItemID", exc);
+            }
+
             return ret;
         }
 

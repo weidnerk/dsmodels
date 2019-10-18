@@ -73,7 +73,7 @@ namespace dsmodels
         public decimal SupplierPrice { get; set; }
         public string PictureUrl { get; set; }   // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
-        public string Source { get; set; }          // source url
+        public string SourceUrl { get; set; }          // source url
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
@@ -89,7 +89,7 @@ namespace dsmodels
         public string VariationDescription { get; set; }
         public decimal SellerPrice { get; set; }
         public bool CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
-        public bool CheckSource { get; set; }
+        public bool CheckSource { get; set; }           // that supplier is walmart
         public bool CheckVero { get; set; }
         public bool CheckCategory { get; set; }
         public byte? CheckCompetition { get; set; }
@@ -106,8 +106,30 @@ namespace dsmodels
         public bool CheckMainCompetitor { get; set; }
         public string ListedResponse { get; set; }
         public DateTime? ListedUpdated { get; set; }
+        public virtual List<ItemSpecific> ItemSpecifics { get; set; }
     }
 
+    [Table("ItemSpecific")]
+    public class ItemSpecific
+    {
+        [JsonProperty(PropertyName = "id")]
+        //[Key, DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)] 
+        public int Id { get; set; }
+
+        [JsonProperty(PropertyName = "sellerItemId")]
+        
+        public string SellerItemId { get; set; }
+        
+        [JsonProperty(PropertyName = "itemName")] 
+        public string ItemName { get; set; }
+        
+        [JsonProperty(PropertyName = "itemValue")] 
+        public string ItemValue { get; set; }
+
+        [ForeignKey("SellerItemId")]
+        [JsonProperty(PropertyName = "listing")]
+        public Listing Listing { get; set; }
+    }
     public class ShippingCostSummary
     {
         public string ShippingServiceCost { get; set; }
