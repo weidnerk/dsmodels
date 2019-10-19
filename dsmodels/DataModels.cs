@@ -107,6 +107,7 @@ namespace dsmodels
         public string ListedResponse { get; set; }
         public DateTime? ListedUpdated { get; set; }
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
+        public bool CheckSupplierPics { get; set; }
     }
 
     [Table("ItemSpecific")]
