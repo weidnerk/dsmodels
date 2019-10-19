@@ -316,6 +316,7 @@ namespace dsmodels
                     // https://stackoverflow.com/questions/10822656/entity-framework-include-multiple-levels-of-properties
                     // this.Entry(found).Property(e => e.ItemSpecifics.Select(y => y.Listing)).IsModified = true;
 
+                    found.SupplierPrice = listing.SupplierPrice;
                     found.ListingPrice = listing.ListingPrice;
                     // found.Source = listing.Source;
                     // found.PictureUrl = listing.PictureUrl;

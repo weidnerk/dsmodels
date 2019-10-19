@@ -137,6 +137,14 @@ namespace dsmodels
         public string ShippingServiceName { get; set; }
     }
 
+    public class Dashboard
+    {
+        [JsonProperty(PropertyName = "oos")]
+        public int OOS { get; set; }
+        [JsonProperty(PropertyName = "notListed")]
+        public int NotListed { get; set; }
+    }
+
     [Table("OrderHistory")]
     public class OrderHistory
     {
