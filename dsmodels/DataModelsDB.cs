@@ -330,6 +330,8 @@ namespace dsmodels
                     // found.Seller = listing.Seller;
                     found.Note = listing.Note;
                     // found.ItemSpecifics = listing.ItemSpecifics; // store when created, don't need to update
+                    found.Profit = listing.Profit;
+                    found.ProfitMargin = listing.ProfitMargin;
                     found.Updated = DateTime.Now;
                 }
                 await this.SaveChangesAsync();
@@ -352,6 +354,29 @@ namespace dsmodels
                 else
                 {
                     found.Note = listing.Note;
+                    found.Updated = DateTime.Now;
+                    this.Entry(found).State = EntityState.Modified;
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("", exc);
+            }
+        }
+        public async Task OOSSave(Listing listing)
+        {
+            try
+            {
+                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                if (found == null)
+                {
+                    // error
+                    //   Listings.Add(listing);
+                }
+                else
+                {
+                    found.OOS = listing.OOS;
                     found.Updated = DateTime.Now;
                     this.Entry(found).State = EntityState.Modified;
                 }
