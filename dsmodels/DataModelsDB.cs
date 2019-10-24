@@ -536,6 +536,29 @@ namespace dsmodels
         }
 
         /// <summary>
+        /// Users get to have their own sellers.
+        /// 
+        /// Another question: should a seller be tied to a store?  Can only list a seller's items in a single store?
+        /// Saying no right now.  Thinking about Lior's testing listing same exact items in different stores for testing. 
+        /// </summary>
+        /// <param name="userid"></param>
+        /// <param name="seller"></param>
+        /// <returns></returns>
+        public async Task<bool> CanRunScan(string userid, string seller)
+        {
+            //var settings =GetUserSettings(userid);
+            var rec = await this.SearchHistory.FirstOrDefaultAsync(r => r.Seller == seller && r.UserId != userid);
+            if (rec != null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="p"></param>
