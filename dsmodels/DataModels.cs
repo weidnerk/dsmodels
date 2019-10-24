@@ -108,13 +108,13 @@ namespace dsmodels
         public DateTime? ListedUpdated { get; set; }
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
         public bool CheckSupplierPics { get; set; }
+        public int StoreID { get; set; }
     }
 
     [Table("ItemSpecific")]
     public class ItemSpecific
     {
         [JsonProperty(PropertyName = "id")]
-        //[Key, DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)] 
         public int Id { get; set; }
 
         [JsonProperty(PropertyName = "sellerItemId")]
@@ -229,20 +229,10 @@ namespace dsmodels
         public string PictureUrl { get; set; }
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
+        [JsonProperty(PropertyName = "fulfilledByWalmart")]
         public bool FulfilledByWalmart { get; set; }
     }
 
-    [Table("UserSettings")]
-    public class UserSettings
-    {
-        [Key]
-        [Column(Order = 1)]
-        public string UserID { get; set; }
-        [Key]
-        [Column(Order = 2)]
-        public int ApplicationID { get; set; }
-        public string AppID { get; set; }
-    }
 
     public class AppIDSelect
     {
@@ -250,41 +240,6 @@ namespace dsmodels
         public string viewValue { get; set; }
     }
 
-    /// <summary>
-    /// Nearly same as UserProfile but includes UserName property.
-    /// </summary>
-    [Table("vwUserProfile")]
-    public class UserProfileView
-    {
-        public int ID { get; set; }
-        public string UserID { get; set; }
-        public string AppID { get; set; }
-        public string DevID { get; set; }
-        public string CertID { get; set; }
-        public string UserToken { get; set; }
-        public string Firstname { get; set; }
-        public string Lastname { get; set; }
-        public string UserName { get; set; }
-    }
-    [Table("UserProfile")]
-    public class UserProfile
-    {
-        public int ID { get; set; }
-        public string UserID { get; set; }
-        public string AppID { get; set; }
-        public string DevID { get; set; }
-        public string CertID { get; set; }
-        public string UserToken { get; set; }
-        public string Firstname { get; set; }
-        public string Lastname { get; set; }
-    }
-
-    [Table("AspNetUsers")]
-    public class AspNetUser
-    {
-        public string Id { get; set; }
-        public string UserName { get; set; }
-    }
 
     [Table("SellerProfile")]
     public class SellerProfile
@@ -298,4 +253,5 @@ namespace dsmodels
         [JsonProperty(PropertyName = "updatedBy")] 
         public string UpdatedBy { get; set; }
     }
+
 }

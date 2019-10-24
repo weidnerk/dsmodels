@@ -29,10 +29,11 @@ namespace dsmodels
         public DbSet<SearchHistory> SearchHistory { get; set; }
         public DbSet<OrderHistory> OrderHistory { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }   // user's current selection
-        public DbSet<UserProfileView> UserProfilesView { get; set; }
+        public DbSet<UserSettingsView> UserSettingsView { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
         public DbSet<SellerProfile> SellerProfiles { get; set; }
+        public DbSet<StoreProfile> StoreProfiles { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -47,7 +48,7 @@ namespace dsmodels
         /// <returns></returns>
         public List<AppIDSelect> GetAppIDs(string userid)
         {
-            var x = from a in this.UserProfilesView
+            var x = from a in this.UserSettingsView
                     where a.UserID == userid
                     select new AppIDSelect
                     {
@@ -58,28 +59,26 @@ namespace dsmodels
             return x.ToList();
         }
 
+        public UserSettings GetUserSetting(string userid)
+        {
+            var setting = this.UserSettings.Find(userid, 1);
+            return setting;
+        }
+
         /// <summary>
         /// Return user profile based in his appID setting in UserSetting
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
-        public UserProfileView GetUserProfile(string userid)
+        public UserSettingsView GetUserSettings(string userid)
         {
             try
             {
                 // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
-                var setting = this.UserSettings.Find(userid, 1);
-                if (setting != null)    // user may have registered but has not updated API keys yet
+                var setting = this.UserSettingsView.Find(userid);
+                if (setting != null)
                 {
-                    var profile = this.UserProfilesView.Where(r => r.AppID == setting.AppID).First();
-
-                    // db issue storing first/last name in UserProfile since user may have multiple API keys
-                    var names = this.UserProfilesView.Where(p => p.UserID == userid && p.Firstname != null).First();
-                    profile.Firstname = names.Firstname;
-                    profile.Lastname = names.Lastname;
-
-                    profile.UserName = this.AspNetUsers.Where(r => r.Id == userid).Select(s => s.UserName).First();
-                    return profile;
+                    return setting;
                 }
                 return null;
             }
@@ -89,14 +88,9 @@ namespace dsmodels
             }
         }
 
-        public UserProfileView GetUserProfile(string userid, string appID)
+        public UserProfile GetUserProfile(string userid)
         {
-            var profile = this.UserProfilesView.Where(r => r.AppID == appID).First();
-
-            // db issue storing first/last name in UserProfile since user may have multiple API keys
-            var names = this.UserProfilesView.Where(p => p.UserID == userid && p.Firstname != null).First();
-            profile.Firstname = names.Firstname;
-            profile.Lastname = names.Lastname;
+            var profile = this.UserProfiles.Where(r => r.UserID == userid).First();
             return profile;
         }
 
@@ -260,7 +254,7 @@ namespace dsmodels
         {
             try
             {
-                this.UserProfilesView.RemoveRange(this.UserProfilesView.Where(x => x.AppID == appID));
+                this.UserSettingsView.RemoveRange(this.UserSettingsView.Where(x => x.AppID == appID));
                 await this.SaveChangesAsync();
             }
             catch (Exception exc)
@@ -547,27 +541,28 @@ namespace dsmodels
         /// <param name="p"></param>
         /// <param name="userid"></param>
         /// <returns>null if success</returns>
-        public async Task<string> UserProfileSaveAsync(UserProfileView p, string userid)
+        public async Task<string> UserProfileSaveAsync(UserSettingsView p, string userid)
         {
             string ret = null;
             try
             {
-                var profile = this.UserProfiles.Where(k => k.AppID == p.AppID).FirstOrDefault();
-                if (profile == null)
-                {
-                    var newprofile = new UserProfile();
-                    newprofile.AppID = p.AppID;
-                    newprofile.CertID = p.CertID;
-                    newprofile.DevID = p.DevID;
-                    newprofile.UserToken = p.UserToken;
-                    newprofile.UserID = userid;
-                    UserProfiles.Add(newprofile);
-                }
+                //var profile = this.UserProfiles.Where(k => k.AppID == p.AppID).FirstOrDefault();
+                //if (profile == null)
+                //{
+                //    var newprofile = new UserProfile();
+                //    newprofile.AppID = p.AppID;
+                //    newprofile.CertID = p.CertID;
+                //    newprofile.DevID = p.DevID;
+                //    newprofile.UserToken = p.UserToken;
+                //    newprofile.UserID = userid;
+                //    UserProfiles.Add(newprofile);
+                //}
 
                 var settings = this.UserSettings.Find(userid, 1);
                 if (settings != null)
                 {
-                    settings.AppID = p.AppID;
+                    var storeProfile = StoreProfiles.Find(GetUserSetting(userid).StoreID);
+                    // storeProfile.AppID = p.AppID;
                     settings.UserID = userid;
                     settings.ApplicationID = 1;
                     this.Entry(settings).State = EntityState.Modified;
