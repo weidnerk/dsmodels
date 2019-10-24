@@ -107,6 +107,12 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "token")]
         public string Token { get; set; }
+        
+        [JsonProperty(PropertyName = "storeID")] 
+        public int StoreID { get; set; }
+
+        [JsonProperty(PropertyName = "storeName")]
+        public string StoreName { get; set; }
     }
 
 }
