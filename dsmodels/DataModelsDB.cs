@@ -406,9 +406,9 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
             }
         }
-        public List<Listing> GetListings()
+        public List<Listing> GetListings(int storeID)
         {
-            var found = this.Listings.ToList();
+            var found = this.Listings.Where(p => p.StoreID == storeID).ToList();
             return found;
         }
 
