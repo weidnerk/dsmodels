@@ -80,7 +80,7 @@ namespace dsmodels
         public int Qty { get; set; }
         public string ListingStatus { get; set; }
         public DateTime? Listed { get; set; }
-        public byte SourceID { get; set; }
+        public byte? SourceID { get; set; }
         public string ListedItemID { get; set; }
         public string SupplierItemID { get; set; }
         public bool OOS { get; set; }
@@ -89,26 +89,26 @@ namespace dsmodels
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
         public decimal SellerPrice { get; set; }
-        public bool CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
-        public bool CheckSource { get; set; }           // that supplier is walmart
-        public bool CheckVero { get; set; }
-        public bool CheckCategory { get; set; }
+        public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
+        public bool? CheckSource { get; set; }           // that supplier is walmart
+        public bool? CheckVero { get; set; }
+        public bool? CheckCategory { get; set; }
         public byte? CheckCompetition { get; set; }
         public string Note { get; set; }
-        public bool CheckSellerShipping { get; set; }   // seller offers free shipping
+        public bool? CheckSellerShipping { get; set; }   // seller offers free shipping
         public decimal Profit { get; set; }
         public double ProfitMargin { get; set; }
         public int RptNumber { get; set; }
         public byte SellerSold { get; set; }
         public string ListedBy { get; set; }
-        public bool CheckSupplierPrice { get; set; }    // confirm supplier's price
-        public bool CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
+        public bool? CheckSupplierPrice { get; set; }    // confirm supplier's price
+        public bool? CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
         public bool ListedWithAPI { get; set; }
-        public bool CheckMainCompetitor { get; set; }
+        public bool? CheckMainCompetitor { get; set; }
         public string ListedResponse { get; set; }
         public DateTime? ListedUpdated { get; set; }
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
-        public bool CheckSupplierPics { get; set; }
+        public bool? CheckSupplierPics { get; set; }
         public int StoreID { get; set; }
     }
 

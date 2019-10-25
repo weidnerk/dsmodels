@@ -312,7 +312,10 @@ namespace dsmodels
 
                     found.SupplierPrice = listing.SupplierPrice;
                     found.ListingPrice = listing.ListingPrice;
-                    // found.Source = listing.Source;
+                    if (listing.SourceID.HasValue)
+                    {
+                        found.SourceID = listing.SourceID;
+                    }
                     // found.PictureUrl = listing.PictureUrl;
                     // found.Title = listing.Title;
                     found.ListingTitle = listing.ListingTitle;
@@ -327,6 +330,48 @@ namespace dsmodels
                     // found.ItemSpecifics = listing.ItemSpecifics; // store when created, don't need to update
                     found.Profit = listing.Profit;
                     found.ProfitMargin = listing.ProfitMargin;
+
+                    if (listing.CheckCategory.HasValue)
+                    {
+                        found.CheckCategory = listing.CheckCategory;
+                    }
+                    if (listing.CheckCompetition.HasValue)
+                    {
+                        found.CheckCompetition = listing.CheckCompetition;
+                    }
+                    if (listing.CheckMainCompetitor.HasValue)
+                    {
+                        found.CheckMainCompetitor = listing.CheckMainCompetitor;
+                    }
+                    if (listing.CheckSellerShipping.HasValue)
+                    {
+                        found.CheckSellerShipping = listing.CheckSellerShipping;
+                    }
+                    if (listing.CheckShipping.HasValue)
+                    {
+                        found.CheckShipping = listing.CheckShipping;
+                    }
+                    if (listing.CheckSource.HasValue)
+                    {
+                        found.CheckSource = listing.CheckSource;
+                    }
+                    if (listing.CheckSupplierItem.HasValue)
+                    {
+                        found.CheckSupplierItem = listing.CheckSupplierItem;
+                    }
+                    if (listing.CheckSupplierPics.HasValue)
+                    {
+                        found.CheckSupplierPics = listing.CheckSupplierPics;
+                    }
+                    if (listing.CheckSupplierPrice.HasValue)
+                    {
+                        found.CheckSupplierPrice = listing.CheckSupplierPrice;
+                    }
+                    if (listing.CheckVero.HasValue)
+                    {
+                        found.CheckVero = listing.CheckVero;
+                    }
+
                     found.Updated = DateTime.Now;
                 }
                 await this.SaveChangesAsync();
