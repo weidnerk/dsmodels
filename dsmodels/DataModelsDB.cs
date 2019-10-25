@@ -514,12 +514,9 @@ namespace dsmodels
                     rec.ListedWithAPI = listedWithAPI;
                     rec.ListedResponse = listedResponse;
 
-                    //using (var context = new DataModelsDB())
-                    //{
-                        // Pass the entity to Entity Framework and mark it as modified
-                        this.Entry(rec).State = EntityState.Modified;
-                        this.SaveChanges();
-                    //}
+                    // Pass the entity to Entity Framework and mark it as modified
+                    this.Entry(rec).State = EntityState.Modified;
+                    this.SaveChanges();
                 }
             }
             catch (DbEntityValidationException e)
@@ -589,13 +586,21 @@ namespace dsmodels
         /// <param name="userid"></param>
         /// <param name="seller"></param>
         /// <returns></returns>
-        public async Task<bool> CanRunScan(string userid, string seller)
+        public bool CanRunScan(string userid, string seller)
         {
             //var settings =GetUserSettings(userid);
-            var rec = await this.SearchHistory.FirstOrDefaultAsync(r => r.Seller == seller && r.UserId != userid);
-            if (rec != null)
-            {
-                return false;
+            var sellerrec = this.SearchHistory.Where(r => r.Seller == seller).ToList();
+            if (sellerrec.Count > 0)
+            { 
+                var rec = sellerrec.Where(r => r.UserId == userid).Count();
+                if (rec == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
             else
             {
