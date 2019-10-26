@@ -122,16 +122,16 @@ namespace dsmodels
             return found;
         }
 
-        public List<StagedListing> GetToList(int categoryId, int listedQty)
-        {
-            List<StagedListing> data =
-                Database.SqlQuery<StagedListing>(
-                "select * from dbo.fnToListFinal(@categoryId, @listedQty)",
-                new SqlParameter("@categoryId", categoryId),
-                new SqlParameter("@listedQty", listedQty))
-            .ToList();
-            return data;
-        }
+        //public List<StagedListing> GetToList(int categoryId, int listedQty)
+        //{
+        //    List<StagedListing> data =
+        //        Database.SqlQuery<StagedListing>(
+        //        "select * from dbo.fnToListFinal(@categoryId, @listedQty)",
+        //        new SqlParameter("@categoryId", categoryId),
+        //        new SqlParameter("@listedQty", listedQty))
+        //    .ToList();
+        //    return data;
+        //}
 
         public async Task PostedListingSaveAsync(Listing listing)
         {
@@ -370,6 +370,14 @@ namespace dsmodels
                     if (listing.CheckVero.HasValue)
                     {
                         found.CheckVero = listing.CheckVero;
+                    }
+                    if (listing.CheckIsVariation.HasValue)
+                    {
+                        found.CheckIsVariation = listing.CheckIsVariation;
+                    }
+                    if (listing.CheckVariationURL.HasValue)
+                    {
+                        found.CheckVariationURL = listing.CheckVariationURL;
                     }
 
                     found.Updated = DateTime.Now;

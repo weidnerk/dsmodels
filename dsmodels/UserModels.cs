@@ -33,11 +33,10 @@ namespace dsmodels
     }
 
     // ds109 user may use multiple ebay keysets
-    [Table("UserProfileKeys")]
+    [Table("eBayKeys")]
     public class UserProfileKeys
     {
         public int ID { get; set; }
-        public string UserID { get; set; }
         public string AppID { get; set; }
         public string DevID { get; set; }
         public string CertID { get; set; }

@@ -10,37 +10,37 @@ using System.Threading.Tasks;
 namespace dsmodels
 {
     // hate this - StagedListing is nearly identical to PostedListing but has one additional field that does not exist in the PostedListing table
-    public class StagedListing
-    {
-        public string EbaySeller { get; set; }
-        public string EbayItemID { get; set; }
-        public string EbayUrl { get; set; }
-        [Key]
-        [Column(Order = 1)]
-        public int SourceID { get; set; }
-        [Key]
-        [Column(Order = 2)]
-        public string SupplierItemID { get; set; }
-        public string SourceUrl { get; set; }
-        public decimal SupplierPrice { get; set; }
-        public string Title { get; set; }
-        public decimal Price { get; set; }
-        public string Description { get; set; }
-        public string Pictures { get; set; }
-        public int CategoryID { get; set; }
-        public string PrimaryCategoryID { get; set; }
-        public string PrimaryCategoryName { get; set; }
-        public string ListedItemID { get; set; }
-        public DateTime? Listed { get; set; }
-        public DateTime? Removed { get; set; }
-        public byte ListedQty { get; set; }
-        public bool? InventoryException { get; set; }
-        public byte SoldQty { get; set; }
-        public string Availability { get; set; }
-        public string Limit { get; set; }
+    //public class StagedListing
+    //{
+    //    public string EbaySeller { get; set; }
+    //    public string EbayItemID { get; set; }
+    //    public string EbayUrl { get; set; }
+    //    [Key]
+    //    [Column(Order = 1)]
+    //    public int SourceID { get; set; }
+    //    [Key]
+    //    [Column(Order = 2)]
+    //    public string SupplierItemID { get; set; }
+    //    public string SourceUrl { get; set; }
+    //    public decimal SupplierPrice { get; set; }
+    //    public string Title { get; set; }
+    //    public decimal Price { get; set; }
+    //    public string Description { get; set; }
+    //    public string Pictures { get; set; }
+    //    public int CategoryID { get; set; }
+    //    public string PrimaryCategoryID { get; set; }
+    //    public string PrimaryCategoryName { get; set; }
+    //    public string ListedItemID { get; set; }
+    //    public DateTime? Listed { get; set; }
+    //    public DateTime? Removed { get; set; }
+    //    public byte ListedQty { get; set; }
+    //    public bool? InventoryException { get; set; }
+    //    public byte SoldQty { get; set; }
+    //    public string Availability { get; set; }
+    //    public string Limit { get; set; }
 
-        public decimal MinPrice { get; set; }
-    }
+    //    public decimal MinPrice { get; set; }
+    //}
 
     [Table("SearchHistory")]
     public class SearchHistory
@@ -110,6 +110,8 @@ namespace dsmodels
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
         public bool? CheckSupplierPics { get; set; }
         public int StoreID { get; set; }
+        public bool? CheckIsVariation { get; set; }
+        public bool? CheckVariationURL { get; set; }
     }
 
     [Table("ItemSpecific")]
@@ -178,8 +180,6 @@ namespace dsmodels
         public bool? IsMultiVariationListing { get; set; }
         public string ShippingServiceName { get; set; }
         public string ShippingServiceCost { get; set; }
-
-
     }
 
     [Table("vwSellerOrderHistory")]  // this view is not updatable
@@ -253,6 +253,7 @@ namespace dsmodels
         public DateTime Updated { get; set; }
         [JsonProperty(PropertyName = "updatedBy")] 
         public string UpdatedBy { get; set; }
+        public string UserID { get; set; }
     }
 
 }
