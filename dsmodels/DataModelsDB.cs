@@ -34,6 +34,7 @@ namespace dsmodels
         public DbSet<AspNetUser> AspNetUsers { get; set; }
         public DbSet<SellerProfile> SellerProfiles { get; set; }
         public DbSet<StoreProfile> StoreProfiles { get; set; }
+        public DbSet<ListingNote> ListingNotes { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -389,7 +390,25 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
             }
         }
-        public async Task NoteSave(Listing listing)
+        public async Task NoteSave(ListingNote note)
+        {
+            try
+            {
+                note.Updated = DateTime.Now;
+                ListingNotes.Add(note);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("NoteSave", exc);
+            }
+        }
+        public async Task<List<ListingNote>> ItemNotes(string itemID, int storeID)
+        {
+            var notes = await this.ListingNotes.Where(p => p.ItemID == itemID && p.StoreID == storeID).ToListAsync();
+            return notes;
+        }
+        public async Task NoteSave_old(Listing listing)
         {
             try
             {
