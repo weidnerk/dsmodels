@@ -591,6 +591,7 @@ namespace dsmodels
         /// <returns></returns>
         public bool CanRunScan(string userid, string seller)
         {
+            bool ret = false;
             //var settings =GetUserSettings(userid);
             var sellerrec = this.SearchHistory.Where(r => r.Seller == seller).ToList();
             if (sellerrec.Count > 0)
@@ -598,17 +599,39 @@ namespace dsmodels
                 var rec = sellerrec.Where(r => r.UserId == userid).Count();
                 if (rec == 0)
                 {
-                    return false;
+                    ret = false;
                 }
                 else
                 {
-                    return true;
+                    ret = true;
                 }
             }
             else
             {
-                return true;
+                ret = true;
             }
+            if (ret == true)
+            {
+                // Still need to check SellerProfile
+                var profiles = this.SellerProfiles.Where(r => r.Seller == seller).ToList();
+                if (profiles.Count > 0)
+                {
+                    var rec = profiles.Where(r => r.UserID == userid).Count();
+                    if (rec == 0)
+                    {
+                        ret = false;
+                    }
+                    else
+                    {
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    ret = true;
+                }
+            }
+            return ret;
         }
 
         /// <summary>
