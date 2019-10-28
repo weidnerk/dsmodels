@@ -83,13 +83,20 @@ namespace dsmodels
         public int ID { get; set; }
         [JsonProperty(PropertyName = "storeID")]
         public int StoreID { get; set; }
-        [JsonProperty(PropertyName = "itemID")] 
+        [JsonProperty(PropertyName = "itemID")]
         public string ItemID { get; set; }
-        [JsonProperty(PropertyName = "note")] 
+        [JsonProperty(PropertyName = "note")]
         public string Note { get; set; }
+        [JsonProperty(PropertyName = "userID")]
         public string UserID { get; set; }
-        [JsonProperty(PropertyName = "updated")] 
+        [JsonProperty(PropertyName = "updated")]
         public DateTime Updated { get; set; }
+    }
+    [Table("vwListingNote")]
+    public class ListingNoteView : ListingNote
+    {
+        [JsonProperty(PropertyName = "userName")]
+        public string UserName { get; set; }
     }
     // Which stores does user have access to?
     [Table("UserStore")]

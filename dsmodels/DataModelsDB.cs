@@ -35,6 +35,7 @@ namespace dsmodels
         public DbSet<SellerProfile> SellerProfiles { get; set; }
         public DbSet<StoreProfile> StoreProfiles { get; set; }
         public DbSet<ListingNote> ListingNotes { get; set; }
+        public DbSet<ListingNoteView> ListingNotesView { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -402,9 +403,9 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("NoteSave", exc);
             }
         }
-        public async Task<List<ListingNote>> ItemNotes(string itemID, int storeID)
+        public async Task<List<ListingNoteView>> ItemNotes(string itemID, int storeID)
         {
-            var notes = await this.ListingNotes.Where(p => p.ItemID == itemID && p.StoreID == storeID).ToListAsync();
+            var notes = await this.ListingNotesView.Where(p => p.ItemID == itemID && p.StoreID == storeID).OrderBy(o => o.Updated).ToListAsync();
             return notes;
         }
         public async Task OOSSave(Listing listing)
