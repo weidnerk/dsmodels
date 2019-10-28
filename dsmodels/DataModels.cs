@@ -94,7 +94,6 @@ namespace dsmodels
         public bool? CheckVero { get; set; }
         public bool? CheckCategory { get; set; }
         public byte? CheckCompetition { get; set; }
-        public string Note { get; set; }
         public bool? CheckSellerShipping { get; set; }   // seller offers free shipping
         public decimal Profit { get; set; }
         public double ProfitMargin { get; set; }

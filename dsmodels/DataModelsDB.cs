@@ -327,7 +327,6 @@ namespace dsmodels
                     // found.SourceID = listing.SourceID;
                     found.Qty = listing.Qty;
                     // found.Seller = listing.Seller;
-                    found.Note = listing.Note;
                     // found.ItemSpecifics = listing.ItemSpecifics; // store when created, don't need to update
                     found.Profit = listing.Profit;
                     found.ProfitMargin = listing.ProfitMargin;
@@ -407,29 +406,6 @@ namespace dsmodels
         {
             var notes = await this.ListingNotes.Where(p => p.ItemID == itemID && p.StoreID == storeID).ToListAsync();
             return notes;
-        }
-        public async Task NoteSave_old(Listing listing)
-        {
-            try
-            {
-                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-                if (found == null)
-                {
-                    // error
-                    //   Listings.Add(listing);
-                }
-                else
-                {
-                    found.Note = listing.Note;
-                    found.Updated = DateTime.Now;
-                    this.Entry(found).State = EntityState.Modified;
-                }
-                await this.SaveChangesAsync();
-            }
-            catch (Exception exc)
-            {
-                string msg = dsutil.DSUtil.ErrMsg("", exc);
-            }
         }
         public async Task OOSSave(Listing listing)
         {
