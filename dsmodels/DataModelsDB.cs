@@ -609,11 +609,7 @@ namespace dsmodels
             }
             else
             {
-                ret = true;
-            }
-            if (ret == true)
-            {
-                // Still need to check SellerProfile
+                // didn't find SearchHistory records (no scans) but still might be in SellerProfile
                 var profiles = this.SellerProfiles.Where(r => r.Seller == seller).ToList();
                 if (profiles.Count > 0)
                 {
