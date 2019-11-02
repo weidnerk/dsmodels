@@ -299,6 +299,33 @@ namespace dsmodels
         {
             try
             {
+                var specifics = new List<ItemSpecific>();
+
+                // i don't know how long these values can be - match max widths in ItemSpecific table
+                foreach (ItemSpecific specific in listing.ItemSpecifics)
+                {
+                    var new_specific = new ItemSpecific();
+                    if (specific.ItemName.Length > 100)
+                    {
+                        new_specific.ItemName = specific.ItemName.Substring(0, 100);
+                    }
+                    else
+                    {
+                        new_specific.ItemName = specific.ItemName;
+                    }
+                    if (specific.ItemValue.Length > 300)
+                    {
+                        new_specific.ItemValue = specific.ItemValue.Substring(0, 300);
+                    }
+                    else
+                    {
+                        new_specific.ItemValue = specific.ItemValue;
+                    }
+
+                    new_specific.ItemValue = specific.ItemValue;
+                    specifics.Add(new_specific);
+                }
+                listing.ItemSpecifics = specifics;
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 if (found == null)
