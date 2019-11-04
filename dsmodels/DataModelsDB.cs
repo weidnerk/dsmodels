@@ -295,7 +295,7 @@ namespace dsmodels
             return ret;
         }
 
-        public async Task ListingSave(Listing listing)
+        public async Task ListingSave(Listing listing, string userID)
         {
             try
             {
@@ -321,7 +321,6 @@ namespace dsmodels
                     {
                         new_specific.ItemValue = specific.ItemValue;
                     }
-
                     new_specific.ItemValue = specific.ItemValue;
                     specifics.Add(new_specific);
                 }
@@ -330,6 +329,8 @@ namespace dsmodels
                 var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 if (found == null)
                 {
+                    listing.Created = DateTime.Now;
+                    listing.CreatedBy = userID;
                     Listings.Add(listing);
                 }
                 else
@@ -345,13 +346,20 @@ namespace dsmodels
                     {
                         found.SourceID = listing.SourceID;
                     }
-                    // found.PictureUrl = listing.PictureUrl;
+
+                    // User may have just copied in supplier URL and clicked Save in which case we don't have pictures
+                    // but can't see storing picture urls each time, so check first
+                    if (string.IsNullOrEmpty(found.PictureUrl))
+                    {
+                        found.PictureUrl = listing.PictureUrl;
+                    }
+                    found.PictureUrl = listing.PictureUrl;
                     // found.Title = listing.Title;
                     found.ListingTitle = listing.ListingTitle;
                     // found.EbayUrl = listing.EbayUrl;
                     // found.PrimaryCategoryID = listing.PrimaryCategoryID;
                     // found.PrimaryCategoryName = listing.PrimaryCategoryName;
-                    // found.Description = listing.Description;
+                    found.Description = listing.Description;
                     // found.SourceID = listing.SourceID;
                     found.Qty = listing.Qty;
                     // found.Seller = listing.Seller;
@@ -407,8 +415,8 @@ namespace dsmodels
                     {
                         found.CheckVariationURL = listing.CheckVariationURL;
                     }
-
                     found.Updated = DateTime.Now;
+                    found.UpdatedBy = userID;
                 }
                 await this.SaveChangesAsync();
             }
@@ -535,13 +543,15 @@ namespace dsmodels
                     rec.ListedItemID = listedItemID;
                     if (updated.HasValue)
                     {
+                        rec.ListedUpdatedBy = userId;
                         rec.ListedUpdated = DateTime.Now;
                     }
                     else
                     {
+                        rec.ListedBy = userId;
                         rec.Listed = listing.Listed;
                     }
-                    rec.ListedBy = userId;
+                    
                     rec.ListedWithAPI = listedWithAPI;
                     rec.ListedResponse = listedResponse;
 

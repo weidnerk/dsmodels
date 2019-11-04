@@ -54,6 +54,7 @@ namespace dsmodels
         public bool OOS { get; set; }
         public string Seller { get; set; }
         public DateTime? Updated { get; set; }
+        public string UpdatedBy { get; set; }
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
         public decimal SellerPrice { get; set; }
@@ -68,6 +69,7 @@ namespace dsmodels
         public int RptNumber { get; set; }
         public byte SellerSold { get; set; }
         public string ListedBy { get; set; }
+        public string ListedUpdatedBy { get; set; }
         public bool? CheckSupplierPrice { get; set; }    // confirm supplier's price
         public bool? CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
         public bool ListedWithAPI { get; set; }
@@ -79,6 +81,8 @@ namespace dsmodels
         public int StoreID { get; set; }
         public bool? CheckIsVariation { get; set; }
         public bool? CheckVariationURL { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime? Created { get; set; }
     }
 
     [Table("ItemSpecific")]
