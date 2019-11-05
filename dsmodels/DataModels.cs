@@ -29,6 +29,7 @@ namespace dsmodels
     public class ListingView : Listing
     {
         public string ListedByName { get; set;}
+        public string CreatedByName { get; set; }
     }
 
     // Listing is used for the research reporting.
