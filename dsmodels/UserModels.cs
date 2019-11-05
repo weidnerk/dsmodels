@@ -135,6 +135,9 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "storeName")]
         public string StoreName { get; set; }
+        
+        [JsonProperty(PropertyName = "firstName")] 
+        public string FirstName { get; set; }
     }
 
 }
