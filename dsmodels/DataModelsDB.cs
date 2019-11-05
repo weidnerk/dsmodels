@@ -22,6 +22,7 @@ namespace dsmodels
         {
         }
         public DbSet<Listing> Listings { get; set; }
+        public DbSet<ListingView> ListingsView { get; set; }
         public DbSet<ItemSpecific> ItemSpecifics { get; set; }
 
         //public DbSet<PostedListing> PostedListings { get; set; }
@@ -490,9 +491,9 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
             }
         }
-        public List<Listing> GetListings(int storeID)
+        public List<ListingView> GetListings(int storeID)
         {
-            var found = this.Listings.Where(p => p.StoreID == storeID).ToList();
+            var found = this.ListingsView.Where(p => p.StoreID == storeID).ToList();
             return found;
         }
 

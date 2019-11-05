@@ -25,6 +25,11 @@ namespace dsmodels
         public int StoreID { get; set; }
     }
 
+    [Table("vwListing")]
+    public class ListingView : Listing
+    {
+        public string ListedByName { get; set;}
+    }
 
     // Listing is used for the research reporting.
     // SingleItem is used for the detail page.
