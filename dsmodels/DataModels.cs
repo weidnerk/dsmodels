@@ -28,7 +28,9 @@ namespace dsmodels
     [Table("vwListing")]
     public class ListingView : Listing
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string ListedByName { get; set;}
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string CreatedByName { get; set; }
     }
 
@@ -79,7 +81,7 @@ namespace dsmodels
         public bool? CheckSupplierPrice { get; set; }    // confirm supplier's price
         public bool? CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
         public bool ListedWithAPI { get; set; }
-        public bool? CheckMainCompetitor { get; set; }
+        public byte? CheckMainCompetitor { get; set; }
         public string ListedResponse { get; set; }
         public DateTime? ListedUpdated { get; set; }
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
