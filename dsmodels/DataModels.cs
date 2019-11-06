@@ -126,6 +126,11 @@ namespace dsmodels
         [JsonProperty(PropertyName = "notListed")]
         public int NotListed { get; set; }
     }
+    public class StoreAnalysis
+    {
+        [JsonProperty(PropertyName = "dbIsMissingItems")]
+        public List<string> DBIsMissingItems { get; set; }
+    }
 
     [Table("OrderHistory")]
     public class OrderHistory
