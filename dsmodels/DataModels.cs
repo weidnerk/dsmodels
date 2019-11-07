@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
+    [Table("vwSearchHistory")]
+    public class SearchHistoryView : SearchHistory
+    {
+        public string UserName { get; set; }
+    }
 
     [Table("SearchHistory")]
     public class SearchHistory
@@ -119,6 +124,9 @@ namespace dsmodels
         public string ShippingServiceName { get; set; }
     }
 
+    /// <summary>
+    /// "Quick" aggregations that fit on dashboard.
+    /// </summary>
     public class Dashboard
     {
         [JsonProperty(PropertyName = "oos")]
@@ -126,6 +134,10 @@ namespace dsmodels
         [JsonProperty(PropertyName = "notListed")]
         public int NotListed { get; set; }
     }
+
+    /// <summary>
+    /// Pull more extensive metrics from actual eBay store.
+    /// </summary>
     public class StoreAnalysis
     {
         [JsonProperty(PropertyName = "dbIsMissingItems")]
