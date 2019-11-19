@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Data.SqlClient;
@@ -25,12 +26,12 @@ namespace dsmodels
         public DbSet<ListingView> ListingsView { get; set; }
         public DbSet<ItemSpecific> ItemSpecifics { get; set; }
 
-        //public DbSet<PostedListing> PostedListings { get; set; }
         public DbSet<SourceCategories> SourceCategories { get; set; }
         public DbSet<SearchHistory> SearchHistory { get; set; }
         public DbSet<OrderHistory> OrderHistory { get; set; }
+        public DbSet<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }   // user's current selection
-        public DbSet<UserSettingsView> UserSettingsView { get; set; }
+        //public DbSet<UserSettingsView> UserSettingsView { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
         public DbSet<SellerProfile> SellerProfiles { get; set; }
@@ -49,18 +50,18 @@ namespace dsmodels
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
-        public List<AppIDSelect> GetAppIDs(string userid)
-        {
-            var x = from a in this.UserSettingsView
-                    where a.UserID == userid
-                    select new AppIDSelect
-                    {
-                        value = a.AppID,
-                        viewValue = a.AppID
+        //public List<AppIDSelect> GetAppIDs(string userid)
+        //{
+        //    var x = from a in this.UserSettingsView
+        //            where a.UserID == userid
+        //            select new AppIDSelect
+        //            {
+        //                value = a.AppID,
+        //                viewValue = a.AppID
 
-                    };
-            return x.ToList();
-        }
+        //            };
+        //    return x.ToList();
+        //}
 
         public UserSettings GetUserSetting(string userid)
         {
@@ -73,12 +74,13 @@ namespace dsmodels
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
-        public UserSettingsView GetUserSettings(string userid)
+        public UserSettingsView GetUserSettings(string connStr, string userid)
         {
             try
             {
                 // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
-                var setting = this.UserSettingsView.Find(userid);
+                //var setting = this.UserSettingsView.Find(userid);
+                var setting = GetUserSetting(connStr, userid, 1);
                 if (setting != null)
                 {
                     return setting;
@@ -225,7 +227,7 @@ namespace dsmodels
                 this.OrderHistory.RemoveRange(this.OrderHistory.Where(x => x.RptNumber == rptNumber));
                 await this.SaveChangesAsync();
 
-                var sh = new SearchHistory() { Id = rptNumber };
+                var sh = new SearchHistory() { ID = rptNumber };
                 this.SearchHistory.Attach(sh);
                 this.SearchHistory.Remove(sh);
                 await this.SaveChangesAsync();
@@ -243,7 +245,7 @@ namespace dsmodels
                 this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemId == sellerItemId));
                 await this.SaveChangesAsync();
 
-                var sh = new Listing() { ItemId = sellerItemId };
+                var sh = new Listing() { ItemID = sellerItemId };
                 this.Listings.Attach(sh);
                 this.Listings.Remove(sh);
                 await this.SaveChangesAsync();
@@ -253,30 +255,31 @@ namespace dsmodels
             }
         }
 
-        public async Task AppIDRemove(string appID)
-        {
-            try
-            {
-                this.UserSettingsView.RemoveRange(this.UserSettingsView.Where(x => x.AppID == appID));
-                await this.SaveChangesAsync();
-            }
-            catch (Exception exc)
-            {
-            }
-        }
+        //public async Task AppIDRemove(string appID)
+        //{
+        //    try
+        //    {
+        //        this.UserSettingsView.RemoveRange(this.UserSettingsView.Where(x => x.AppID == appID));
+        //        await this.SaveChangesAsync();
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //    }
+        //}
 
-        public string OrderHistorySave(List<OrderHistory> oh, int rptNumber, bool listingEnded)
+        public string OrderHistorySave(OrderHistory oh)
         {
             string ret = string.Empty;
             try
             {
-                foreach (OrderHistory item in oh)
+                // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
+                // by I will get an error trying to save the same itemId/rptNumber so remove 
+                var itemExists = OrderHistory.SingleOrDefault(r => r.ItemID == oh.ItemID && r.RptNumber == oh.RptNumber);
+                if (itemExists == null)
                 {
-                    item.RptNumber = rptNumber;
-                    item.ListingEnded = listingEnded;
-                    OrderHistory.Add(item);
+                    OrderHistory.Add(oh);
+                    this.SaveChanges();
                 }
-                this.SaveChanges();
             }
             catch (DbEntityValidationException e)
             {
@@ -295,6 +298,36 @@ namespace dsmodels
             }
             return ret;
         }
+
+        //public string OrderHistoryDetailSave(List<OrderHistoryDetail> oh, int id)
+        //{
+        //    string ret = string.Empty;
+        //    try
+        //    {
+        //        foreach (OrderHistoryDetail item in oh)
+        //        {
+        //            item.OrderHistoryID = id;
+        //            OrderHistoryDetails.Add(item);
+        //        }
+        //        this.SaveChanges();
+        //    }
+        //    catch (DbEntityValidationException e)
+        //    {
+        //        foreach (var eve in e.EntityValidationErrors)
+        //        {
+        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+        //            foreach (var ve in eve.ValidationErrors)
+        //            {
+        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        ret = exc.Message;
+        //    }
+        //    return ret;
+        //}
 
         public async Task ListingSave(Listing listing, string userID)
         {
@@ -327,7 +360,7 @@ namespace dsmodels
                 }
                 listing.ItemSpecifics = specifics;
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
@@ -448,7 +481,7 @@ namespace dsmodels
         {
             try
             {
-                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
                 if (found == null)
                 {
                     // error
@@ -499,14 +532,14 @@ namespace dsmodels
 
         public async Task<Listing> GetListing(string itemId)
         {
-            var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == itemId);
+            var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
             return found;
         }
         public async Task<Listing> ListingGet(string itemId)
         {
             try
             {
-                var listing = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == itemId);
+                var listing = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
                 return listing;
             }
             catch (Exception exc)
@@ -537,7 +570,7 @@ namespace dsmodels
             try
             {
                 // find item by looking up seller's listing id
-                var rec = await this.Listings.FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                var rec = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
                 if (rec != null)
                 {
                     ret = true;
@@ -590,12 +623,9 @@ namespace dsmodels
                 ret = true;
                 rec.OOS = OOS;
 
-                using (var context = new DataModelsDB())
-                {
-                    // Pass the entity to Entity Framework and mark it as modified
-                    context.Entry(rec).State = EntityState.Modified;
-                    context.SaveChanges();
-                }
+                // Pass the entity to Entity Framework and mark it as modified
+                this.Entry(rec).State = EntityState.Modified;
+                this.SaveChanges();
             }
             return ret;
         }
@@ -698,7 +728,7 @@ namespace dsmodels
                     var storeProfile = StoreProfiles.Find(GetUserSetting(userid).StoreID);
                     // storeProfile.AppID = p.AppID;
                     settings.UserID = userid;
-                    settings.ApplicationID = 1;
+                    // settings.ApplicationID = 1;
                     this.Entry(settings).State = EntityState.Modified;
                 }
                 else
@@ -731,6 +761,43 @@ namespace dsmodels
                 ret = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
             }
             return ret;
+        }
+
+        /// <summary>
+        /// Had 'UserSettingsView' marked as a [Table] but EF kept giving model validation errors after I moved Framework to 4.7.2
+        /// </summary>
+        /// <param name="connStr"></param>
+        /// <param name="userId"></param>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
+        public static UserSettingsView GetUserSetting(string connStr, string userId, int applicationId)
+        {
+            try
+            {
+                var r = new UserSettingsView();
+                using (SqlConnection connection = new SqlConnection(connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("sp_UserSetting", connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@userID", userId);
+                    cmd.Parameters.AddWithValue("@applicationID", applicationId);
+                    connection.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        r.AppID = reader["AppID"].ToString();
+                        r.UserID = userId;
+                        r.FirstName = reader["FirstName"].ToString();
+                        r.StoreName = reader["StoreName"].ToString();
+                    }
+                }
+                return r;
+            }
+            catch (Exception exc)
+            {
+                return null;
+            }
         }
 
     }

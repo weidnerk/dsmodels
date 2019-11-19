@@ -30,6 +30,8 @@ namespace dsmodels
         [JsonProperty(PropertyName = "lastname")]
         public string Lastname { get; set; }
 
+        //[ForeignKey("UserID")]
+        //public AspNetUser AspNetUser { get; set; }
     }
 
     // ds109 user may use multiple ebay keysets
@@ -66,6 +68,33 @@ namespace dsmodels
         public int ApplicationID { get; set; }
         public int StoreID { get; set; }    // What store is user currently working on?
         public int KeysID { get; set; }     // User can use different key sets
+        [ForeignKey("UserID")]
+        public AspNetUser AspNetUser { get; set; }
+    }
+    /// <summary>
+    /// </summary>
+    public class UserSettingsView : UserSettings
+    {
+        [JsonProperty(PropertyName = "userName")]
+        public string UserName { get; set; }
+
+        [JsonProperty(PropertyName = "appID")]
+        public string AppID { get; set; }
+
+        [JsonProperty(PropertyName = "certID")]
+        public string CertID { get; set; }
+
+        [JsonProperty(PropertyName = "devID")]
+        public string DevID { get; set; }
+
+        [JsonProperty(PropertyName = "token")]
+        public string Token { get; set; }
+
+        [JsonProperty(PropertyName = "storeName")]
+        public string StoreName { get; set; }
+
+        [JsonProperty(PropertyName = "firstName")]
+        public string FirstName { get; set; }
     }
 
     [Table("StoreProfile")]
@@ -102,42 +131,13 @@ namespace dsmodels
     [Table("UserStore")]
     public class UserStore
     {
-        public string UserID { get; set; }
-        public int StoreID { get; set; }
-    }
-
-    /// <summary>
-    /// </summary>
-    [Table("vwUserSettings")]
-    public class UserSettingsView
-    {
         [Key]
-        [JsonProperty(PropertyName = "userID")]
+        [Column(Order = 1)]
         public string UserID { get; set; }
-
-        [JsonProperty(PropertyName = "userName")]
-        public string UserName { get; set; }
-
-        [JsonProperty(PropertyName = "appID")]
-        public string AppID { get; set; }
-
-        [JsonProperty(PropertyName = "certID")]
-        public string CertID { get; set; }
-
-        [JsonProperty(PropertyName = "devID")]
-        public string DevID { get; set; }
-
-        [JsonProperty(PropertyName = "token")]
-        public string Token { get; set; }
-        
-        [JsonProperty(PropertyName = "storeID")] 
+        [Key]
+        [Column(Order = 2)]
         public int StoreID { get; set; }
-
-        [JsonProperty(PropertyName = "storeName")]
-        public string StoreName { get; set; }
-        
-        [JsonProperty(PropertyName = "firstName")] 
-        public string FirstName { get; set; }
     }
+
 
 }

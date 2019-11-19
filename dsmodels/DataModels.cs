@@ -18,7 +18,7 @@ namespace dsmodels
     [Table("SearchHistory")]
     public class SearchHistory
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string Seller { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
@@ -46,7 +46,7 @@ namespace dsmodels
     public class Listing
     {
         [Key]
-        public string ItemId { get; set; }  // ebay eller listing id
+        public string ItemID { get; set; }  // ebay eller listing id
         public string Title { get; set; }
         public string ListingTitle { get; set; }
         public List<OrderHistory> Orders { get; set; }
@@ -147,19 +147,16 @@ namespace dsmodels
     [Table("OrderHistory")]
     public class OrderHistory
     {
+        [Key]
         public int ID { get; set; }
         public string Title { get; set; }
-        public string SellerPrice { get; set; }
-        public string Qty { get; set; }
-        //public string DateOfPurchaseStr { get; set; }
-        public DateTime? DateOfPurchase { get; set; }
         public int RptNumber { get; set; }
         public string EbayUrl { get; set; }
 
-        public string ImageUrl { get; set; }
+        //public string ImageUrl { get; set; }
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
-        public string ItemId { get; set; }
+        public string ItemID { get; set; }
         public int SourceID { get; set; }
         public string SupplierItemId { get; set; }
         public string SourceDescription { get; set; }
@@ -167,8 +164,8 @@ namespace dsmodels
         public string PrimaryCategoryName { get; set; }
         public string PictureUrl { get; set; }
         public string Description { get; set; }
-        public string EbaySeller { get; set; }
-        public decimal? EbaySellerPrice { get; set; }
+        //public string EbaySeller { get; set; }
+        public decimal? EbaySellerPrice { get; set; }   // seller's listed price
         public int CategoryId { get; set; }
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
@@ -176,6 +173,21 @@ namespace dsmodels
         public bool? IsMultiVariationListing { get; set; }
         public string ShippingServiceName { get; set; }
         public string ShippingServiceCost { get; set; }
+        public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
+    }
+
+    [Table("OrderHistoryDetail")]
+    public class OrderHistoryDetail
+    {
+        [Key]
+        public int ID { get; set; }
+        public int OrderHistoryID { get; set; }
+        public decimal Price { get; set; }
+        public int Qty { get; set; }
+        public DateTime DateOfPurchase { get; set; }
+
+        [ForeignKey("OrderHistoryID")]
+        public OrderHistory OrderHistory { get; set; }
     }
 
     [Table("vwSellerOrderHistory")]  // this view is not updatable
@@ -236,7 +248,6 @@ namespace dsmodels
         public string value { get; set; }
         public string viewValue { get; set; }
     }
-
 
     [Table("SellerProfile")]
     public class SellerProfile
