@@ -224,6 +224,17 @@ namespace dsmodels
         {
             try
             {
+                var parent = this.OrderHistory.Include(p => p.OrderHistoryDetails)
+                    .Where(p => p.RptNumber == rptNumber).ToList();
+
+                foreach(var p in parent)
+                {
+                    foreach (var child in p.OrderHistoryDetails.ToList())
+                    {
+                        this.OrderHistoryDetails.Remove(child);
+                    }
+                }
+
                 this.OrderHistory.RemoveRange(this.OrderHistory.Where(x => x.RptNumber == rptNumber));
                 await this.SaveChangesAsync();
 
