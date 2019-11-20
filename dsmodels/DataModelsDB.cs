@@ -801,6 +801,7 @@ namespace dsmodels
                         r.UserID = userId;
                         r.FirstName = reader["FirstName"].ToString();
                         r.StoreName = reader["StoreName"].ToString();
+                        r.StoreID = Convert.ToInt32(reader["StoreID"].ToString());
                     }
                 }
                 return r;
