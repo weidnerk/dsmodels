@@ -798,10 +798,14 @@ namespace dsmodels
                     if (reader.Read())
                     {
                         r.AppID = reader["AppID"].ToString();
+                        r.DevID = reader["DevID"].ToString();
+                        r.CertID = reader["CertID"].ToString();
+                        r.Token = reader["Token"].ToString();
                         r.UserID = userId;
                         r.FirstName = reader["FirstName"].ToString();
                         r.StoreName = reader["StoreName"].ToString();
                         r.StoreID = Convert.ToInt32(reader["StoreID"].ToString());
+                        
                     }
                 }
                 return r;

@@ -234,12 +234,14 @@ namespace dsmodels
         public string DetailUrl { get; set; }
         public int CategoryID { get; set; }
         public string ItemId { get; set; }
-
+        [JsonProperty(PropertyName = "pictureUrl")]
         public string PictureUrl { get; set; }
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
         [JsonProperty(PropertyName = "fulfilledByWalmart")]
         public bool FulfilledByWalmart { get; set; }
+        [JsonProperty(PropertyName = "isVariation")]
+        public bool IsVariation { get; set; }
     }
 
 
