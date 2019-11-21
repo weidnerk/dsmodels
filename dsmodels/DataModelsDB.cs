@@ -137,7 +137,7 @@ namespace dsmodels
         //    .ToList();
         //    return data;
         //}
-
+        /*
         public async Task PostedListingSaveAsync(Listing listing)
         {
             var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == listing.SourceID && r.SupplierItemID == listing.SupplierItemID);
@@ -163,7 +163,7 @@ namespace dsmodels
             }
             await this.SaveChangesAsync();
         }
-
+        */
         public async Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice)
         {
             bool ret = false;
@@ -253,7 +253,7 @@ namespace dsmodels
             try
             {
                 // first remove item specifics
-                this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemId == sellerItemId));
+                this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
                 await this.SaveChangesAsync();
 
                 var sh = new Listing() { ItemID = sellerItemId };
@@ -340,10 +340,33 @@ namespace dsmodels
         //    return ret;
         //}
 
+        public async Task ItemSpecificSave(List<ItemSpecific> specifics)
+        {
+            try
+            {
+                var itemID = specifics[0].SellerItemID;
+                var found = await this.ItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
+                if (found != null)
+                {
+                    this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemID == itemID));
+                }
+                foreach (var item in specifics)
+                {
+                    this.ItemSpecifics.Add(item);
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = exc.Message;
+            }
+        }
+
         public async Task ListingSave(Listing listing, string userID)
         {
             try
             {
+                /*
                 var specifics = new List<ItemSpecific>();
 
                 // i don't know how long these values can be - match max widths in ItemSpecific table
@@ -370,6 +393,8 @@ namespace dsmodels
                     specifics.Add(new_specific);
                 }
                 listing.ItemSpecifics = specifics;
+                */
+
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
                 if (found == null)

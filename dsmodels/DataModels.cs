@@ -37,6 +37,25 @@ namespace dsmodels
         public string ListedByName { get; set;}
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string CreatedByName { get; set; }
+        public string Seller { get; set; }
+        public string Title { get; set; }
+    }
+
+    public class SellerListing
+    {
+        [Key]
+        public string ItemID { get; set; }  // ebay eller listing id
+        public string Title { get; set; }
+        public string EbayUrl { get; set; }
+        public string Seller { get; set; }
+        public byte SellerSold { get; set; }
+        public decimal SellerPrice { get; set; }
+
+        public string ListingStatus { get; set; }
+        public bool Variation { get; set; }
+        public string VariationDescription { get; set; }
+        public List<OrderHistory> Orders { get; set; }
+        public virtual List<ItemSpecific> ItemSpecifics { get; set; }
     }
 
     // Listing is used for the research reporting.
@@ -46,11 +65,12 @@ namespace dsmodels
     public class Listing
     {
         [Key]
-        public string ItemID { get; set; }  // ebay eller listing id
-        public string Title { get; set; }
+        public int ID { get; set; }
+
+        public string ItemID { get; set; }
+        [ForeignKey("ItemID")]
+        public SellerListing SellerListing { get; set; }
         public string ListingTitle { get; set; }
-        public List<OrderHistory> Orders { get; set; }
-        public string EbayUrl { get; set; }
         public string Description { get; set; }
         public decimal SupplierPrice { get; set; }
         public string PictureUrl { get; set; }   // store picture urls as a semi-colon delimited string
@@ -59,18 +79,13 @@ namespace dsmodels
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
-        public string ListingStatus { get; set; }
         public DateTime? Listed { get; set; }
         public byte? SourceID { get; set; }
         public string ListedItemID { get; set; }
         public string SupplierItemID { get; set; }
         public bool OOS { get; set; }
-        public string Seller { get; set; }
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
-        public bool Variation { get; set; }
-        public string VariationDescription { get; set; }
-        public decimal SellerPrice { get; set; }
         public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
         public bool? CheckSource { get; set; }           // that supplier is walmart
         public bool? CheckVero { get; set; }
@@ -80,7 +95,6 @@ namespace dsmodels
         public decimal Profit { get; set; }
         public double ProfitMargin { get; set; }
         public int RptNumber { get; set; }
-        public byte SellerSold { get; set; }
         public string ListedBy { get; set; }
         public string ListedUpdatedBy { get; set; }
         public bool? CheckSupplierPrice { get; set; }    // confirm supplier's price
@@ -89,7 +103,7 @@ namespace dsmodels
         public byte? CheckMainCompetitor { get; set; }
         public string ListedResponse { get; set; }
         public DateTime? ListedUpdated { get; set; }
-        public virtual List<ItemSpecific> ItemSpecifics { get; set; }
+        
         public bool? CheckSupplierPics { get; set; }
         public int StoreID { get; set; }
         public bool? CheckIsVariation { get; set; }
@@ -102,11 +116,10 @@ namespace dsmodels
     public class ItemSpecific
     {
         [JsonProperty(PropertyName = "id")]
-        public int Id { get; set; }
+        public int ID { get; set; }
 
         [JsonProperty(PropertyName = "sellerItemId")]
-        
-        public string SellerItemId { get; set; }
+        public string SellerItemID { get; set; }
         
         [JsonProperty(PropertyName = "itemName")] 
         public string ItemName { get; set; }
@@ -114,9 +127,9 @@ namespace dsmodels
         [JsonProperty(PropertyName = "itemValue")] 
         public string ItemValue { get; set; }
 
-        [ForeignKey("SellerItemId")]
+        [ForeignKey("SellerItemID")]
         [JsonProperty(PropertyName = "listing")]
-        public Listing Listing { get; set; }
+        public SellerListing SellerListing { get; set; }
     }
     public class ShippingCostSummary
     {
@@ -227,6 +240,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }                 // identity field - but still can use this class if no db involved
         public string Title { get; set; }
+        [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
         [JsonProperty(PropertyName = "price")]
