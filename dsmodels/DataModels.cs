@@ -47,6 +47,7 @@ namespace dsmodels
         public string Title { get; set; }
     }
 
+    [Table("SellerListing")]
     public class SellerListing
     {
         [Key]
@@ -60,8 +61,9 @@ namespace dsmodels
         public string ListingStatus { get; set; }
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
-        public List<OrderHistory> Orders { get; set; }
+        public virtual List<OrderHistory> Orders { get; set; }
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
+        public virtual List<Listing> Listings { get; set; }
     }
 
     // Listing is used for the research reporting.
@@ -204,6 +206,7 @@ namespace dsmodels
         public decimal Price { get; set; }
         public int Qty { get; set; }
         public DateTime DateOfPurchase { get; set; }
+        public string Variation { get; set; }
 
         [ForeignKey("OrderHistoryID")]
         public OrderHistory OrderHistory { get; set; }

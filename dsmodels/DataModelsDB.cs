@@ -12,6 +12,7 @@ namespace dsmodels
 {
     public class DataModelsDB : DbContext
     {
+        readonly static string _logfile = "log.txt";
         static DataModelsDB()
         {
             //do not try to create a database 
@@ -294,22 +295,31 @@ namespace dsmodels
             }
             catch (DbEntityValidationException e)
             {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
+                ret = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistorySave: " + oh.ItemID + " " + ret, "admin");
             }
             catch (Exception exc)
             {
-                ret = exc.Message;
+                string msg = dsutil.DSUtil.ErrMsg("OrderHistorySave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistorySave: " + oh.ItemID + " " + msg, "admin");
+                ret += exc.Message;
             }
             return ret;
         }
 
+        protected static string GetValidationErr(DbEntityValidationException e)
+        {
+            string ret = null;
+            foreach (var eve in e.EntityValidationErrors)
+            {
+                ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                foreach (var ve in eve.ValidationErrors)
+                {
+                    ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                }
+            }
+            return ret;
+        }
         //public string OrderHistoryDetailSave(List<OrderHistoryDetail> oh, int id)
         //{
         //    string ret = string.Empty;
@@ -340,11 +350,19 @@ namespace dsmodels
         //    return ret;
         //}
 
-        public async Task ItemSpecificSave(List<ItemSpecific> specifics)
+        public async Task<string> ItemSpecificSave(List<ItemSpecific> specifics)
         {
+            string output = null;
+            string itemID = null;
             try
             {
-                var itemID = specifics[0].SellerItemID;
+                // don't replace a UPC or MPN with another seller's value of 'Does not apply'
+                bool ret = specifics.Remove(specifics.SingleOrDefault(p => p.ItemName == "UPC" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
+                ret = specifics.Remove(specifics.SingleOrDefault(p => p.ItemName == "MPN" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
+
+                // i've also seen seller's use underscores in MPN - is that a valid character in a Walmart MPN?
+
+                itemID = specifics[0].SellerItemID;
                 var found = await this.ItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
                 if (found != null)
                 {
@@ -356,10 +374,33 @@ namespace dsmodels
                 }
                 await this.SaveChangesAsync();
             }
+            catch (DbEntityValidationException e)
+            {
+                output = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + itemID  + " " + output, "admin");
+
+                output = DumpItemSpecifics(specifics);
+                dsutil.DSUtil.WriteFile(_logfile, output, "admin");
+            }
             catch (Exception exc)
             {
-                string msg = exc.Message;
+                output = exc.Message;
+                string msg = dsutil.DSUtil.ErrMsg("ItemSpecificSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + itemID + " " + msg, "admin");
+
+                output = DumpItemSpecifics(specifics);
+                dsutil.DSUtil.WriteFile(_logfile, output, "admin");
             }
+            return output;
+        }
+        public static string DumpItemSpecifics(List<ItemSpecific> specifics)
+        {
+            string output = null;
+            foreach (var spec in specifics)
+            {
+                output += "ItemName: " + spec.ItemName + " -> " + spec.ItemValue + "\n";
+            }
+            return output;
         }
 
         public async Task ListingSave(Listing listing, string userID)
