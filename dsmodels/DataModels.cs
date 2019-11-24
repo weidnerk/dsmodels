@@ -265,6 +265,9 @@ namespace dsmodels
         public bool FulfilledByWalmart { get; set; }
         [JsonProperty(PropertyName = "isVariation")]
         public bool IsVariation { get; set; }
+        [JsonProperty(PropertyName = "brand")]
+        public string Brand { get; set; }
+        public string MPN { get; set; }
     }
 
 
