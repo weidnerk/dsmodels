@@ -39,6 +39,9 @@ namespace dsmodels
         public DbSet<StoreProfile> StoreProfiles { get; set; }
         public DbSet<ListingNote> ListingNotes { get; set; }
         public DbSet<ListingNoteView> ListingNotesView { get; set; }
+        public DbSet<SellerOrderHistory> SellerOrderHistory { get; set; }
+        public DbSet<SearchHistoryView> SearchHistoryView { get; set; }
+        public DbSet<SearchReport> SearchResults { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -616,12 +619,13 @@ namespace dsmodels
         {
             try
             {
-                var listing = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
+                var listing = await this.Listings.Include(p => p.SellerListing).FirstOrDefaultAsync(r => r.ItemID == itemId);
                 return listing;
             }
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 return null;
             }
         }
@@ -636,13 +640,14 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 return null;
             }
         }
 
         public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null)
         {
-            string errStr; 
+            string errStr = null; 
             bool ret = false;
             try
             {
@@ -681,12 +686,13 @@ namespace dsmodels
                         errStr += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
                     }
                 }
+                dsutil.DSUtil.WriteFile(_logfile, errStr, "admin");
             }
             catch (Exception exc)
             {
                 errStr = dsutil.DSUtil.ErrMsg("UpdateListedItemID", exc);
+                dsutil.DSUtil.WriteFile(_logfile, errStr, "admin");
             }
-
             return ret;
         }
 
@@ -836,6 +842,7 @@ namespace dsmodels
             catch (Exception exc)
             {
                 ret = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
             return ret;
         }
@@ -871,14 +878,93 @@ namespace dsmodels
                         r.FirstName = reader["FirstName"].ToString();
                         r.StoreName = reader["StoreName"].ToString();
                         r.StoreID = Convert.ToInt32(reader["StoreID"].ToString());
-                        
                     }
                 }
                 return r;
             }
             catch (Exception exc)
             {
+                string ret = dsutil.DSUtil.ErrMsg("GetUserSetting", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
                 return null;
+            }
+        }
+        public List<SearchReport> GetSearchReport(int categoryId)
+        {
+            int sourceId = SourceIDFromCategory(categoryId);
+            if (sourceId == 2)
+            {
+                List<SearchReport> data =
+                    Database.SqlQuery<SearchReport>(
+                    "select * from dbo.fnWalPriceCompare(@categoryId)",
+                    new SqlParameter("@categoryId", categoryId))
+                .ToList();
+                return data;
+            }
+
+            if (sourceId == 1)
+            {
+                List<SearchReport> data =
+                Database.SqlQuery<SearchReport>(
+                "select * from dbo.fnPriceCompare(@categoryId)",
+                new SqlParameter("@categoryId", categoryId))
+                .ToList();
+                return data;
+            }
+            return null;
+        }
+
+        public IQueryable<TimesSold> GetScanData(int rptNumber, DateTime dateFrom, int storeID, string itemID)
+        {
+            var p = new SqlParameter();
+            p.ParameterName = "itemID";
+            if (!string.IsNullOrEmpty(itemID))
+            {
+                p.Value = itemID;
+            }
+            else
+            {
+                p.Value = DBNull.Value;
+            }
+
+            var data = Database.SqlQuery<TimesSold>(
+                "exec sp_GetScanReport @rptNumber, @dateFrom, @storeID, @itemID",
+                new SqlParameter("rptNumber", rptNumber),
+                new SqlParameter("dateFrom", dateFrom),
+                new SqlParameter("storeID", storeID),
+                p
+                ).AsQueryable();
+            return data;
+        }
+        public void UpdateOrderHistory(int rptNumber, string itemID, WalmartSearchProdIDResponse response)
+        {
+            string ret = null;
+            try
+            {
+                var found = this.OrderHistory.FirstOrDefault(p => p.RptNumber == rptNumber && p.ItemID == itemID);
+                if (found != null)
+                {
+                    found.WMCount = (byte)response.Count;
+                    found.WMUrl = response.URL;
+                    this.SaveChanges();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("UpdateOrderHistory", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
 
