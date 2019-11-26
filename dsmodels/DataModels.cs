@@ -197,6 +197,7 @@ namespace dsmodels
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public byte? WMCount { get; set; }
         public string WMUrl { get; set; }
+        public bool? SoldAndShippedBySupplier { get; set; }
     }
 
     [Table("OrderHistoryDetail")]
@@ -369,7 +370,7 @@ namespace dsmodels
         public string MPN { get; set; }
         public byte? WMCount { get; set; }
         public string WMUrl { get; set; }
-
+        public bool? SoldAndShippedBySupplier { get; set; }
     }
 
     public class UserProfileVM
@@ -389,6 +390,7 @@ namespace dsmodels
         public byte Count { get; set; }
         [JsonProperty(PropertyName = "url")]
         public string URL { get; set; }
+        public bool SoldAndShippedByWalmart { get; set; }
     }
 
 }

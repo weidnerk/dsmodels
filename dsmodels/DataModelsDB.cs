@@ -946,6 +946,7 @@ namespace dsmodels
                 {
                     found.WMCount = (byte)response.Count;
                     found.WMUrl = response.URL;
+                    found.SoldAndShippedBySupplier = response.SoldAndShippedByWalmart;
                     this.SaveChanges();
                 }
             }
