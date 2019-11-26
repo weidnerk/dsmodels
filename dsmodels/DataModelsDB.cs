@@ -948,6 +948,7 @@ namespace dsmodels
                     found.WMUrl = response.URL;
                     found.SoldAndShippedBySupplier = response.SoldAndShippedByWalmart;
                     found.SupplierBrand = response.SupplierBrand;
+                    found.WMPrice = response.Price;
                     this.SaveChanges();
                 }
             }

@@ -199,6 +199,7 @@ namespace dsmodels
         public string WMUrl { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }
+        public decimal? WMPrice { get; set; }
     }
 
     [Table("OrderHistoryDetail")]
@@ -373,6 +374,7 @@ namespace dsmodels
         public string WMUrl { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }
+        public decimal? WMPrice { get; set; }
     }
 
     public class UserProfileVM
@@ -394,6 +396,7 @@ namespace dsmodels
         public string URL { get; set; }
         public bool SoldAndShippedByWalmart { get; set; }
         public string SupplierBrand { get; set; }
+        public decimal Price { get; set; }
     }
 
 }
