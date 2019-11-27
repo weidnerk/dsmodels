@@ -373,6 +373,11 @@ namespace dsmodels
                 }
                 foreach (var item in specifics)
                 {
+                    if (item.ItemValue.Length > 700)
+                    {
+                        dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: ItemValue truncated: " + item.ItemName + " -> " + item.ItemValue, "admin");
+                        item.ItemValue = item.ItemValue.Substring(0, 700);
+                    }
                     this.ItemSpecifics.Add(item);
                 }
                 await this.SaveChangesAsync();

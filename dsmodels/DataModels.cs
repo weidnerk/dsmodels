@@ -375,6 +375,7 @@ namespace dsmodels
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }
         public decimal? WMPrice { get; set; }
+        public string SellerBrand { get; set; }
     }
 
     public class UserProfileVM
