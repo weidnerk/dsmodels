@@ -954,6 +954,7 @@ namespace dsmodels
                     found.SoldAndShippedBySupplier = response.SoldAndShippedByWalmart;
                     found.SupplierBrand = response.SupplierBrand;
                     found.WMPrice = response.Price;
+                    found.WMIsVariation = response.IsVariation;
                     this.SaveChanges();
                 }
             }
