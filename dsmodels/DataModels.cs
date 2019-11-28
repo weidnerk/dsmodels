@@ -378,6 +378,7 @@ namespace dsmodels
         public decimal? WMPrice { get; set; }
         public string SellerBrand { get; set; }
         public bool? WMIsVariation { get; set; }
+        public decimal? SellerProfit { get; set; }
     }
 
     public class UserProfileVM
