@@ -201,6 +201,7 @@ namespace dsmodels
         public string SupplierBrand { get; set; }
         public decimal? WMPrice { get; set; }
         public bool? WMIsVariation { get; set; }
+        public decimal? ProposePrice { get; set; }
     }
 
     [Table("OrderHistoryDetail")]
@@ -379,6 +380,7 @@ namespace dsmodels
         public string SellerBrand { get; set; }
         public bool? WMIsVariation { get; set; }
         public decimal? SellerProfit { get; set; }
+        public decimal? ProposePrice { get; set; }
     }
 
     public class UserProfileVM
@@ -402,6 +404,7 @@ namespace dsmodels
         public string SupplierBrand { get; set; }
         public decimal Price { get; set; }
         public bool IsVariation { get; set; }
+        public decimal ProprosePrice { get; set; }
     }
 
     [Table("VEROBrands")]

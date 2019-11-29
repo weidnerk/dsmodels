@@ -956,6 +956,7 @@ namespace dsmodels
                     found.SupplierBrand = response.SupplierBrand;
                     found.WMPrice = response.Price;
                     found.WMIsVariation = response.IsVariation;
+                    found.ProposePrice = response.ProprosePrice;
                     this.SaveChanges();
                 }
             }
