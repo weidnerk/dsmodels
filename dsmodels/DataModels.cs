@@ -404,4 +404,10 @@ namespace dsmodels
         public bool IsVariation { get; set; }
     }
 
+    [Table("VEROBrands")]
+    public class VEROBrands
+    {
+        public int ID { get; set; }
+        public string Brand { get; set; }
+    }
 }

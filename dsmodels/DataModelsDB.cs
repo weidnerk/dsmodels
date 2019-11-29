@@ -42,6 +42,7 @@ namespace dsmodels
         public DbSet<SellerOrderHistory> SellerOrderHistory { get; set; }
         public DbSet<SearchHistoryView> SearchHistoryView { get; set; }
         public DbSet<SearchReport> SearchResults { get; set; }
+        public DbSet<VEROBrands> VEROBrands { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -977,5 +978,10 @@ namespace dsmodels
             }
         }
 
+        public bool IsVERO(string brand)
+        {
+            var exists = this.VEROBrands.SingleOrDefault(p => p.Brand == brand);
+            return (exists != null);
+        }
     }
 }
