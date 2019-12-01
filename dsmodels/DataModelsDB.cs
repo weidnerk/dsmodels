@@ -180,12 +180,8 @@ namespace dsmodels
                 rec.SupplierPrice = supplierPrice;
                 rec.Updated = DateTime.Now;
 
-                using (var context = new DataModelsDB())
-                {
-                    // Pass the entity to Entity Framework and mark it as modified
-                    context.Entry(rec).State = EntityState.Modified;
-                    context.SaveChanges();
-                }
+                this.Entry(rec).State = EntityState.Modified;
+                this.SaveChanges();
             }
             return ret;
         }
