@@ -225,6 +225,11 @@ namespace dsmodels
             return null;
         }
 
+        /// <summary>
+        /// Comletely remove a scan from SearchHistory, OrderHistory and OrderHistoryDetails
+        /// </summary>
+        /// <param name="rptNumber"></param>
+        /// <returns></returns>
         public async Task HistoryRemove(int rptNumber)
         {
             try
@@ -253,6 +258,84 @@ namespace dsmodels
             }
         }
 
+        /// <summary>
+        /// Remove records from OrderHistoryDetails for some seller from fromDate
+        /// </summary>
+        /// <param name="rptNumber"></param>
+        /// <param name="fromDate"></param>
+        /// <returns></returns>
+        public async Task HistoryDetailRemove(int rptNumber, DateTime fromDate)
+        {
+            string ret = null;
+            int numToDelete = 0;
+            try
+            {
+                var parent = this.OrderHistory.Where(p => p.RptNumber == rptNumber).ToList();
+                foreach (var p in parent)
+                {
+                    foreach (var child in p.OrderHistoryDetails.ToList())
+                    {
+                        if (child.DateOfPurchase >= fromDate)
+                        {
+                            this.OrderHistoryDetails.Remove(child);
+                            ++numToDelete;
+                        }
+                    }
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("HistoryDetailRemove", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+        }
+
+        /// <summary>
+        /// Calculate date to start removing history from
+        /// </summary>
+        /// <param name="rptNumber"></param>
+        /// <returns></returns>
+        public DateTime? fromDateToScan(int rptNumber)
+        {
+            DateTime fromDate = DateTime.Now;
+          
+            try {
+                var its = this.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber).OrderByDescending(o => o.DateOfPurchase).ToList();
+                var lastSoldItem = its.FirstOrDefault();
+                if (lastSoldItem != null)
+                {
+                    // date seller last sold an item
+                    var lastSold = lastSoldItem.DateOfPurchase;
+                    lastSold = lastSold.AddDays(-1);
+                    DateTime tempDate = new DateTime(lastSold.Year, lastSold.Month, lastSold.Day);
+                    return tempDate;
+                }
+                else
+                {
+                    // if we don't have anything, scan 30 days
+                    return DateTime.Now.AddDays(-30);
+                }
+            }
+            catch (Exception exc)
+            {
+                string ret = dsutil.DSUtil.ErrMsg("fromDateToScan", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+                return null;
+            }
+        }
         public async Task DeleteListingRecord(string sellerItemId)
         {
             try
@@ -283,7 +366,7 @@ namespace dsmodels
         //    }
         //}
 
-        public string OrderHistorySave(OrderHistory oh)
+        public string OrderHistorySave(OrderHistory oh, DateTime fromDate)
         {
             string ret = string.Empty;
             try
@@ -295,6 +378,17 @@ namespace dsmodels
                 {
                     OrderHistory.Add(oh);
                     this.SaveChanges();
+                }
+                else
+                {
+                    var found = OrderHistory.FirstOrDefault(p => p.ItemID == oh.ItemID);
+                    if (found != null)
+                    {
+                        oh.OrderHistoryDetails.ToList().ForEach(c => c.OrderHistoryID = found.ID);
+                        OrderHistoryDetails.AddRange(oh.OrderHistoryDetails.Where(p => p.DateOfPurchase >= fromDate));
+                        this.SaveChanges();
+                    }
+                    //(oh.OrderHistoryDetails);
                 }
             }
             catch (DbEntityValidationException e)
@@ -983,6 +1077,24 @@ namespace dsmodels
         {
             var exists = this.VEROBrands.SingleOrDefault(p => p.Brand == brand);
             return (exists != null);
+        }
+
+        public int? LatestRptNumber(string seller)
+        {
+            try
+            {
+                var items = from t1 in this.SearchHistory.Where(p => p.Seller == seller)
+                            join t2 in this.OrderHistory on t1.ID equals t2.RptNumber into notes
+                            select notes.Max(x => (int?)x.RptNumber);
+                var rpt = items.FirstOrDefault();
+                return rpt;
+            }
+            catch (Exception exc)
+            {
+                string ret = dsutil.DSUtil.ErrMsg("LatestRptNumber", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+                return null;
+            }
         }
     }
 }
