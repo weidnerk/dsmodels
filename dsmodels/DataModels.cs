@@ -202,6 +202,7 @@ namespace dsmodels
         public decimal? WMPrice { get; set; }
         public bool? WMIsVariation { get; set; }
         public decimal? ProposePrice { get; set; }
+        public bool? ToList { get; set; }
     }
 
     [Table("OrderHistoryDetail")]

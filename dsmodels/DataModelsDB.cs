@@ -185,6 +185,37 @@ namespace dsmodels
             }
             return ret;
         }
+        public async Task OrderHistorySaveToList(OrderHistory oh)
+        {
+            string ret = null;
+            try
+            {
+                var rec = await this.OrderHistory.FirstOrDefaultAsync(r => r.ItemID == oh.ItemID);
+                if (rec != null)
+                {
+                    rec.ToList = oh.ToList;
+                    this.Entry(rec).State = EntityState.Modified;
+                    await this.SaveChangesAsync();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("OrderHistorySaveToList", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+        }
 
         public string getUrl(int categoryId)
         {
@@ -384,7 +415,6 @@ namespace dsmodels
                         OrderHistoryDetails.AddRange(oh.OrderHistoryDetails.Where(p => p.DateOfPurchase >= fromDate));
                         this.SaveChanges();
                     }
-                    //(oh.OrderHistoryDetails);
                 }
             }
             catch (DbEntityValidationException e)
