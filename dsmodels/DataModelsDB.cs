@@ -1079,11 +1079,19 @@ namespace dsmodels
         {
             try
             {
-                var items = from t1 in this.SearchHistory.Where(p => p.Seller == seller)
-                            join t2 in this.OrderHistory on t1.ID equals t2.RptNumber into notes
-                            select notes.Max(x => (int?)x.RptNumber);
-                var rpt = items.FirstOrDefault();
-                return rpt;
+                var rpt = this.SearchHistory.OrderByDescending(item => item.ID).FirstOrDefault();
+                //var items = from t1 in this.SearchHistory.Where(p => p.Seller == seller)
+                //            join t2 in this.OrderHistory on t1.ID equals t2.RptNumber into notes
+                //            select notes.Max(x => (int?)x.RptNumber);
+                //var rpt = items.FirstOrDefault();
+                if (rpt != null)
+                {
+                    return rpt.ID;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception exc)
             {
