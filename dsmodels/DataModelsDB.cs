@@ -41,32 +41,14 @@ namespace dsmodels
         public DbSet<ListingNoteView> ListingNotesView { get; set; }
         public DbSet<SellerOrderHistory> SellerOrderHistory { get; set; }
         public DbSet<SearchHistoryView> SearchHistoryView { get; set; }
-        public DbSet<SearchReport> SearchResults { get; set; }
         public DbSet<VEROBrands> VEROBrands { get; set; }
+        public DbSet<SellerListing> SellerListings { get; set; }
 
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
             return id;
         }
-
-        /// <summary>
-        /// return appids for a user
-        /// </summary>
-        /// <param name="userid"></param>
-        /// <returns></returns>
-        //public List<AppIDSelect> GetAppIDs(string userid)
-        //{
-        //    var x = from a in this.UserSettingsView
-        //            where a.UserID == userid
-        //            select new AppIDSelect
-        //            {
-        //                value = a.AppID,
-        //                viewValue = a.AppID
-
-        //            };
-        //    return x.ToList();
-        //}
 
         public UserSettings GetUserSetting(string userid)
         {
@@ -132,43 +114,6 @@ namespace dsmodels
             return found;
         }
 
-        //public List<StagedListing> GetToList(int categoryId, int listedQty)
-        //{
-        //    List<StagedListing> data =
-        //        Database.SqlQuery<StagedListing>(
-        //        "select * from dbo.fnToListFinal(@categoryId, @listedQty)",
-        //        new SqlParameter("@categoryId", categoryId),
-        //        new SqlParameter("@listedQty", listedQty))
-        //    .ToList();
-        //    return data;
-        //}
-        /*
-        public async Task PostedListingSaveAsync(Listing listing)
-        {
-            var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == listing.SourceID && r.SupplierItemID == listing.SupplierItemID);
-            if (found == null)
-                Listings.Add(listing);
-            else
-            {
-                //found.EbaySeller = listing.EbaySeller;
-                //found.Price = listing.Price;
-                //found.CategoryID = listing.CategoryID;
-                found.SupplierItemID = listing.SupplierItemID;
-                //found.SourceUrl = listing.SourceUrl;
-                //found.Pictures = listing.Pictures;
-                found.Title = listing.Title;
-                found.Title = listing.Title;
-                found.EbayUrl = listing.EbayUrl;
-                found.PrimaryCategoryID = listing.PrimaryCategoryID;
-                found.PrimaryCategoryName = listing.PrimaryCategoryName;
-                found.Description = listing.Description;
-                found.SourceID = listing.SourceID;  // 1=sams
-                //found.ListedQty = listing.ListedQty;
-                this.Entry(found).State = EntityState.Modified;
-            }
-            await this.SaveChangesAsync();
-        }
-        */
         public async Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice)
         {
             bool ret = false;
@@ -250,18 +195,6 @@ namespace dsmodels
             }
             return null;
         }
-        //public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh)
-        //{
-        //    try
-        //    {
-        //        this.Entry(sh).State = EntityState.Modified;
-        //        await this.SaveChangesAsync();
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //    }
-        //    return null;
-        //}
 
         /// <summary>
         /// Comletely remove a scan from SearchHistory, OrderHistory and OrderHistoryDetails
@@ -392,18 +325,6 @@ namespace dsmodels
             }
         }
 
-        //public async Task AppIDRemove(string appID)
-        //{
-        //    try
-        //    {
-        //        this.UserSettingsView.RemoveRange(this.UserSettingsView.Where(x => x.AppID == appID));
-        //        await this.SaveChangesAsync();
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //    }
-        //}
-
         public string OrderHistorySave(OrderHistory oh, DateTime fromDate)
         {
             string ret = string.Empty;
@@ -455,36 +376,12 @@ namespace dsmodels
             }
             return ret;
         }
-        //public string OrderHistoryDetailSave(List<OrderHistoryDetail> oh, int id)
-        //{
-        //    string ret = string.Empty;
-        //    try
-        //    {
-        //        foreach (OrderHistoryDetail item in oh)
-        //        {
-        //            item.OrderHistoryID = id;
-        //            OrderHistoryDetails.Add(item);
-        //        }
-        //        this.SaveChanges();
-        //    }
-        //    catch (DbEntityValidationException e)
-        //    {
-        //        foreach (var eve in e.EntityValidationErrors)
-        //        {
-        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-        //            foreach (var ve in eve.ValidationErrors)
-        //            {
-        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        ret = exc.Message;
-        //    }
-        //    return ret;
-        //}
-
+     
+        /// <summary>
+        /// Now stored when running seller scrape.
+        /// </summary>
+        /// <param name="specifics"></param>
+        /// <returns></returns>
         public async Task<string> ItemSpecificSave(List<ItemSpecific> specifics)
         {
             string output = null;
@@ -997,30 +894,6 @@ namespace dsmodels
                 return null;
             }
         }
-        public List<SearchReport> GetSearchReport(int categoryId)
-        {
-            int sourceId = SourceIDFromCategory(categoryId);
-            if (sourceId == 2)
-            {
-                List<SearchReport> data =
-                    Database.SqlQuery<SearchReport>(
-                    "select * from dbo.fnWalPriceCompare(@categoryId)",
-                    new SqlParameter("@categoryId", categoryId))
-                .ToList();
-                return data;
-            }
-
-            if (sourceId == 1)
-            {
-                List<SearchReport> data =
-                Database.SqlQuery<SearchReport>(
-                "select * from dbo.fnPriceCompare(@categoryId)",
-                new SqlParameter("@categoryId", categoryId))
-                .ToList();
-                return data;
-            }
-            return null;
-        }
 
         public IQueryable<TimesSold> GetScanData(int rptNumber, DateTime dateFrom, int storeID, string itemID)
         {
@@ -1114,6 +987,12 @@ namespace dsmodels
             }
         }
 
+        /// <summary>
+        /// This is where a SellerListing record is created.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="rptNumber"></param>
+        /// <returns></returns>
         public async Task<string> StoreToListing(UserSettings settings, int rptNumber)
         {
             string ret = null;
@@ -1123,6 +1002,8 @@ namespace dsmodels
                 var recs = this.OrderHistory.Where(p => p.ToList ?? false).ToList();
                 foreach (var oh in recs)
                 {
+                    //var sellerListing = this.SellerListings.Where(p => p.ItemID == oh.ItemID).FirstOrDefault();
+
                     var listing = new Listing();
                     listing.ItemID = oh.ItemID;
                     listing.ListingTitle = oh.Title;
@@ -1130,7 +1011,16 @@ namespace dsmodels
                     listing.Profit = 0;
                     listing.ProfitMargin = 0;
                     listing.StoreID = settings.StoreID;
-
+                    var upc = this.ItemSpecifics.Where(i => i.SellerItemID == oh.ItemID && i.ItemName == "UPC").SingleOrDefault();
+                    if (upc != null)
+                    {
+                        listing.UPC = upc.ItemValue;
+                    }
+                    var mpn = this.ItemSpecifics.Where(i => i.SellerItemID == oh.ItemID && i.ItemName == "MPN").SingleOrDefault();
+                    if (mpn != null)
+                    {
+                        listing.MPN = mpn.ItemValue;
+                    }
                     var sellerListing = new SellerListing();
                     sellerListing.ItemID = oh.ItemID;
                     sellerListing.Title = oh.Title;

@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
+    /// <summary>
+    /// Used for scan history page.
+    /// </summary>
     [Table("vwSearchHistory")]
     public class SearchHistoryView : SearchHistory
     {
@@ -37,6 +40,9 @@ namespace dsmodels
         public int StoreID { get; set; }
     }
 
+    /// <summary>
+    /// Used on listings page.
+    /// </summary>
     [Table("vwListing")]
     public class ListingView : Listing
     {
@@ -48,11 +54,16 @@ namespace dsmodels
         public string Title { get; set; }
     }
 
+    /// <summary>
+    /// Was originally created to move seller parts out of Listing table when I stored from the SellerListing page.
+    /// But I have gotten away from that.
+    /// Now created when user clicks "Store to listing" (see method, StoreToListing)
+    /// </summary>
     [Table("SellerListing")]
     public class SellerListing
     {
         [Key]
-        public string ItemID { get; set; }  // ebay eller listing id
+        public string ItemID { get; set; }                      // ebay eller listing id
         public string Title { get; set; }
         public string EbayUrl { get; set; }
         public string Seller { get; set; }
@@ -62,14 +73,12 @@ namespace dsmodels
         public string ListingStatus { get; set; }
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
-        public virtual List<OrderHistory> Orders { get; set; }
+        public virtual List<OrderHistory> Orders { get; set; }  // item may have sold multiple times
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
-        public virtual List<Listing> Listings { get; set; }
+        [ForeignKey("ItemID")]
+        public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores
     }
 
-    // Listing is used for the research reporting.
-    // SingleItem is used for the detail page.
-    // Case can be made to just use the Listing class.
     [Table("Listing")]
     public class Listing
     {
@@ -78,13 +87,13 @@ namespace dsmodels
 
         public string ItemID { get; set; }
         [ForeignKey("ItemID")]
-        public SellerListing SellerListing { get; set; }
+        public virtual SellerListing SellerListing { get; set; }    // listing will typically be based on some seller's listing
         public string ListingTitle { get; set; }
         public string Description { get; set; }
         public decimal SupplierPrice { get; set; }
-        public string PictureUrl { get; set; }   // store picture urls as a semi-colon delimited string
+        public string PictureUrl { get; set; }                      // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
-        public string SourceUrl { get; set; }          // source url
+        public string SourceUrl { get; set; }
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
@@ -119,6 +128,8 @@ namespace dsmodels
         public bool? CheckVariationURL { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? Created { get; set; }
+        public string UPC { get; set; }
+        public string MPN { get; set; }
     }
 
     [Table("ItemSpecific")]
@@ -175,7 +186,6 @@ namespace dsmodels
         public int RptNumber { get; set; }
         public string EbayUrl { get; set; }
 
-        //public string ImageUrl { get; set; }
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
         public string ItemID { get; set; }
@@ -281,7 +291,6 @@ namespace dsmodels
         public string MPN { get; set; }
     }
 
-
     public class AppIDSelect
     {
         public string value { get; set; }
@@ -300,53 +309,6 @@ namespace dsmodels
         [JsonProperty(PropertyName = "updatedBy")] 
         public string UpdatedBy { get; set; }
         public string UserID { get; set; }
-    }
-    public class SearchReport
-    {
-        public int? PostedListingID { get; set; }    // from PostedListings
-        [Key]
-        [Column(Order = 2)]
-        public string SourceItemNo { get; set; }
-        public string SourceImgUrl { get; set; }
-        public string EbayImgUrl { get; set; }
-        [Key]
-        [Column(Order = 1)]
-        public int CategoryId { get; set; }
-        //public DateTime DateOfPurchase { get; set; }
-        public int EbayImgCount { get; set; }
-        public string PictureUrl { get; set; }  // array of listing's images (whether coming from seller or supplier)
-        public string EbayUrl { get; set; }
-        [Key]
-        [Column(Order = 3)]
-        public string EbayItemId { get; set; }
-        public string SourceUrl { get; set; }
-        public string SourceTitle { get; set; }
-        public string EbayTitle { get; set; }
-        public string EbaySeller { get; set; }
-        public int SoldQty { get; set; }
-        public string Limit { get; set; }
-        public string Availability { get; set; }
-        public decimal SourcePrice { get; set; }
-        [Key]
-        [Column(Order = 4)]
-        public decimal EbaySellerPrice { get; set; }
-        public string SourceRating { get; set; }
-        public string PrimaryCategoryID { get; set; }
-        public string PrimaryCategoryName { get; set; }
-        public long FeedbackScore { get; set; }
-        public string SourceDescription { get; set; }
-        public string EbayDescription { get; set; }
-        [Key]
-        [Column(Order = 5)]
-        public decimal ShippingAmount { get; set; }
-        public DateTime? PostedListingCreated { get; set; }
-        public DateTime? Listed { get; set; }
-        public DateTime? Removed { get; set; }
-        public decimal MinPrice { get; set; }               // need to sell for at least this to break even
-        public decimal CostPlusTax { get; set; }
-        public byte? Qty { get; set; }
-        public DateTime? DatePurchased { get; set; }
-        public string ListedItemID { get; set; }
     }
     public class ModelViewTimesSold
     {
