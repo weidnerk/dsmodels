@@ -226,12 +226,23 @@ namespace dsmodels
             return url;
         }
 
-        public async Task<SearchHistory> SearchHistoryAdd(SearchHistory sh)
+        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh)
         {
             try
             {
-                SearchHistory.Add(sh);
-                await this.SaveChangesAsync();
+                var found = this.SearchHistory.Find(sh.ID);
+                if (found == null)
+                {
+                    sh.Updated = DateTime.Now;
+                    SearchHistory.Add(sh);
+                    await this.SaveChangesAsync();
+                }
+                else
+                {
+                    found.Updated = DateTime.Now;
+                    //this.Entry(found).State = EntityState.Modified;
+                    await this.SaveChangesAsync();
+                }
                 return sh;
             }
             catch (Exception exc)
@@ -239,18 +250,18 @@ namespace dsmodels
             }
             return null;
         }
-        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh)
-        {
-            try
-            {
-                this.Entry(sh).State = EntityState.Modified;
-                await this.SaveChangesAsync();
-            }
-            catch (Exception exc)
-            {
-            }
-            return null;
-        }
+        //public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh)
+        //{
+        //    try
+        //    {
+        //        this.Entry(sh).State = EntityState.Modified;
+        //        await this.SaveChangesAsync();
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //    }
+        //    return null;
+        //}
 
         /// <summary>
         /// Comletely remove a scan from SearchHistory, OrderHistory and OrderHistoryDetails
@@ -771,7 +782,7 @@ namespace dsmodels
             }
         }
 
-        public async Task<bool> UpdateListedItemID(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null)
+        public async Task<bool> ListedItemIDUpdate(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null)
         {
             string errStr = null; 
             bool ret = false;
@@ -822,7 +833,7 @@ namespace dsmodels
             return ret;
         }
 
-        public async Task<bool> UpdateOOS(string listedItemID, bool OOS)
+        public async Task<bool> OOSUpdate(string listedItemID, bool OOS)
         {
             bool ret = false;
             // find item by looking up seller's listing id
@@ -1062,7 +1073,7 @@ namespace dsmodels
                 ).AsQueryable();
             return data;
         }
-        public void UpdateOrderHistory(int rptNumber, string itemID, WalmartSearchProdIDResponse response)
+        public void OrderHistoryUpdate(int rptNumber, string itemID, WalmartSearchProdIDResponse response)
         {
             string ret = null;
             try
@@ -1077,6 +1088,7 @@ namespace dsmodels
                     found.WMPrice = response.Price;
                     found.WMIsVariation = response.IsVariation;
                     found.ProposePrice = response.ProprosePrice;
+                    found.WMPicUrl = response.Picture;
                     this.SaveChanges();
                 }
             }

@@ -26,7 +26,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "seller")]
         public string Seller { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [JsonProperty(PropertyName = "updated")]
         public DateTime Updated { get; set; }
         public string UserId { get; set; }
@@ -203,6 +203,7 @@ namespace dsmodels
         public bool? WMIsVariation { get; set; }
         public decimal? ProposePrice { get; set; }
         public bool? ToList { get; set; }
+        public string WMPicUrl { get; set; }
     }
 
     [Table("OrderHistoryDetail")]
@@ -382,6 +383,8 @@ namespace dsmodels
         public bool? WMIsVariation { get; set; }
         public decimal? SellerProfit { get; set; }
         public decimal? ProposePrice { get; set; }
+        public bool? IsVero { get; set; }
+        public string WMPicUrl { get; set; }
     }
 
     public class UserProfileVM
@@ -406,6 +409,7 @@ namespace dsmodels
         public decimal Price { get; set; }
         public bool IsVariation { get; set; }
         public decimal ProprosePrice { get; set; }
+        public string Picture { get; set; }
     }
 
     [Table("VEROBrands")]
