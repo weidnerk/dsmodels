@@ -16,6 +16,7 @@ namespace dsmodels
         public string UserName { get; set; }
         [JsonProperty(PropertyName = "listingCount")]
         public int ListingCount { get; set; }
+        
     }
 
     [Table("SearchHistory")]
@@ -204,6 +205,7 @@ namespace dsmodels
         public decimal? ProposePrice { get; set; }
         public bool? ToList { get; set; }
         public string WMPicUrl { get; set; }
+
     }
 
     [Table("OrderHistoryDetail")]
@@ -385,6 +387,7 @@ namespace dsmodels
         public decimal? ProposePrice { get; set; }
         public bool? IsVero { get; set; }
         public string WMPicUrl { get; set; }
+        public bool? ToList { get; set; }
     }
 
     public class UserProfileVM

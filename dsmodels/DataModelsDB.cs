@@ -543,39 +543,10 @@ namespace dsmodels
             return output;
         }
 
-        public async Task ListingSave(Listing listing, string userID)
+        public async Task ListingSaveAsync(Listing listing, string userID)
         {
             try
             {
-                /*
-                var specifics = new List<ItemSpecific>();
-
-                // i don't know how long these values can be - match max widths in ItemSpecific table
-                foreach (ItemSpecific specific in listing.ItemSpecifics)
-                {
-                    var new_specific = new ItemSpecific();
-                    if (specific.ItemName.Length > 100)
-                    {
-                        new_specific.ItemName = specific.ItemName.Substring(0, 100);
-                    }
-                    else
-                    {
-                        new_specific.ItemName = specific.ItemName;
-                    }
-                    if (specific.ItemValue.Length > 300)
-                    {
-                        new_specific.ItemValue = specific.ItemValue.Substring(0, 300);
-                    }
-                    else
-                    {
-                        new_specific.ItemValue = specific.ItemValue;
-                    }
-                    new_specific.ItemValue = specific.ItemValue;
-                    specifics.Add(new_specific);
-                }
-                listing.ItemSpecifics = specifics;
-                */
-
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
                 var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
                 if (found == null)
@@ -1141,6 +1112,52 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
                 return null;
             }
+        }
+
+        public async Task<string> StoreToListing(UserSettings settings, int rptNumber)
+        {
+            string ret = null;
+            try
+            {
+                var searchHistory = this.SearchHistory.Find(rptNumber);
+                var recs = this.OrderHistory.Where(p => p.ToList ?? false).ToList();
+                foreach (var oh in recs)
+                {
+                    var listing = new Listing();
+                    listing.ItemID = oh.ItemID;
+                    listing.ListingTitle = oh.Title;
+                    
+                    listing.Profit = 0;
+                    listing.ProfitMargin = 0;
+                    listing.StoreID = settings.StoreID;
+
+                    var sellerListing = new SellerListing();
+                    sellerListing.ItemID = oh.ItemID;
+                    sellerListing.Title = oh.Title;
+                    sellerListing.Seller = searchHistory.Seller;
+                    listing.SellerListing = sellerListing;
+
+                    await ListingSaveAsync(listing, settings.UserID);
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("StoreToListing", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            return ret;
         }
     }
 }
