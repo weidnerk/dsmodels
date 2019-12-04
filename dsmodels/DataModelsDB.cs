@@ -934,6 +934,7 @@ namespace dsmodels
                     found.WMIsVariation = response.IsVariation;
                     found.ProposePrice = response.ProprosePrice;
                     found.WMPicUrl = response.Picture;
+                    found.SourceDescription = response.Description;
                     this.SaveChanges();
                 }
             }
