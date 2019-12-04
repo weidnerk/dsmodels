@@ -77,6 +77,11 @@ namespace dsmodels
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
         [ForeignKey("ItemID")]
         public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores
+        public string PictureURL { get; set; }
+        public string Description { get; set; }
+        public string PrimaryCategoryID { get; set; }
+        public string PrimaryCategoryName { get; set; }
+        public int? Qty { get; set; }
     }
 
     [Table("Listing")]
@@ -363,6 +368,10 @@ namespace dsmodels
         public string Lastname { get; set; }
         public string ApplicationID { get; set; }
     }
+
+    /// <summary>
+    /// Create a response after searching for prodID on Walmart
+    /// </summary>
     public class WalmartSearchProdIDResponse
     {
         [JsonProperty(PropertyName = "count")]

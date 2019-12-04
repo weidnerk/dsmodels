@@ -611,6 +611,7 @@ namespace dsmodels
         }
         public List<ListingView> GetListings(int storeID)
         {
+            //var found = this.ListingsView.Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
             var found = this.ListingsView.Where(p => p.StoreID == storeID).ToList();
             return found;
         }
@@ -987,67 +988,5 @@ namespace dsmodels
             }
         }
 
-        /// <summary>
-        /// This is where a SellerListing record is created.
-        /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="rptNumber"></param>
-        /// <returns></returns>
-        public async Task<string> StoreToListing(UserSettings settings, int rptNumber)
-        {
-            string ret = null;
-            try
-            {
-                var searchHistory = this.SearchHistory.Find(rptNumber);
-                var recs = this.OrderHistory.Where(p => p.ToList ?? false).ToList();
-                foreach (var oh in recs)
-                {
-                    //var sellerListing = this.SellerListings.Where(p => p.ItemID == oh.ItemID).FirstOrDefault();
-
-                    var listing = new Listing();
-                    listing.ItemID = oh.ItemID;
-                    listing.ListingTitle = oh.Title;
-                    
-                    listing.Profit = 0;
-                    listing.ProfitMargin = 0;
-                    listing.StoreID = settings.StoreID;
-                    var upc = this.ItemSpecifics.Where(i => i.SellerItemID == oh.ItemID && i.ItemName == "UPC").SingleOrDefault();
-                    if (upc != null)
-                    {
-                        listing.UPC = upc.ItemValue;
-                    }
-                    var mpn = this.ItemSpecifics.Where(i => i.SellerItemID == oh.ItemID && i.ItemName == "MPN").SingleOrDefault();
-                    if (mpn != null)
-                    {
-                        listing.MPN = mpn.ItemValue;
-                    }
-                    var sellerListing = new SellerListing();
-                    sellerListing.ItemID = oh.ItemID;
-                    sellerListing.Title = oh.Title;
-                    sellerListing.Seller = searchHistory.Seller;
-                    listing.SellerListing = sellerListing;
-
-                    await ListingSaveAsync(listing, settings.UserID);
-                }
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            catch (Exception exc)
-            {
-                ret = dsutil.DSUtil.ErrMsg("StoreToListing", exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            return ret;
-        }
     }
 }
