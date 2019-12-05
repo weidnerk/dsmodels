@@ -43,7 +43,7 @@ namespace dsmodels
         public DbSet<SearchHistoryView> SearchHistoryView { get; set; }
         public DbSet<VEROBrands> VEROBrands { get; set; }
         public DbSet<SellerListing> SellerListings { get; set; }
-        public DbSet<SupplierItem> WMItems { get; set; }
+        public DbSet<SupplierItem> SupplierItems { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -123,7 +123,7 @@ namespace dsmodels
             {
                 ret = true;
                 rec.ListingPrice = price;
-                rec.SupplierPrice = supplierPrice;
+                rec.SupplierItem.SupplierPrice = supplierPrice;
                 rec.Updated = DateTime.Now;
 
                 this.Entry(rec).State = EntityState.Modified;
@@ -477,7 +477,7 @@ namespace dsmodels
                     // https://stackoverflow.com/questions/10822656/entity-framework-include-multiple-levels-of-properties
                     // this.Entry(found).Property(e => e.ItemSpecifics.Select(y => y.Listing)).IsModified = true;
 
-                    found.SupplierPrice = listing.SupplierPrice;
+                    found.SupplierItem.SupplierPrice = listing.SupplierItem.SupplierPrice;
                     found.ListingPrice = listing.ListingPrice;
                     if (listing.SourceID.HasValue)
                     {
@@ -639,11 +639,14 @@ namespace dsmodels
             var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
             return found;
         }
-        public async Task<Listing> ListingGet(string itemId)
+        public async Task<Listing> ListingGet(string itemID)
         {
             try
             {
-                var listing = await this.Listings.Include(p => p.SellerListing).FirstOrDefaultAsync(r => r.ItemID == itemId);
+                var listing = await this.Listings.Include(p => p.SellerListing).Include(p => p.SupplierItem).FirstOrDefaultAsync(r => r.ItemID == itemID);
+                // not sure why listing.SupplierItem is null after this line, so load manually....
+                var si = this.GetSupplierItem(itemID);
+                listing.SupplierItem = si;
                 return listing;
             }
             catch (Exception exc)
@@ -936,7 +939,7 @@ namespace dsmodels
                 ).AsQueryable();
             return data;
         }
-        public void WMItemUpdate(string UPC, string MPN, SupplierItem item)
+        public void SupplierItemUpdate(string UPC, string MPN, SupplierItem item)
         {
             string ret = null;
             try
@@ -944,13 +947,13 @@ namespace dsmodels
                 SupplierItem found = null;
                 if (!string.IsNullOrEmpty(UPC))
                 {
-                    found = this.WMItems.FirstOrDefault(p => p.UPC == UPC);
+                    found = this.SupplierItems.FirstOrDefault(p => p.UPC == UPC);
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(MPN))
                     {
-                        found = this.WMItems.FirstOrDefault(p => p.MPN == MPN);
+                        found = this.SupplierItems.FirstOrDefault(p => p.MPN == MPN);
                     }
                 }
                 if (found != null)
@@ -968,7 +971,7 @@ namespace dsmodels
                     }
                 else
                 {
-                    this.WMItems.Add(item);
+                    this.SupplierItems.Add(item);
                     this.SaveChanges();
                 }
             }
@@ -1031,19 +1034,27 @@ namespace dsmodels
         public SupplierItem GetSupplierItem(string itemID)
         {
             SupplierItem supplierItem = null;
-            var sellerListing = this.SellerListings.SingleOrDefault(p => p.ItemID == itemID);
-            var upc = sellerListing.ItemSpecifics.SingleOrDefault(s => s.ItemName == "UPC");
-            if (upc != null)
+            bool isUPC = false;
+            var spec = this.ItemSpecifics.SingleOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
+            if (spec == null)
             {
-                supplierItem = this.WMItems.FirstOrDefault(p => p.UPC == upc.ItemValue);
+                spec = this.ItemSpecifics.SingleOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
             }
             else
             {
-                var mpn = sellerListing.ItemSpecifics.SingleOrDefault(s => s.ItemName == "MPN");
-                if (mpn != null)
+                isUPC = true;
+            }
+            if (isUPC) {
+                supplierItem = this.SupplierItems.FirstOrDefault(p => p.UPC == spec.ItemValue);
+                // seller might supply both UPC and MPN (in ItemSpecifics) but both were not collected off supplier website
+                if (supplierItem == null)
                 {
-                    supplierItem = this.WMItems.FirstOrDefault(p => p.MPN == mpn.ItemValue);
+                    spec = this.ItemSpecifics.SingleOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                    supplierItem = this.SupplierItems.FirstOrDefault(p => p.MPN == spec.ItemValue);
                 }
+            }
+            else { 
+                supplierItem = this.SupplierItems.FirstOrDefault(p => p.MPN == spec.ItemValue);
             }
             return supplierItem;
         }

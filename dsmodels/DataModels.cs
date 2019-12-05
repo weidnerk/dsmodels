@@ -95,7 +95,7 @@ namespace dsmodels
         public virtual SellerListing SellerListing { get; set; }    // listing will typically be based on some seller's listing
         public string ListingTitle { get; set; }
         public string Description { get; set; }
-        public decimal SupplierPrice { get; set; }
+        //public decimal SupplierPrice { get; set; }
         public string PictureUrl { get; set; }                      // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
         public string SourceUrl { get; set; }
@@ -135,6 +135,9 @@ namespace dsmodels
         public DateTime? Created { get; set; }
         public string UPC { get; set; }
         public string MPN { get; set; }
+        public int? SupplierID { get; set; }
+        //[ForeignKey("SupplierID")]
+        public virtual SupplierItem SupplierItem { get; set; }
     }
 
     [Table("ItemSpecific")]
@@ -189,7 +192,7 @@ namespace dsmodels
         public int ID { get; set; }
         public string Title { get; set; }
         public int RptNumber { get; set; }
-        public string EbayUrl { get; set; }
+        //public string EbayUrl { get; set; }
 
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
@@ -206,10 +209,8 @@ namespace dsmodels
         public int CategoryId { get; set; }
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
-        public string ListingStatus { get; set; }   // Active, Completed
+        //public string ListingStatus { get; set; }   // Active, Completed
         public bool? IsSellerVariation { get; set; }
-        public string ShippingServiceName { get; set; }
-        public string ShippingServiceCost { get; set; }
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public decimal? ProposePrice { get; set; }
         public bool? ToList { get; set; }
@@ -379,9 +380,18 @@ namespace dsmodels
         public int ID { get; set; }
         public string Brand { get; set; }
     }
+
+    /// <summary>
+    /// Records created when click Calculate Match]
+    /// </summary>
     [Table("SupplierItem")]
     public class SupplierItem
     {
+        // Listing has a FK in SupplierItem and SellerListing but I used different data annotations to get it working.
+        // Need to research the reasoning.
+
+        // https://entityframework.net/one-to-one-relationship
+        [ForeignKey("Listing")]
         public int ID { get; set; }
 
         public byte? MatchCount { get; set; }
@@ -397,5 +407,6 @@ namespace dsmodels
         public string ItemID { get; set; }
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
+        public virtual Listing Listing { get; set; }
     }
 }
