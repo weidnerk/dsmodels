@@ -43,6 +43,7 @@ namespace dsmodels
         public DbSet<SearchHistoryView> SearchHistoryView { get; set; }
         public DbSet<VEROBrands> VEROBrands { get; set; }
         public DbSet<SellerListing> SellerListings { get; set; }
+        public DbSet<SupplierItem> WMItems { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -203,12 +204,15 @@ namespace dsmodels
         /// <returns></returns>
         public async Task HistoryRemove(int rptNumber)
         {
+            string ret = null;
             try
             {
-                var parent = this.OrderHistory.Include(p => p.OrderHistoryDetails)
+                var parent = this.OrderHistory
                     .Where(p => p.RptNumber == rptNumber).ToList();
+                //var parent = this.OrderHistory.Include(p => p.OrderHistoryDetails)
+                //    .Where(p => p.RptNumber == rptNumber).ToList();
 
-                foreach(var p in parent)
+                foreach (var p in parent)
                 {
                     foreach (var child in p.OrderHistoryDetails.ToList())
                     {
@@ -224,8 +228,22 @@ namespace dsmodels
                 this.SearchHistory.Remove(sh);
                 await this.SaveChangesAsync();
             }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
             catch (Exception exc)
             {
+                ret = dsutil.DSUtil.ErrMsg("HistoryRemove", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
 
@@ -918,23 +936,39 @@ namespace dsmodels
                 ).AsQueryable();
             return data;
         }
-        public void OrderHistoryUpdate(int rptNumber, string itemID, WalmartSearchProdIDResponse response)
+        public void WMItemUpdate(string UPC, string MPN, SupplierItem item)
         {
             string ret = null;
             try
             {
-                var found = this.OrderHistory.FirstOrDefault(p => p.RptNumber == rptNumber && p.ItemID == itemID);
+                SupplierItem found = null;
+                if (!string.IsNullOrEmpty(UPC))
+                {
+                    found = this.WMItems.FirstOrDefault(p => p.UPC == UPC);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(MPN))
+                    {
+                        found = this.WMItems.FirstOrDefault(p => p.MPN == MPN);
+                    }
+                }
                 if (found != null)
                 {
-                    found.WMCount = (byte)response.Count;
-                    found.WMUrl = response.URL;
-                    found.SoldAndShippedBySupplier = response.SoldAndShippedByWalmart;
-                    found.SupplierBrand = response.SupplierBrand;
-                    found.WMPrice = response.Price;
-                    found.WMIsVariation = response.IsVariation;
-                    found.ProposePrice = response.ProprosePrice;
-                    found.WMPicUrl = response.Picture;
-                    found.SourceDescription = response.Description;
+                    found.MatchCount = (byte)item.MatchCount;
+                    found.ItemURL = item.ItemURL;
+                    found.SoldAndShippedBySupplier = item.SoldAndShippedBySupplier;
+                    found.SupplierBrand = item.SupplierBrand;
+                    found.SupplierPrice = item.SupplierPrice;
+                    found.IsVariation = item.IsVariation;
+                    //found.ProposePrice = item.ProprosePrice;
+                    found.SupplierPicURL = item.SupplierPicURL;
+                    //found.SourceDescription = item.Description;
+                    this.SaveChanges();
+                    }
+                else
+                {
+                    this.WMItems.Add(item);
                     this.SaveChanges();
                 }
             }
@@ -952,7 +986,7 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                ret = dsutil.DSUtil.ErrMsg("UpdateOrderHistory", exc);
+                ret = dsutil.DSUtil.ErrMsg("WMItemUpdate", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
@@ -989,5 +1023,29 @@ namespace dsmodels
             }
         }
 
+        /// <summary>
+        /// Given itemID, get the supplier item - first need product id from ItemSpecifics
+        /// </summary>
+        /// <param name="itemID"></param>
+        /// <returns></returns>
+        public SupplierItem GetSupplierItem(string itemID)
+        {
+            SupplierItem supplierItem = null;
+            var sellerListing = this.SellerListings.SingleOrDefault(p => p.ItemID == itemID);
+            var upc = sellerListing.ItemSpecifics.SingleOrDefault(s => s.ItemName == "UPC");
+            if (upc != null)
+            {
+                supplierItem = this.WMItems.FirstOrDefault(p => p.UPC == upc.ItemValue);
+            }
+            else
+            {
+                var mpn = sellerListing.ItemSpecifics.SingleOrDefault(s => s.ItemName == "MPN");
+                if (mpn != null)
+                {
+                    supplierItem = this.WMItems.FirstOrDefault(p => p.MPN == mpn.ItemValue);
+                }
+            }
+            return supplierItem;
+        }
     }
 }

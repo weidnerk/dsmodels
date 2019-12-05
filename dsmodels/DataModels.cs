@@ -207,20 +207,12 @@ namespace dsmodels
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
         public string ListingStatus { get; set; }   // Active, Completed
-        public bool? IsMultiVariationListing { get; set; }
+        public bool? IsSellerVariation { get; set; }
         public string ShippingServiceName { get; set; }
         public string ShippingServiceCost { get; set; }
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
-        public byte? WMCount { get; set; }
-        public string WMUrl { get; set; }
-        public bool? SoldAndShippedBySupplier { get; set; }
-        public string SupplierBrand { get; set; }
-        public decimal? WMPrice { get; set; }
-        public bool? WMIsVariation { get; set; }
         public decimal? ProposePrice { get; set; }
         public bool? ToList { get; set; }
-        public string WMPicUrl { get; set; }
-
     }
 
     [Table("OrderHistoryDetail")]
@@ -338,23 +330,24 @@ namespace dsmodels
         public string SellingState { get; set; }
         public string ListingStatus { get; set; }
         public decimal? ListingPrice { get; set; }
-        public bool? IsMultiVariationListing { get; set; }
+        //public bool? IsMultiVariationListing { get; set; }
         public string ShippingServiceName { get; set; }
         public string ShippingServiceCost { get; set; }
         public string UPC { get; set; }
         public string MPN { get; set; }
-        public byte? WMCount { get; set; }
-        public string WMUrl { get; set; }
+        public byte? MatchCount { get; set; }
+        public string ItemURL { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }
-        public decimal? WMPrice { get; set; }
+        public decimal? SupplierPrice { get; set; }
         public string SellerBrand { get; set; }
-        public bool? WMIsVariation { get; set; }
+        public bool? IsSupplierVariation { get; set; }
         public decimal? SellerProfit { get; set; }
         public decimal? ProposePrice { get; set; }
         public bool? IsVero { get; set; }
-        public string WMPicUrl { get; set; }
+        public string SupplierPicURL { get; set; }
         public bool? ToList { get; set; }
+        public bool? IsSellerVariation { get; set; }
     }
 
     public class UserProfileVM
@@ -378,13 +371,6 @@ namespace dsmodels
         public byte Count { get; set; }
         [JsonProperty(PropertyName = "url")]
         public string URL { get; set; }
-        public bool SoldAndShippedByWalmart { get; set; }
-        public string SupplierBrand { get; set; }
-        public decimal Price { get; set; }
-        public bool IsVariation { get; set; }
-        public decimal ProprosePrice { get; set; }
-        public string Picture { get; set; }
-        public string Description { get; set; }
     }
 
     [Table("VEROBrands")]
@@ -392,5 +378,24 @@ namespace dsmodels
     {
         public int ID { get; set; }
         public string Brand { get; set; }
+    }
+    [Table("SupplierItem")]
+    public class SupplierItem
+    {
+        public int ID { get; set; }
+
+        public byte? MatchCount { get; set; }
+        public string ItemURL { get; set; }
+        public bool? SoldAndShippedBySupplier { get; set; }
+        public string SupplierBrand { get; set; }
+        public decimal? SupplierPrice { get; set; }
+        public bool? IsVariation { get; set; }
+        public string SupplierPicURL { get; set; }
+        public string UPC { get; set; }
+        public string MPN { get; set; }
+        public string Description { get; set; }
+        public string ItemID { get; set; }
+        public bool OutOfStock { get; set; }
+        public bool ShippingNotAvailable { get; set; }
     }
 }
