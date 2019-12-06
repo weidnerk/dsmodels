@@ -219,7 +219,6 @@ namespace dsmodels
                         this.OrderHistoryDetails.Remove(child);
                     }
                 }
-
                 this.OrderHistory.RemoveRange(this.OrderHistory.Where(x => x.RptNumber == rptNumber));
                 await this.SaveChangesAsync();
 
@@ -253,25 +252,35 @@ namespace dsmodels
         /// <param name="rptNumber"></param>
         /// <param name="fromDate"></param>
         /// <returns></returns>
-        public async Task HistoryDetailRemove(int rptNumber, DateTime fromDate)
+        public async Task<bool> HistoryDetailRemove(int rptNumber, DateTime fromDate)
         {
+            bool retValue = false;
             string ret = null;
             int numToDelete = 0;
             try
             {
-                var parent = this.OrderHistory.Where(p => p.RptNumber == rptNumber).ToList();
-                foreach (var p in parent)
-                {
-                    foreach (var child in p.OrderHistoryDetails.ToList())
-                    {
-                        if (child.DateOfPurchase >= fromDate)
-                        {
-                            this.OrderHistoryDetails.Remove(child);
-                            ++numToDelete;
-                        }
-                    }
-                }
+                this.OrderHistoryDetails.RemoveRange(this.OrderHistoryDetails.Where(p => p.OrderHistory.ID == rptNumber && p.DateOfPurchase >= fromDate));
+
+                //this.Configuration.AutoDetectChangesEnabled = false;
+
+                //var parent = this.OrderHistory.Include(p => p.OrderHistoryDetails).Where(p => p.RptNumber == rptNumber);
+                //foreach (var p in parent)
+                //{
+                    //var remove = p.OrderHistoryDetails.Where(r => r.DateOfPurchase >= fromDate);
+                    //this.OrderHistoryDetails.RemoveRange(p.OrderHistoryDetails.Where(x => x.DateOfPurchase >= fromDate));
+
+                    //foreach (var child in p.OrderHistoryDetails.ToList())
+                    //{
+                    //    if (child.DateOfPurchase >= fromDate)
+                    //    {
+                    //        this.OrderHistoryDetails.Remove(child);
+                    //        ++numToDelete;
+                    //    }
+                    //}
+                //}
+                //this.ChangeTracker.DetectChanges();
                 await this.SaveChangesAsync();
+                retValue = true;
             }
             catch (DbEntityValidationException e)
             {
@@ -290,6 +299,7 @@ namespace dsmodels
                 ret = dsutil.DSUtil.ErrMsg("HistoryDetailRemove", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
+            return retValue;
         }
 
         /// <summary>

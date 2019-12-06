@@ -206,7 +206,7 @@ namespace dsmodels
         public string Description { get; set; }
         //public string EbaySeller { get; set; }
         public decimal? EbaySellerPrice { get; set; }   // seller's listed price
-        public int CategoryId { get; set; }
+        //public int CategoryId { get; set; }
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
         //public string ListingStatus { get; set; }   // Active, Completed
