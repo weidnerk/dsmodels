@@ -192,7 +192,7 @@ namespace dsmodels
         public int ID { get; set; }
         public string Title { get; set; }
         public int RptNumber { get; set; }
-        //public string EbayUrl { get; set; }
+        public string EbayUrl { get; set; } // this field is also present in SellerListing where more formally belongs but useful to have it on TimesSold page
 
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
