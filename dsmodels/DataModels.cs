@@ -58,6 +58,7 @@ namespace dsmodels
     /// Was originally created to move seller parts out of Listing table when I stored from the SellerListing page.
     /// But I have gotten away from that.
     /// Now created when user clicks "Store to listing" (see method, StoreToListing)
+    /// Can exist independant of a Listing
     /// </summary>
     [Table("SellerListing")]
     public class SellerListing
@@ -89,9 +90,8 @@ namespace dsmodels
     {
         [Key]
         public int ID { get; set; }
-
         public string ItemID { get; set; }
-        [ForeignKey("ItemID")]
+        [ForeignKey("ItemID")]                                      // works with or w/out
         public virtual SellerListing SellerListing { get; set; }    // listing will typically be based on some seller's listing
         public string ListingTitle { get; set; }
         public string Description { get; set; }
@@ -135,8 +135,9 @@ namespace dsmodels
         public DateTime? Created { get; set; }
         public string UPC { get; set; }
         public string MPN { get; set; }
-        public int? SupplierID { get; set; }
-        //[ForeignKey("SupplierID")]
+
+        public int SupplierID { get; set; }
+        [ForeignKey("SupplierID")]
         public virtual SupplierItem SupplierItem { get; set; }
     }
 
@@ -391,7 +392,7 @@ namespace dsmodels
         // Need to research the reasoning.
 
         // https://entityframework.net/one-to-one-relationship
-        [ForeignKey("Listing")]
+        //[ForeignKey("Listing")]
         public int ID { get; set; }
 
         public byte? MatchCount { get; set; }
@@ -407,6 +408,6 @@ namespace dsmodels
         public string ItemID { get; set; }
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
-        public virtual Listing Listing { get; set; }
+        public virtual List<Listing> Listing { get; set; }
     }
 }
