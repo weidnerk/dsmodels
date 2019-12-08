@@ -38,6 +38,8 @@ namespace dsmodels
         public int MinSoldFilter { get; set; }
         public bool? Running { get; set; }
         public int StoreID { get; set; }
+        [JsonProperty(PropertyName = "calculateMatch")]
+        public DateTime? CalculateMatch { get; set; }
     }
 
     /// <summary>

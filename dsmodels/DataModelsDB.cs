@@ -172,27 +172,50 @@ namespace dsmodels
             return url;
         }
 
-        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh)
+        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames)
         {
+            string ret = null;
             try
             {
                 var found = this.SearchHistory.Find(sh.ID);
+                if (found != null)
+                {
+                    // need to detach 'found', otherwise, has same PK as sh and get an error
+                    this.Entry(found).State = EntityState.Detached;
+                }
                 if (found == null)
                 {
-                    sh.Updated = DateTime.Now;
                     SearchHistory.Add(sh);
                     await this.SaveChangesAsync();
                 }
                 else
                 {
-                    found.Updated = DateTime.Now;
-                    //this.Entry(found).State = EntityState.Modified;
+                    this.SearchHistory.Attach(sh);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(sh).Property(propertyName).IsModified = true;
+                    }
+                    this.Configuration.ValidateOnSaveEnabled = false;   // don't attempt to update other fields
                     await this.SaveChangesAsync();
                 }
                 return sh;
             }
+            catch(DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
             catch (Exception exc)
             {
+                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
             return null;
         }
@@ -569,7 +592,8 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                string msg = dsutil.DSUtil.ErrMsg("", exc);
+                string msg = dsutil.DSUtil.ErrMsg("ERROR ListingSaveAsync itemid: " + listing.ItemID, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
         public async Task NoteSave(ListingNote note)
@@ -583,6 +607,7 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("NoteSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
         public async Task<List<ListingNoteView>> ItemNotes(string itemID, int storeID)
@@ -611,6 +636,7 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
         public async Task SellerProfileSave(SellerProfile sellerProfile)
@@ -635,6 +661,7 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
         public List<ListingView> GetListings(int storeID)
