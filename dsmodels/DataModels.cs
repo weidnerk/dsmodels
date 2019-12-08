@@ -352,6 +352,7 @@ namespace dsmodels
         public string SupplierPicURL { get; set; }
         public bool? ToList { get; set; }
         public bool? IsSellerVariation { get; set; }
+        public DateTime? ListingRecCreated { get; set; }
     }
 
     public class UserProfileVM
