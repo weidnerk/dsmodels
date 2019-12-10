@@ -230,18 +230,9 @@ namespace dsmodels
             string ret = null;
             try
             {
-                var parent = this.OrderHistory
-                    .Where(p => p.RptNumber == rptNumber).ToList();
-                //var parent = this.OrderHistory.Include(p => p.OrderHistoryDetails)
-                //    .Where(p => p.RptNumber == rptNumber).ToList();
+                var fromDate = new DateTime(2000, 1, 1);
+                await HistoryDetailRemove(rptNumber, fromDate);
 
-                foreach (var p in parent)
-                {
-                    foreach (var child in p.OrderHistoryDetails.ToList())
-                    {
-                        this.OrderHistoryDetails.Remove(child);
-                    }
-                }
                 this.OrderHistory.RemoveRange(this.OrderHistory.Where(x => x.RptNumber == rptNumber));
                 await this.SaveChangesAsync();
 
@@ -282,26 +273,7 @@ namespace dsmodels
             int numToDelete = 0;
             try
             {
-                this.OrderHistoryDetails.RemoveRange(this.OrderHistoryDetails.Where(p => p.OrderHistory.ID == rptNumber && p.DateOfPurchase >= fromDate));
-
-                //this.Configuration.AutoDetectChangesEnabled = false;
-
-                //var parent = this.OrderHistory.Include(p => p.OrderHistoryDetails).Where(p => p.RptNumber == rptNumber);
-                //foreach (var p in parent)
-                //{
-                    //var remove = p.OrderHistoryDetails.Where(r => r.DateOfPurchase >= fromDate);
-                    //this.OrderHistoryDetails.RemoveRange(p.OrderHistoryDetails.Where(x => x.DateOfPurchase >= fromDate));
-
-                    //foreach (var child in p.OrderHistoryDetails.ToList())
-                    //{
-                    //    if (child.DateOfPurchase >= fromDate)
-                    //    {
-                    //        this.OrderHistoryDetails.Remove(child);
-                    //        ++numToDelete;
-                    //    }
-                    //}
-                //}
-                //this.ChangeTracker.DetectChanges();
+                this.OrderHistoryDetails.RemoveRange(this.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber && p.DateOfPurchase >= fromDate));
                 await this.SaveChangesAsync();
                 retValue = true;
             }
@@ -976,7 +948,63 @@ namespace dsmodels
                 ).AsQueryable();
             return data;
         }
-        public void SupplierItemUpdate(string UPC, string MPN, SupplierItem item)
+        public void SupplierItemUpdate(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames)
+        {
+            string ret = null;
+            try
+            {
+                SupplierItem found = null;
+                if (!string.IsNullOrEmpty(UPC))
+                {
+                    found = this.SupplierItems.FirstOrDefault(p => p.UPC == UPC);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(MPN))
+                    {
+                        found = this.SupplierItems.FirstOrDefault(p => p.MPN == MPN);
+                    }
+                }
+                if (found != null)
+                {
+                    item.ID = found.ID;
+                    // need to detach 'found', otherwise, has same PK as sh and get an error
+                    this.Entry(found).State = EntityState.Detached;
+
+                    this.SupplierItems.Attach(item);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(item).Property(propertyName).IsModified = true;
+                    }
+                    this.Configuration.ValidateOnSaveEnabled = false;   // don't attempt to update other fields
+                    this.SaveChanges();
+                }
+                else
+                {
+                    this.SupplierItems.Add(item);
+                    this.SaveChanges();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("WMItemUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+        }
+
+        public void SupplierItemUpdate_orig(string UPC, string MPN, SupplierItem item)
         {
             string ret = null;
             try
@@ -1005,7 +1033,7 @@ namespace dsmodels
                     found.SupplierPicURL = item.SupplierPicURL;
                     //found.SourceDescription = item.Description;
                     this.SaveChanges();
-                    }
+                }
                 else
                 {
                     this.SupplierItems.Add(item);
