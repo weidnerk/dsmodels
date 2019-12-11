@@ -1123,5 +1123,11 @@ namespace dsmodels
             }
             return supplierItem;
         }
+        public List<SearchHistory> GetSellers(int storeID)
+        {
+            var sellers = this.SearchHistory.Where(p => p.StoreID == storeID).ToList();
+            return sellers;
+
+        }
     }
 }
