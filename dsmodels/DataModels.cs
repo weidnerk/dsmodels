@@ -15,17 +15,21 @@ namespace dsmodels
     [Table("vwSearchHistory")]
     public class SearchHistoryView : SearchHistory
     {
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [JsonProperty(PropertyName = "userName")]
         public string UserName { get; set; }
+
         [JsonProperty(PropertyName = "listingCount")]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int ListingCount { get; set; }
-        
+
     }
 
     [Table("SearchHistory")]
     public class SearchHistory
     {
         [JsonProperty(PropertyName = "id")]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int ID { get; set; }
         [JsonProperty(PropertyName = "seller")]
         public string Seller { get; set; }

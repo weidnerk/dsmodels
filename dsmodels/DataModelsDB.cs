@@ -172,32 +172,20 @@ namespace dsmodels
             return url;
         }
 
-        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames)
+        public async Task<SearchHistory> SearchHistoryAdd(SearchHistory sh)
+        {
+            this.SearchHistory.Add(sh);
+            await this.SaveChangesAsync();
+            return sh;
+        }
+        public async Task<SearchHistory> SearchHistoryUpdate_CalculateMatch(SearchHistory sh)
         {
             string ret = null;
             try
             {
                 var found = this.SearchHistory.Find(sh.ID);
-                if (found != null)
-                {
-                    // need to detach 'found', otherwise, has same PK as sh and get an error
-                    this.Entry(found).State = EntityState.Detached;
-                }
-                if (found == null)
-                {
-                    SearchHistory.Add(sh);
-                    await this.SaveChangesAsync();
-                }
-                else
-                {
-                    this.SearchHistory.Attach(sh);
-                    foreach (var propertyName in changedPropertyNames)
-                    {
-                        this.Entry(sh).Property(propertyName).IsModified = true;
-                    }
-                    this.Configuration.ValidateOnSaveEnabled = false;   // don't attempt to update other fields
-                    await this.SaveChangesAsync();
-                }
+                found.CalculateMatch = sh.CalculateMatch;
+                await this.SaveChangesAsync();
                 return sh;
             }
             catch(DbEntityValidationException e)
@@ -214,7 +202,65 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate", exc);
+                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_CalculateMatch", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            return null;
+        }
+        public async Task<SearchHistory> SearchHistoryUpdate_Updated(SearchHistory sh)
+        {
+            string ret = null;
+            try
+            {
+                var found = this.SearchHistory.Find(sh.ID);
+                found.Updated = sh.Updated;
+                await this.SaveChangesAsync();
+                return sh;
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Updated", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            return null;
+        }
+        public async Task<SearchHistory> SearchHistoryUpdate_Running(SearchHistory sh)
+        {
+            string ret = null;
+            try
+            {
+                var found = this.SearchHistory.Find(sh.ID);
+                found.Running= sh.Running;
+                await this.SaveChangesAsync();
+                return sh;
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Running", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
             return null;
@@ -948,7 +994,7 @@ namespace dsmodels
                 ).AsQueryable();
             return data;
         }
-        public void SupplierItemUpdate(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames)
+        public void SupplierItemUpdate(string UPC, string MPN, SupplierItem item)
         {
             string ret = null;
             try
@@ -957,32 +1003,31 @@ namespace dsmodels
                 if (!string.IsNullOrEmpty(UPC))
                 {
                     found = this.SupplierItems.FirstOrDefault(p => p.UPC == UPC);
+                    found.MPN = item.MPN;
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(MPN))
                     {
                         found = this.SupplierItems.FirstOrDefault(p => p.MPN == MPN);
+                        found.UPC = item.UPC;
                     }
                 }
                 if (found != null)
                 {
-                    item.ID = found.ID;
-                    // need to detach 'found', otherwise, has same PK as sh and get an error
-                    this.Entry(found).State = EntityState.Detached;
-
-                    this.SupplierItems.Attach(item);
-                    foreach (var propertyName in changedPropertyNames)
-                    {
-                        this.Entry(item).Property(propertyName).IsModified = true;
-                    }
-                    this.Configuration.ValidateOnSaveEnabled = false;   // don't attempt to update other fields
+                    found.MatchCount = item.MatchCount;
+                    found.ItemURL = item.ItemURL;
+                    found.SoldAndShippedBySupplier = item.SoldAndShippedBySupplier;
+                    found.SupplierBrand = item.SupplierBrand;
+                    found.SupplierPrice = item.SupplierPrice;
+                    found.IsVariation = item.IsVariation;
+                    found.SupplierPicURL = item.SupplierPicURL;
+                    //this.Configuration.ValidateOnSaveEnabled = false;   // don't attempt to update other fields
                     this.SaveChanges();
                 }
                 else
                 {
-                    this.SupplierItems.Add(item);
-                    this.SaveChanges();
+                    int stop = 99;
                 }
             }
             catch (DbEntityValidationException e)
@@ -999,7 +1044,7 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                ret = dsutil.DSUtil.ErrMsg("WMItemUpdate", exc);
+                ret = dsutil.DSUtil.ErrMsg("SupplierItemUpdate", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
