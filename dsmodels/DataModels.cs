@@ -341,8 +341,8 @@ namespace dsmodels
         //public bool? IsMultiVariationListing { get; set; }
         public string ShippingServiceName { get; set; }
         public string ShippingServiceCost { get; set; }
-        public string UPC { get; set; }
-        public string MPN { get; set; }
+        public string SellerUPC { get; set; }
+        public string SellerMPN { get; set; }
         public byte? MatchCount { get; set; }
         public string ItemURL { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
