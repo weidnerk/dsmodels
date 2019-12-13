@@ -999,18 +999,28 @@ namespace dsmodels
             string ret = null;
             try
             {
+                //if (MPN == "WMA111201")
+                //{
+                //    int stop = 99;
+                //}
                 SupplierItem found = null;
                 if (!string.IsNullOrEmpty(UPC))
                 {
                     found = this.SupplierItems.FirstOrDefault(p => p.UPC == UPC);
-                    found.MPN = item.MPN;
+                    if (found != null)
+                    {
+                        found.MPN = item.MPN;
+                    }
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(MPN))
                     {
                         found = this.SupplierItems.FirstOrDefault(p => p.MPN == MPN);
-                        found.UPC = item.UPC;
+                        if (found != null)
+                        {
+                            found.UPC = item.UPC;
+                        }
                     }
                 }
                 if (found != null)
@@ -1028,6 +1038,8 @@ namespace dsmodels
                 else
                 {
                     int stop = 99;
+                    this.SupplierItems.Add(item);
+                    this.SaveChanges();
                 }
             }
             catch (DbEntityValidationException e)
@@ -1044,7 +1056,8 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                ret = dsutil.DSUtil.ErrMsg("SupplierItemUpdate", exc);
+                string header = string.Format("SupplierItemUpdate UPC: {0} MPN: {1}", UPC, MPN);
+                ret = dsutil.DSUtil.ErrMsg(header, exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
