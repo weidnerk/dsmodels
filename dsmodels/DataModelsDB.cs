@@ -445,7 +445,43 @@ namespace dsmodels
             }
             return ret;
         }
-     
+
+        /// <summary>
+        /// Is this finally the correct UPDATE pattern?
+        /// </summary>
+        /// <param name="specific"></param>
+        public void ItemSpecificUpdate(ItemSpecific specific)
+        {
+            string output = null;
+            try
+            {
+                var found = this.ItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
+                if (found == null)
+                {
+                    this.ItemSpecifics.Add(specific);
+                    this.SaveChanges();
+                }
+                else
+                {
+                    specific.ID = found.ID;
+                    this.ItemSpecifics.Attach(specific);
+                    this.Entry(specific).State = EntityState.Modified;
+                    this.SaveChanges();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                output = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + output, "admin");
+
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+                string msg = dsutil.DSUtil.ErrMsg("ItemSpecificSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + specific.SellerItemID + " " + msg, "admin");
+            }
+        }
         /// <summary>
         /// Now stored when running seller scrape.
         /// </summary>

@@ -165,6 +165,7 @@ namespace dsmodels
         [ForeignKey("SellerItemID")]
         [JsonProperty(PropertyName = "listing")]
         public SellerListing SellerListing { get; set; }
+        public bool? Flags { get; set; }
     }
     public class ShippingCostSummary
     {
