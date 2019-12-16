@@ -315,6 +315,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "updatedBy")] 
         public string UpdatedBy { get; set; }
         public string UserID { get; set; }
+        public bool Active { get; set; }
     }
     public class ModelViewTimesSold
     {
@@ -327,13 +328,13 @@ namespace dsmodels
 
     public class TimesSold
     {
-        public string Title { get; set; }
+        public string EbaySellerTitle { get; set; }
         public int SoldQty { get; set; }
         public string EbayUrl { get; set; }
         public int RptNumber { get; set; }
         //public string ImageUrl { get; set; }
         public decimal Price { get; set; }  // last sold price
-        public DateTime? LatestSold { get; set; }
+        public DateTime? LastSold { get; set; }
         public string ItemID { get; set; }
         public DateTime? Listed { get; set; }
         public string SellingState { get; set; }
