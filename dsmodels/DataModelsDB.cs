@@ -1008,7 +1008,38 @@ namespace dsmodels
             }
         }
 
-        public IQueryable<TimesSold> GetScanData(int rptNumber, DateTime dateFrom, int storeID, string itemID)
+        public IQueryable<TimesSold> GetSalesData(int rptNumber, DateTime dateFrom, int storeID, string itemID)
+        {
+            if (rptNumber == 0)
+            {
+                var result = GetSalesDataAll(dateFrom, storeID);
+                return result;
+            }
+            else
+            {
+                var result = GetScanData(rptNumber, dateFrom, storeID, itemID);
+                return result;
+            }
+        }
+
+        protected IQueryable<TimesSold> GetSalesDataAll(DateTime dateFrom, int storeID)
+        {
+            var data = Database.SqlQuery<TimesSold>(
+                "exec sp_Report @dateFrom, @storeID",
+                new SqlParameter("dateFrom", dateFrom),
+                new SqlParameter("storeID", storeID)
+                ).AsQueryable();
+            return data;
+        }
+        /// <summary>
+        /// Used to fetch a particular scan.
+        /// </summary>
+        /// <param name="rptNumber"></param>
+        /// <param name="dateFrom"></param>
+        /// <param name="storeID"></param>
+        /// <param name="itemID"></param>
+        /// <returns></returns>
+        protected IQueryable<TimesSold> GetScanData(int rptNumber, DateTime dateFrom, int storeID, string itemID)
         {
             var p = new SqlParameter();
             p.ParameterName = "itemID";
@@ -1020,7 +1051,6 @@ namespace dsmodels
             {
                 p.Value = DBNull.Value;
             }
-
             var data = Database.SqlQuery<TimesSold>(
                 "exec sp_GetScanReport @rptNumber, @dateFrom, @storeID, @itemID",
                 new SqlParameter("rptNumber", rptNumber),
