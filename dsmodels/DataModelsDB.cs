@@ -489,6 +489,41 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + specific.SellerItemID + " " + msg, "admin");
             }
         }
+        public void OrderHistoryUpdate(OrderHistory orderHistory, params string[] changedPropertyNames)
+        {
+            string output = null;
+            try
+            {
+                var found = this.OrderHistory.AsNoTracking().SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
+                if (found == null)
+                {
+                    this.OrderHistory.Add(orderHistory);
+                    this.SaveChanges();
+                }
+                else
+                {
+                    orderHistory.ID = found.ID;
+                    this.OrderHistory.Attach(orderHistory);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(orderHistory).Property(propertyName).IsModified = true;
+                    }
+                    this.SaveChanges();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                output = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryUpdate: " + orderHistory.ItemID + " " + output, "admin");
+
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+                string msg = dsutil.DSUtil.ErrMsg("OrderHistoryUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryUpdate: " + orderHistory.ItemID + " " + msg, "admin");
+            }
+        }
         /// <summary>
         /// Now stored when running seller scrape.
         /// </summary>
