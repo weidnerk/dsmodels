@@ -394,6 +394,13 @@ namespace dsmodels
             }
         }
 
+        /// <summary>
+        /// Remember OrderHistory has property, OrderHistoryDetais
+        /// and OrderHistoryDetails was already removed from fromDate in HistoryDetailRemove.
+        /// </summary>
+        /// <param name="oh"></param>
+        /// <param name="fromDate"></param>
+        /// <returns></returns>
         public string OrderHistorySave(OrderHistory oh, DateTime fromDate)
         {
             string ret = string.Empty;

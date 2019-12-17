@@ -217,7 +217,7 @@ namespace dsmodels
         //public int CategoryId { get; set; }
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
-        //public string ListingStatus { get; set; }   // Active, Completed
+        public string ListingStatus { get; set; }   // Active, Completed
         public bool? IsSellerVariation { get; set; }
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public decimal? ProposePrice { get; set; }
@@ -353,7 +353,6 @@ namespace dsmodels
         public decimal? SupplierPrice { get; set; }
         public string SellerBrand { get; set; }
         public bool? IsSupplierVariation { get; set; }
-        public decimal? SellerProfit { get; set; }
         public decimal? ProposePrice { get; set; }
         public bool? IsVero { get; set; }
         public string SupplierPicURL { get; set; }
