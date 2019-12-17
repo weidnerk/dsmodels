@@ -359,6 +359,8 @@ namespace dsmodels
         public bool? ToList { get; set; }
         public bool? IsSellerVariation { get; set; }
         public DateTime? ListingRecCreated { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public decimal? PriceDelta { get; set; } // not part of db, just calculate for report.
     }
 
     public class UserProfileVM
