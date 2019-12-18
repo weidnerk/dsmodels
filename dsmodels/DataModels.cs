@@ -335,6 +335,7 @@ namespace dsmodels
         public int RptNumber { get; set; }
         //public string ImageUrl { get; set; }
         public decimal Price { get; set; }  // last sold price
+        public decimal EbaySellerPrice { get; set; }
         public DateTime? LastSold { get; set; }
         public string ItemID { get; set; }
         public DateTime? Listed { get; set; }
