@@ -776,6 +776,10 @@ namespace dsmodels
             try
             {
                 var listing = await this.Listings.Include(p => p.SellerListing).Include(p => p.SupplierItem).FirstOrDefaultAsync(r => r.ItemID == itemID);
+                if (listing == null)
+                {
+                    return null;
+                }
                 // not sure why listing.SupplierItem is null after this line, so load manually....
                 var si = this.GetSupplierItem(itemID);
                 listing.SupplierItem = si;
@@ -783,7 +787,7 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                string msg = dsutil.DSUtil.ErrMsg("", exc);
+                string msg = dsutil.DSUtil.ErrMsg("ListingGet, itemID: " + itemID, exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 return null;
             }
