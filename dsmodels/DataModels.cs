@@ -72,7 +72,7 @@ namespace dsmodels
         [Key]
         public string ItemID { get; set; }                      // ebay eller listing id
         public string Title { get; set; }
-        public string EbayUrl { get; set; }
+        public string EbayURL { get; set; }
         public string Seller { get; set; }
         public byte SellerSold { get; set; }
         public decimal SellerPrice { get; set; }
