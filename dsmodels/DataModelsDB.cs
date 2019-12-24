@@ -480,13 +480,12 @@ namespace dsmodels
             {
                 output = GetValidationErr(e);
                 dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + output, "admin");
-
             }
             catch (Exception exc)
             {
                 output = exc.Message;
-                string msg = dsutil.DSUtil.ErrMsg("ItemSpecificSave", exc);
-                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + specific.SellerItemID + " " + msg, "admin");
+                string msg = dsutil.DSUtil.ErrMsg("ItemSpecificUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + msg, "admin");
             }
         }
         public void OrderHistoryUpdate(OrderHistory orderHistory, params string[] changedPropertyNames)
@@ -1266,26 +1265,38 @@ namespace dsmodels
         {
             SupplierItem supplierItem = null;
             bool isUPC = false;
-            var spec = this.ItemSpecifics.SingleOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
+            var spec = this.ItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
             if (spec == null)
             {
-                spec = this.ItemSpecifics.SingleOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                spec = this.ItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
             }
             else
             {
                 isUPC = true;
             }
-            if (isUPC) {
-                supplierItem = this.SupplierItems.FirstOrDefault(p => p.UPC == spec.ItemValue);
-                // seller might supply both UPC and MPN (in ItemSpecifics) but both were not collected off supplier website
-                if (supplierItem == null)
+            if (spec != null)
+            {
+                if (isUPC)
                 {
-                    spec = this.ItemSpecifics.SingleOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
-                    supplierItem = this.SupplierItems.FirstOrDefault(p => p.MPN == spec.ItemValue);
+                    // 12.24.2019 Found case where UPC is duplicated in SupplierItem - might have something to do with first locating
+                    // an MPN which might have various versions that lead back to same UPC
+                    // Need to decide how to handle.
+                    // For now, use FirstOrdDefault instead of SingleOrDefault.
+                    supplierItem = this.SupplierItems.FirstOrDefault(p => p.UPC == spec.ItemValue);
+                    // seller might supply both UPC and MPN (in ItemSpecifics) but both were not collected off supplier website
+                    if (supplierItem == null)
+                    {
+                        spec = this.ItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                        if (spec != null)
+                        {
+                            supplierItem = this.SupplierItems.SingleOrDefault(p => p.MPN == spec.ItemValue);
+                        }
+                    }
                 }
-            }
-            else { 
-                supplierItem = this.SupplierItems.FirstOrDefault(p => p.MPN == spec.ItemValue);
+                else
+                {
+                    supplierItem = this.SupplierItems.SingleOrDefault(p => p.MPN == spec.ItemValue);
+                }
             }
             return supplierItem;
         }
