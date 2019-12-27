@@ -89,6 +89,7 @@ namespace dsmodels
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public int? Qty { get; set; }
+        public DateTime Updated { get; set; }
     }
 
     [Table("Listing")]
