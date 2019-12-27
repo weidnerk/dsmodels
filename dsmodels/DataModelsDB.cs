@@ -493,7 +493,12 @@ namespace dsmodels
             string output = null;
             try
             {
+                if (orderHistory.ItemID == "254295059622")
+                {
+                    int stop = 99;
+                }
                 var found = this.OrderHistory.AsNoTracking().SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
+                orderHistory.ProposePrice = Math.Round(orderHistory.ProposePrice.Value, 2);
                 if (found == null)
                 {
                     this.OrderHistory.Add(orderHistory);
@@ -1110,10 +1115,10 @@ namespace dsmodels
             string ret = null;
             try
             {
-                //if (MPN == "WMA111201")
-                //{
-                //    int stop = 99;
-                //}
+                if (UPC == "844702079724")
+                {
+                    int stop = 99;
+                }
                 SupplierItem found = null;
                 if (!string.IsNullOrEmpty(UPC))
                 {
@@ -1169,61 +1174,6 @@ namespace dsmodels
             {
                 string header = string.Format("SupplierItemUpdate UPC: {0} MPN: {1}", UPC, MPN);
                 ret = dsutil.DSUtil.ErrMsg(header, exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-        }
-
-        public void SupplierItemUpdate_orig(string UPC, string MPN, SupplierItem item)
-        {
-            string ret = null;
-            try
-            {
-                SupplierItem found = null;
-                if (!string.IsNullOrEmpty(UPC))
-                {
-                    found = this.SupplierItems.FirstOrDefault(p => p.UPC == UPC);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(MPN))
-                    {
-                        found = this.SupplierItems.FirstOrDefault(p => p.MPN == MPN);
-                    }
-                }
-                if (found != null)
-                {
-                    found.MatchCount = (byte)item.MatchCount;
-                    found.ItemURL = item.ItemURL;
-                    found.SoldAndShippedBySupplier = item.SoldAndShippedBySupplier;
-                    found.SupplierBrand = item.SupplierBrand;
-                    found.SupplierPrice = item.SupplierPrice;
-                    found.IsVariation = item.IsVariation;
-                    //found.ProposePrice = item.ProprosePrice;
-                    found.SupplierPicURL = item.SupplierPicURL;
-                    //found.SourceDescription = item.Description;
-                    this.SaveChanges();
-                }
-                else
-                {
-                    this.SupplierItems.Add(item);
-                    this.SaveChanges();
-                }
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            catch (Exception exc)
-            {
-                ret = dsutil.DSUtil.ErrMsg("WMItemUpdate", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
