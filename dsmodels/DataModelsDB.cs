@@ -584,6 +584,10 @@ namespace dsmodels
         public static string DumpItemSpecifics(List<ItemSpecific> specifics)
         {
             string output = null;
+            if (specifics.Count > 0)
+            {
+                output = "ItemID: " + specifics[0].SellerItemID + "\n";
+            }
             foreach (var spec in specifics)
             {
                 output += "ItemName: " + spec.ItemName + " -> " + spec.ItemValue + "\n";
