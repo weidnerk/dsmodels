@@ -271,32 +271,32 @@ namespace dsmodels
         public string SubCategory { get; set; }
         public string URL { get; set; }
     }
-    [Table("WalItems")]
-    public class WalItem
-    {
-        [JsonProperty(PropertyName = "id")]
-        public int ID { get; set; }                 // identity field - but still can use this class if no db involved
-        public string Title { get; set; }
-        [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
+    //[Table("WalItems")]
+    //public class WalItem
+    //{
+    //    [JsonProperty(PropertyName = "id")]
+    //    public int ID { get; set; }                 // identity field - but still can use this class if no db involved
+    //    public string Title { get; set; }
+    //    [JsonProperty(PropertyName = "description")]
+    //    public string Description { get; set; }
 
-        [JsonProperty(PropertyName = "price")]
-        public decimal Price { get; set; }
-        public string DetailUrl { get; set; }
-        public int CategoryID { get; set; }
-        public string ItemId { get; set; }
-        [JsonProperty(PropertyName = "pictureUrl")]
-        public string PictureUrl { get; set; }
-        public bool OutOfStock { get; set; }
-        public bool ShippingNotAvailable { get; set; }
-        [JsonProperty(PropertyName = "fulfilledByWalmart")]
-        public bool FulfilledByWalmart { get; set; }
-        [JsonProperty(PropertyName = "isVariation")]
-        public bool IsVariation { get; set; }
-        [JsonProperty(PropertyName = "brand")]
-        public string Brand { get; set; }
-        public string MPN { get; set; }
-    }
+    //    [JsonProperty(PropertyName = "price")]
+    //    public decimal Price { get; set; }
+    //    public string DetailUrl { get; set; }
+    //    public int CategoryID { get; set; }
+    //    public string ItemId { get; set; }
+    //    [JsonProperty(PropertyName = "pictureUrl")]
+    //    public string PictureUrl { get; set; }
+    //    public bool OutOfStock { get; set; }
+    //    public bool ShippingNotAvailable { get; set; }
+    //    [JsonProperty(PropertyName = "fulfilledByWalmart")]
+    //    public bool FulfilledByWalmart { get; set; }
+    //    [JsonProperty(PropertyName = "isVariation")]
+    //    public bool IsVariation { get; set; }
+    //    [JsonProperty(PropertyName = "brand")]
+    //    public string Brand { get; set; }
+    //    public string MPN { get; set; }
+    //}
 
     public class AppIDSelect
     {
