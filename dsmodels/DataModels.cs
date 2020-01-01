@@ -52,6 +52,7 @@ namespace dsmodels
     [Table("vwListing")]
     public class ListingView : Listing
     {
+        // Returned by view as read/only
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string ListedByName { get; set;}
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
@@ -146,6 +147,7 @@ namespace dsmodels
         public int SupplierID { get; set; }
         [ForeignKey("SupplierID")]
         public virtual SupplierItem SupplierItem { get; set; }
+
     }
 
     [Table("ItemSpecific")]
@@ -422,5 +424,9 @@ namespace dsmodels
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
         public virtual List<Listing> Listing { get; set; }
+
+        [NotMapped]
+        public DateTime? Arrives { get; set; }
+
     }
 }
