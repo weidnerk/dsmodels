@@ -427,6 +427,8 @@ namespace dsmodels
 
         [NotMapped]
         public DateTime? Arrives { get; set; }
+        [NotMapped]
+        public bool? IsVERO { get; set; }
 
     }
 }
