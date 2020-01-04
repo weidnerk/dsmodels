@@ -416,7 +416,7 @@ namespace dsmodels
         public decimal? SupplierPrice { get; set; }
         public bool? IsVariation { get; set; }
         public string SupplierPicURL { get; set; }
-        public string UPC { get; set; }
+        public string UPC { get; set; } // Walmart doesn't always give you a UPC number so must be nullable in DB
         public string MPN { get; set; }
         public string Description { get; set; }
         public string ItemID { get; set; }
@@ -428,6 +428,7 @@ namespace dsmodels
         public DateTime? Arrives { get; set; }
         [NotMapped]
         public bool? IsVERO { get; set; }
-
+        public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
+        public DateTime? Updated { get; set; }
     }
 }

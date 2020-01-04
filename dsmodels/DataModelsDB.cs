@@ -1141,11 +1141,22 @@ namespace dsmodels
                         {
                             found.UPC = item.UPC;
                         }
+                        else
+                        {
+                            // if the MPN isn't in SupplierItem, the UPC might already be there
+                            found = this.SupplierItems.FirstOrDefault(p => p.UPC == item.UPC);
+                            if (found != null)
+                            {
+                                found.MPN = item.MPN;
+                            }
+                        }
                     }
                 }
                 if (found != null)
                 {
+                    found.Updated = DateTime.Now;
                     found.MatchCount = item.MatchCount;
+                    found.MatchType = item.MatchType;
                     found.ItemURL = item.ItemURL;
                     found.SoldAndShippedBySupplier = item.SoldAndShippedBySupplier;
                     found.SupplierBrand = item.SupplierBrand;
@@ -1158,6 +1169,7 @@ namespace dsmodels
                 else
                 {
                     int stop = 99;
+                    item.Updated = DateTime.Now;
                     this.SupplierItems.Add(item);
                     this.SaveChanges();
                 }
