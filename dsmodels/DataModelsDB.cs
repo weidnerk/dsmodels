@@ -271,11 +271,13 @@ namespace dsmodels
         /// </summary>
         /// <param name="rptNumber"></param>
         /// <returns></returns>
-        public async Task HistoryRemove(int rptNumber)
+        public async Task HistoryRemove(string connStr, int rptNumber)
         {
             string ret = null;
             try
             {
+                
+                ItemSpecificRemove(connStr, rptNumber);
                 var fromDate = new DateTime(2000, 1, 1);
                 await HistoryDetailRemove(rptNumber, fromDate);
 
@@ -1059,6 +1061,30 @@ namespace dsmodels
                 string ret = dsutil.DSUtil.ErrMsg("GetUserSetting", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
                 return null;
+            }
+        }
+
+        public static bool ItemSpecificRemove(string connStr, int rptNumber)
+        {
+            try
+            {
+                var r = new UserSettingsView();
+                using (SqlConnection connection = new SqlConnection(connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("sp_ItemSpecificRemove", connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@rptNumber", rptNumber);
+                    connection.Open();
+
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception exc)
+            {
+                string ret = dsutil.DSUtil.ErrMsg("ItemSpecificRemove", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+                return false;
             }
         }
 

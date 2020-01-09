@@ -63,8 +63,8 @@ namespace dsmodels
 
     /// <summary>
     /// Was originally created to move seller parts out of Listing table when I stored from the SellerListing page.
-    /// But I have gotten away from that.
-    /// Now created when user clicks "Store to listing" (see method, StoreToListing)
+    /// That has chanced in that now created when user clicks "Store to listing" (see method, StoreToListing) where
+    /// a Lising record gets created and a corresponding SellerListing record becomes a property of that Listing record.
     /// Can exist independant of a Listing
     /// </summary>
     [Table("SellerListing")]
@@ -149,6 +149,15 @@ namespace dsmodels
 
     }
 
+    // SellerItemID here can either point to SellerListing or OrderHistory.
+    // In the case of OrderHistory, look at the SellerScraper program.  As we store the scan results,
+    // we call GetSingleItem to fields like description and the seller listing's item specifics.
+    //
+    // In the case of SellerListing, look at StoreToListing. 
+    //
+    // This also means I can't put a FK on ItemSpecific.SellerItemID
+    //
+    // When do we delete from this table?  When we delete a scan - See sp_ItemSpecificRemove
     [Table("ItemSpecific")]
     public class ItemSpecific
     {
@@ -397,7 +406,8 @@ namespace dsmodels
     }
 
     /// <summary>
-    /// Records created when click Calculate Match]
+    /// Records created when click Calculate Match
+    /// When do you delete from this table?  Nothing really in place - can delete when the itemID is no longer used in the Listing table.
     /// </summary>
     [Table("SupplierItem")]
     public class SupplierItem
