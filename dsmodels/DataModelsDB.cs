@@ -96,11 +96,11 @@ namespace dsmodels
             return sourceId;
         }
 
-        public async Task<Listing> GetPostedListing(int sourceID, string supplierItemID)
-        {
-            var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == sourceID && r.SupplierItemID == supplierItemID);
-            return found;
-        }
+        //public async Task<Listing> GetPostedListing(int sourceID, string supplierItemID)
+        //{
+        //    var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == sourceID && r.SupplierItemID == supplierItemID);
+        //    return found;
+        //}
 
         public async Task<Listing> GetPostedListing(string itemId)
         {

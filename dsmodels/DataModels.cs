@@ -112,7 +112,7 @@ namespace dsmodels
         public DateTime? Listed { get; set; }
         public byte? SourceID { get; set; }
         public string ListedItemID { get; set; }
-        public string SupplierItemID { get; set; }
+        //public string SupplierItemID { get; set; }
         public bool OOS { get; set; }
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
