@@ -339,6 +339,7 @@ namespace dsmodels
 
     public class TimesSold
     {
+        public string Src { get; set; }
         public string Seller { get; set; }
         public string EbaySellerTitle { get; set; }
         public int SoldQty { get; set; }
