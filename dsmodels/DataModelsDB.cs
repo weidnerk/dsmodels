@@ -618,10 +618,7 @@ namespace dsmodels
 
                     found.SupplierItem.SupplierPrice = listing.SupplierItem.SupplierPrice;
                     found.ListingPrice = listing.ListingPrice;
-                    if (listing.SourceID.HasValue)
-                    {
-                        found.SourceID = listing.SourceID;
-                    }
+                    //found.SourceID = listing.SourceID;
 
                     // User may have just copied in supplier URL and clicked Save in which case we don't have pictures
                     // but can't see storing picture urls each time, so check first

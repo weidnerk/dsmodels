@@ -110,7 +110,7 @@ namespace dsmodels
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
         public DateTime? Listed { get; set; }
-        public byte? SourceID { get; set; }
+        //public byte SourceID { get; set; }
         public string ListedItemID { get; set; }
         //public string SupplierItemID { get; set; }
         public bool OOS { get; set; }
@@ -440,5 +440,6 @@ namespace dsmodels
         public bool? IsVERO { get; set; }
         public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
         public DateTime? Updated { get; set; }
+        public int SourceID { get; set; }
     }
 }
