@@ -139,7 +139,7 @@ namespace dsmodels
                 var rec = await this.OrderHistory.FirstOrDefaultAsync(r => r.ItemID == oh.ItemID);
                 if (rec != null)
                 {
-                    rec.ToList = oh.ToList;
+                    rec.ToListing = oh.ToListing;
                     this.Entry(rec).State = EntityState.Modified;
                     await this.SaveChangesAsync();
                 }
@@ -1102,9 +1102,10 @@ namespace dsmodels
         protected IQueryable<TimesSold> GetSalesDataAll(DateTime dateFrom, int storeID)
         {
             var data = Database.SqlQuery<TimesSold>(
-                "exec sp_Report @dateFrom, @storeID",
+                "exec sp_Report @dateFrom, @storeID, @minSoldQty",
                 new SqlParameter("dateFrom", dateFrom),
-                new SqlParameter("storeID", storeID)
+                new SqlParameter("storeID", storeID),
+                new SqlParameter("minSoldQty", 3)
                 ).AsQueryable();
             return data;
         }

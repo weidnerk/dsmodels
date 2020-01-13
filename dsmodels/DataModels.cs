@@ -232,7 +232,7 @@ namespace dsmodels
         public bool? IsSellerVariation { get; set; }
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public decimal? ProposePrice { get; set; }
-        public bool? ToList { get; set; }
+        public bool? ToListing { get; set; }   // Marker which says we can create a Listing record from the scan. 
     }
 
     [Table("OrderHistoryDetail")]
@@ -369,7 +369,7 @@ namespace dsmodels
         public decimal? ProposePrice { get; set; }
         public bool? IsVero { get; set; }
         public string SupplierPicURL { get; set; }
-        public bool? ToList { get; set; }
+        public bool? ToListing { get; set; }
         public bool? IsSellerVariation { get; set; }
         public DateTime? ListingRecCreated { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
