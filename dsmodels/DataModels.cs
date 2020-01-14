@@ -44,6 +44,7 @@ namespace dsmodels
         public int StoreID { get; set; }
         [JsonProperty(PropertyName = "calculateMatch")]
         public DateTime? CalculateMatch { get; set; }
+        //public virtual List<OrderHistory> OrderHistory { get; set; }
     }
 
     /// <summary>
@@ -211,6 +212,9 @@ namespace dsmodels
         public int ID { get; set; }
         public string Title { get; set; }
         public int RptNumber { get; set; }
+        [ForeignKey("RptNumber")]
+        public virtual SearchHistory SearchHistory { get; set; }
+
         public string EbayUrl { get; set; } // this field is also present in SellerListing where more formally belongs but useful to have it on TimesSold page
 
         public bool ListingEnded { get; set; }
