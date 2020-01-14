@@ -49,17 +49,71 @@ namespace dsmodels
 
     /// <summary>
     /// Used on listings page.
+    /// 01.14.2020 This class had inherited from Listing but when upating/delete from Listing table (not vwListing) would get
+    /// and error:
+    /// "View or function 'dbo.vwListing' is not updatable because the modification affects multiple base tables."
+    /// so had to remove base class and duplicate fields.
     /// </summary>
     [Table("vwListing")]
-    public class ListingView : Listing
+    public class ListingView
     {
         // Returned by view as read/only
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string ListedByName { get; set;}
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string CreatedByName { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string Seller { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string Title { get; set; }
+
+
+        [Key]
+        public int ID { get; set; }
+        public string ItemID { get; set; }
+        [ForeignKey("ItemID")]                                      // works with or w/out
+        public virtual SellerListing SellerListing { get; set; }    // listing will typically be based on some seller's listing
+        public string ListingTitle { get; set; }
+        public string Description { get; set; }
+        public string PictureUrl { get; set; }                      // store picture urls as a semi-colon delimited string
+        public decimal ListingPrice { get; set; }
+        public string SourceUrl { get; set; }
+        public string PrimaryCategoryID { get; set; }
+        public string PrimaryCategoryName { get; set; }
+        public int Qty { get; set; }
+        public DateTime? Listed { get; set; }
+        //public byte SourceID { get; set; }
+        public string ListedItemID { get; set; }
+        //public string SupplierItemID { get; set; }
+        public bool OOS { get; set; }
+        public DateTime? Updated { get; set; }
+        public string UpdatedBy { get; set; }
+        public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
+        public bool? CheckSource { get; set; }           // that supplier is walmart
+        public bool? CheckVero { get; set; }
+        public bool? CheckCategory { get; set; }
+        public byte? CheckCompetition { get; set; }
+        public bool? CheckSellerShipping { get; set; }   // seller offers free shipping
+        public decimal Profit { get; set; }
+        public double ProfitMargin { get; set; }
+        public int RptNumber { get; set; }
+        public string ListedBy { get; set; }
+        public string ListedUpdatedBy { get; set; }
+        public bool? CheckSupplierPrice { get; set; }    // confirm supplier's price
+        public bool? CheckSupplierItem { get; set; }     // make sure supplier item is same item as seller
+        public bool ListedWithAPI { get; set; }
+        public byte? CheckMainCompetitor { get; set; }
+        public string ListedResponse { get; set; }
+        public DateTime? ListedUpdated { get; set; }
+
+        public bool? CheckSupplierPics { get; set; }
+        public int StoreID { get; set; }
+        public bool? CheckIsVariation { get; set; }
+        public bool? CheckVariationURL { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime? Created { get; set; }
+
+
     }
 
     /// <summary>
@@ -82,7 +136,7 @@ namespace dsmodels
         public string ListingStatus { get; set; }
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
-        public virtual List<OrderHistory> Orders { get; set; }  // item may have sold multiple times
+        //public virtual List<OrderHistory> Orders { get; set; }  // item may have sold multiple times
         public virtual List<ItemSpecific> ItemSpecifics { get; set; }
         [ForeignKey("ItemID")]
         public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores

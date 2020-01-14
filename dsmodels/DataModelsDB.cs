@@ -382,17 +382,34 @@ namespace dsmodels
         {
             try
             {
-                // first remove item specifics
-                this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
-                await this.SaveChangesAsync();
+                var found = OrderHistory.FirstOrDefault(p => p.ItemID == sellerItemId);
+                if (found == null)
+                {
+                    // don't remove itemspecifics if found in OrderHistory (a scan)
 
-                var sh = new Listing() { ItemID = sellerItemId };
-                this.Listings.Attach(sh);
-                this.Listings.Remove(sh);
-                await this.SaveChangesAsync();
+                    // first remove item specifics
+                    this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
+                    await this.SaveChangesAsync();
+                }
+
+                var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemId);
+                if (listing != null)
+                {
+                    //var sh = new Listing() { ItemID = sellerItemId, ID = listing.ID };
+                    this.Listings.Attach(listing);
+                    this.Listings.Remove(listing);
+                    await this.SaveChangesAsync();
+
+                    var sl = new SellerListing() { ItemID = sellerItemId };
+                    this.SellerListings.Attach(sl);
+                    this.SellerListings.Remove(sl);
+                    await this.SaveChangesAsync();
+                }
             }
             catch (Exception exc)
             {
+                string ret = dsutil.DSUtil.ErrMsg("DeleteListingRecord", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
 
@@ -1298,7 +1315,6 @@ namespace dsmodels
         {
             var sellers = this.SearchHistory.Where(p => p.StoreID == storeID).ToList();
             return sellers;
-
         }
     }
 }
