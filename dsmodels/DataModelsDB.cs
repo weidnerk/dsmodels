@@ -179,18 +179,18 @@ namespace dsmodels
             await this.SaveChangesAsync();
             return sh;
         }
-        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames)
+        public SearchHistory SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames)
         {
             string ret = null;
             try
             {
-                //var found = this.SearchHistory.Find(sh.ID);
                 this.SearchHistory.Attach(sh);
                 foreach (var propertyName in changedPropertyNames)
                 {
                     this.Entry(sh).Property(propertyName).IsModified = true;
-                }            
-                await this.SaveChangesAsync();
+                }
+                SaveChanges();
+                Entry(sh).State = EntityState.Detached;
                 return sh;
             }
             catch (DbEntityValidationException e)
@@ -212,93 +212,6 @@ namespace dsmodels
             }
             return null;
         }
-        //public async Task<SearchHistory> SearchHistoryUpdate_CalculateMatch(SearchHistory sh)
-        //{
-        //    string ret = null;
-        //    try
-        //    {
-        //        var found = this.SearchHistory.Find(sh.ID);
-        //        found.CalculateMatch = sh.CalculateMatch;
-        //        await this.SaveChangesAsync();
-        //        return sh;
-        //    }
-        //    catch(DbEntityValidationException e)
-        //    {
-        //        foreach (var eve in e.EntityValidationErrors)
-        //        {
-        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-        //            foreach (var ve in eve.ValidationErrors)
-        //            {
-        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-        //            }
-        //        }
-        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_CalculateMatch", exc);
-        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-        //    }
-        //    return null;
-        //}
-        //public async Task<SearchHistory> SearchHistoryUpdate_Updated(SearchHistory sh)
-        //{
-        //    string ret = null;
-        //    try
-        //    {
-        //        var found = this.SearchHistory.Find(sh.ID);
-        //        found.Updated = sh.Updated;
-        //        await this.SaveChangesAsync();
-        //        return sh;
-        //    }
-        //    catch (DbEntityValidationException e)
-        //    {
-        //        foreach (var eve in e.EntityValidationErrors)
-        //        {
-        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-        //            foreach (var ve in eve.ValidationErrors)
-        //            {
-        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-        //            }
-        //        }
-        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Updated", exc);
-        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-        //    }
-        //    return null;
-        //}
-        //public async Task<SearchHistory> SearchHistoryUpdate_Running(SearchHistory sh)
-        //{
-        //    string ret = null;
-        //    try
-        //    {
-        //        var found = this.SearchHistory.Find(sh.ID);
-        //        found.Running= sh.Running;
-        //        await this.SaveChangesAsync();
-        //        return sh;
-        //    }
-        //    catch (DbEntityValidationException e)
-        //    {
-        //        foreach (var eve in e.EntityValidationErrors)
-        //        {
-        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-        //            foreach (var ve in eve.ValidationErrors)
-        //            {
-        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-        //            }
-        //        }
-        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Running", exc);
-        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-        //    }
-        //    return null;
-        //}
 
         /// <summary>
         /// Comletely remove a scan from SearchHistory, OrderHistory and OrderHistoryDetails
@@ -310,7 +223,6 @@ namespace dsmodels
             string ret = null;
             try
             {
-                
                 OrderHistoryItemSpecificRemove(connStr, rptNumber);
                 var fromDate = new DateTime(2000, 1, 1);
                 await HistoryDetailRemove(rptNumber, fromDate);
@@ -587,6 +499,7 @@ namespace dsmodels
                 {
                     this.OrderHistory.Add(orderHistory);
                     this.SaveChanges();
+                    Entry(orderHistory).State = EntityState.Detached;
                 }
                 else
                 {
@@ -597,6 +510,7 @@ namespace dsmodels
                         this.Entry(orderHistory).Property(propertyName).IsModified = true;
                     }
                     this.SaveChanges();
+                    Entry(orderHistory).State = EntityState.Detached;
                 }
             }
             catch (DbEntityValidationException e)
@@ -1354,7 +1268,7 @@ namespace dsmodels
             string ret = null;
             try
             {
-                if (UPC == "844702079724")
+                if (UPC == "075877251503")
                 {
                     int stop = 99;
                 }
@@ -1390,18 +1304,28 @@ namespace dsmodels
                 if (found != null)
                 {
                     item.ID = found.ID;
+
+                    /*
+                        * {"Attaching an entity of type 'dsmodels.SupplierItem' failed because another entity of the same type already has the 
+                        * same primary key value. This can happen when using the 'Attach' method or setting the state of an entity to 'Unchanged'
+                        * or 'Modified' if any entities in the graph have conflicting key values. This may be because some entities are new and
+                        * have not yet received database-generated key values. In this case use the 'Add' method or the 'Added' entity state to
+                        * track the graph and then set the state of non-new entities to 'Unchanged' or 'Modified' as appropriate."}
+                        */
                     this.SupplierItems.Attach(item);
                     foreach (var propertyName in changedPropertyNames)
                     {
                         this.Entry(item).Property(propertyName).IsModified = true;
                     }
                     this.SaveChanges();
+                    Entry(item).State = EntityState.Detached;
                 }
                 else
                 {
                     item.Updated = DateTime.Now;
                     this.SupplierItems.Add(item);
                     this.SaveChanges();
+                    Entry(item).State = EntityState.Detached;
                 }
             }
             catch (DbEntityValidationException e)
@@ -1418,7 +1342,7 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                string header = string.Format("SupplierItemAdd UPC: {0} MPN: {1}", UPC, MPN);
+                string header = string.Format("SupplierItemUpdateScrape UPC: {0} MPN: {1}", UPC, MPN);
                 ret = dsutil.DSUtil.ErrMsg(header, exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
