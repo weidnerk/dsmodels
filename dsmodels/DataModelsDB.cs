@@ -184,10 +184,11 @@ namespace dsmodels
             string ret = null;
             try
             {
-                var found = this.SearchHistory.Find(sh.ID);
+                //var found = this.SearchHistory.Find(sh.ID);
+                this.SearchHistory.Attach(sh);
                 foreach (var propertyName in changedPropertyNames)
                 {
-                    this.Entry(found).Property(propertyName).IsModified = true;
+                    this.Entry(sh).Property(propertyName).IsModified = true;
                 }            
                 await this.SaveChangesAsync();
                 return sh;
