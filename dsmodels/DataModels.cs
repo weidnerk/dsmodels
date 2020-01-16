@@ -137,7 +137,7 @@ namespace dsmodels
         public bool Variation { get; set; }
         public string VariationDescription { get; set; }
         //public virtual List<OrderHistory> Orders { get; set; }  // item may have sold multiple times
-        public virtual List<ItemSpecific> ItemSpecifics { get; set; }
+        public virtual List<SellerListingItemSpecific> ItemSpecifics { get; set; }
         [ForeignKey("ItemID")]
         public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores
         public string PictureURL { get; set; }
@@ -165,9 +165,7 @@ namespace dsmodels
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
         public DateTime? Listed { get; set; }
-        //public byte SourceID { get; set; }
         public string ListedItemID { get; set; }
-        //public string SupplierItemID { get; set; }
         public bool OOS { get; set; }
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
@@ -213,8 +211,8 @@ namespace dsmodels
     // This also means I can't put a FK on ItemSpecific.SellerItemID
     //
     // When do we delete from this table?  When we delete a scan - See sp_ItemSpecificRemove
-    [Table("ItemSpecific")]
-    public class ItemSpecific
+    [Table("SellerListingItemSpecific")]
+    public class SellerListingItemSpecific
     {
         [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
@@ -226,6 +224,26 @@ namespace dsmodels
         public string ItemName { get; set; }
         
         [JsonProperty(PropertyName = "itemValue")] 
+        public string ItemValue { get; set; }
+
+        [ForeignKey("SellerItemID")]
+        [JsonProperty(PropertyName = "listing")]
+        public SellerListing SellerListing { get; set; }
+        public bool? Flags { get; set; }
+    }
+    [Table("OrderHistoryItemSpecific")]
+    public class OrderHistoryItemSpecific
+    {
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }
+
+        [JsonProperty(PropertyName = "sellerItemId")]
+        public string SellerItemID { get; set; }
+
+        [JsonProperty(PropertyName = "itemName")]
+        public string ItemName { get; set; }
+
+        [JsonProperty(PropertyName = "itemValue")]
         public string ItemValue { get; set; }
 
         [ForeignKey("SellerItemID")]
@@ -262,8 +280,8 @@ namespace dsmodels
     [Table("OrderHistory")]
     public class OrderHistory
     {
-        [Key]
-        public int ID { get; set; }
+        //[Key]
+        //public int ID { get; set; }
         public string Title { get; set; }
         public int RptNumber { get; set; }
         [ForeignKey("RptNumber")]
@@ -273,6 +291,7 @@ namespace dsmodels
 
         public bool ListingEnded { get; set; }
         public int PageNumber { get; set; }
+        [Key]
         public string ItemID { get; set; }
         public int SourceID { get; set; }
         public string SupplierItemId { get; set; }
@@ -298,13 +317,13 @@ namespace dsmodels
     {
         [Key]
         public int ID { get; set; }
-        public int OrderHistoryID { get; set; }
+        public string ItemID { get; set; }
         public decimal Price { get; set; }
         public int Qty { get; set; }
         public DateTime DateOfPurchase { get; set; }
         public string Variation { get; set; }
 
-        [ForeignKey("OrderHistoryID")]
+        [ForeignKey("ItemID")]
         public OrderHistory OrderHistory { get; set; }
     }
 

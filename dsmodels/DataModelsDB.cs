@@ -25,7 +25,8 @@ namespace dsmodels
         }
         public DbSet<Listing> Listings { get; set; }
         public DbSet<ListingView> ListingsView { get; set; }
-        public DbSet<ItemSpecific> ItemSpecifics { get; set; }
+        public DbSet<SellerListingItemSpecific> SellerListingItemSpecifics { get; set; }
+        public DbSet<OrderHistoryItemSpecific> OrderHistoryItemSpecifics { get; set; }
 
         public DbSet<SourceCategories> SourceCategories { get; set; }
         public DbSet<SearchHistory> SearchHistory { get; set; }
@@ -178,42 +179,16 @@ namespace dsmodels
             await this.SaveChangesAsync();
             return sh;
         }
-        public async Task<SearchHistory> SearchHistoryUpdate_CalculateMatch(SearchHistory sh)
+        public async Task<SearchHistory> SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames)
         {
             string ret = null;
             try
             {
                 var found = this.SearchHistory.Find(sh.ID);
-                found.CalculateMatch = sh.CalculateMatch;
-                await this.SaveChangesAsync();
-                return sh;
-            }
-            catch(DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
+                foreach (var propertyName in changedPropertyNames)
                 {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            catch (Exception exc)
-            {
-                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_CalculateMatch", exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            return null;
-        }
-        public async Task<SearchHistory> SearchHistoryUpdate_Updated(SearchHistory sh)
-        {
-            string ret = null;
-            try
-            {
-                var found = this.SearchHistory.Find(sh.ID);
-                found.Updated = sh.Updated;
+                    this.Entry(found).Property(propertyName).IsModified = true;
+                }            
                 await this.SaveChangesAsync();
                 return sh;
             }
@@ -231,40 +206,98 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Updated", exc);
+                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
             return null;
         }
-        public async Task<SearchHistory> SearchHistoryUpdate_Running(SearchHistory sh)
-        {
-            string ret = null;
-            try
-            {
-                var found = this.SearchHistory.Find(sh.ID);
-                found.Running= sh.Running;
-                await this.SaveChangesAsync();
-                return sh;
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            catch (Exception exc)
-            {
-                ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Running", exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            return null;
-        }
+        //public async Task<SearchHistory> SearchHistoryUpdate_CalculateMatch(SearchHistory sh)
+        //{
+        //    string ret = null;
+        //    try
+        //    {
+        //        var found = this.SearchHistory.Find(sh.ID);
+        //        found.CalculateMatch = sh.CalculateMatch;
+        //        await this.SaveChangesAsync();
+        //        return sh;
+        //    }
+        //    catch(DbEntityValidationException e)
+        //    {
+        //        foreach (var eve in e.EntityValidationErrors)
+        //        {
+        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+        //            foreach (var ve in eve.ValidationErrors)
+        //            {
+        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+        //            }
+        //        }
+        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_CalculateMatch", exc);
+        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+        //    }
+        //    return null;
+        //}
+        //public async Task<SearchHistory> SearchHistoryUpdate_Updated(SearchHistory sh)
+        //{
+        //    string ret = null;
+        //    try
+        //    {
+        //        var found = this.SearchHistory.Find(sh.ID);
+        //        found.Updated = sh.Updated;
+        //        await this.SaveChangesAsync();
+        //        return sh;
+        //    }
+        //    catch (DbEntityValidationException e)
+        //    {
+        //        foreach (var eve in e.EntityValidationErrors)
+        //        {
+        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+        //            foreach (var ve in eve.ValidationErrors)
+        //            {
+        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+        //            }
+        //        }
+        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Updated", exc);
+        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+        //    }
+        //    return null;
+        //}
+        //public async Task<SearchHistory> SearchHistoryUpdate_Running(SearchHistory sh)
+        //{
+        //    string ret = null;
+        //    try
+        //    {
+        //        var found = this.SearchHistory.Find(sh.ID);
+        //        found.Running= sh.Running;
+        //        await this.SaveChangesAsync();
+        //        return sh;
+        //    }
+        //    catch (DbEntityValidationException e)
+        //    {
+        //        foreach (var eve in e.EntityValidationErrors)
+        //        {
+        //            ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+        //            foreach (var ve in eve.ValidationErrors)
+        //            {
+        //                ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+        //            }
+        //        }
+        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        ret = dsutil.DSUtil.ErrMsg("SearchHistoryUpdate_Running", exc);
+        //        dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+        //    }
+        //    return null;
+        //}
 
         /// <summary>
         /// Comletely remove a scan from SearchHistory, OrderHistory and OrderHistoryDetails
@@ -277,7 +310,7 @@ namespace dsmodels
             try
             {
                 
-                ItemSpecificRemove(connStr, rptNumber);
+                OrderHistoryItemSpecificRemove(connStr, rptNumber);
                 var fromDate = new DateTime(2000, 1, 1);
                 await HistoryDetailRemove(rptNumber, fromDate);
 
@@ -388,7 +421,7 @@ namespace dsmodels
                     // don't remove itemspecifics if found in OrderHistory (a scan)
 
                     // first remove item specifics
-                    this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
+                    this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
                     await this.SaveChangesAsync();
                 }
 
@@ -438,7 +471,7 @@ namespace dsmodels
                     var found = OrderHistory.FirstOrDefault(p => p.ItemID == oh.ItemID);
                     if (found != null)
                     {
-                        oh.OrderHistoryDetails.ToList().ForEach(c => c.OrderHistoryID = found.ID);
+                        oh.OrderHistoryDetails.ToList().ForEach(c => c.ItemID = found.ItemID);
                         OrderHistoryDetails.AddRange(oh.OrderHistoryDetails.Where(p => p.DateOfPurchase >= fromDate));
                         this.SaveChanges();
                     }
@@ -476,21 +509,21 @@ namespace dsmodels
         /// Is this finally the correct UPDATE pattern?
         /// </summary>
         /// <param name="specific"></param>
-        public void ItemSpecificUpdate(ItemSpecific specific)
+        public void SellerListingItemSpecificUpdate_notused(SellerListingItemSpecific specific)
         {
             string output = null;
             try
             {
-                var found = this.ItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
+                var found = this.SellerListingItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
                 if (found == null)
                 {
-                    this.ItemSpecifics.Add(specific);
+                    this.SellerListingItemSpecifics.Add(specific);
                     this.SaveChanges();
                 }
                 else
                 {
                     specific.ID = found.ID;
-                    this.ItemSpecifics.Attach(specific);
+                    this.SellerListingItemSpecifics.Attach(specific);
                     this.Entry(specific).State = EntityState.Modified;
                     this.SaveChanges();
                 }
@@ -498,7 +531,38 @@ namespace dsmodels
             catch (DbEntityValidationException e)
             {
                 output = GetValidationErr(e);
-                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + output, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificUpdate: " + specific.SellerItemID + " " + output, "admin");
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+                string msg = dsutil.DSUtil.ErrMsg("ItemSpecificUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + msg, "admin");
+            }
+        }
+        public void OrderHistoryItemSpecificUpdate(OrderHistoryItemSpecific specific)
+        {
+            string output = null;
+            try
+            {
+                var found = this.OrderHistoryItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
+                if (found == null)
+                {
+                    this.OrderHistoryItemSpecifics.Add(specific);
+                    this.SaveChanges();
+                }
+                else
+                {
+                    specific.ID = found.ID;
+                    this.OrderHistoryItemSpecifics.Attach(specific);
+                    this.Entry(specific).State = EntityState.Modified;
+                    this.SaveChanges();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                output = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryItemSpecificUpdate: " + specific.SellerItemID + " " + output, "admin");
             }
             catch (Exception exc)
             {
@@ -525,7 +589,7 @@ namespace dsmodels
                 }
                 else
                 {
-                    orderHistory.ID = found.ID;
+                    orderHistory.ItemID = found.ItemID;
                     this.OrderHistory.Attach(orderHistory);
                     foreach (var propertyName in changedPropertyNames)
                     {
@@ -552,7 +616,7 @@ namespace dsmodels
         /// </summary>
         /// <param name="specifics"></param>
         /// <returns></returns>
-        public async Task<string> ItemSpecificSave(List<ItemSpecific> specifics)
+        public async Task<string> SellerListingItemSpecificSave(List<SellerListingItemSpecific> specifics)
         {
             string output = null;
             string itemID = null;
@@ -565,42 +629,118 @@ namespace dsmodels
                 // i've also seen seller's use underscores in MPN - is that a valid character in a Walmart MPN?
 
                 itemID = specifics[0].SellerItemID;
-                var found = await this.ItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
+                var found = await this.SellerListingItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
                 if (found != null)
                 {
-                    this.ItemSpecifics.RemoveRange(this.ItemSpecifics.Where(x => x.SellerItemID == itemID));
+                    this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == itemID));
                 }
                 foreach (var item in specifics)
                 {
                     if (item.ItemValue.Length > 700)
                     {
-                        dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: ItemValue truncated: " + item.ItemName + " -> " + item.ItemValue, "admin");
+                        dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: ItemValue truncated: " + item.ItemName + " -> " + item.ItemValue, "admin");
                         item.ItemValue = item.ItemValue.Substring(0, 700);
                     }
-                    this.ItemSpecifics.Add(item);
+                    this.SellerListingItemSpecifics.Add(item);
                 }
                 await this.SaveChangesAsync();
             }
             catch (DbEntityValidationException e)
             {
                 output = GetValidationErr(e);
-                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + itemID  + " " + output, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + itemID  + " " + output, "admin");
 
-                output = DumpItemSpecifics(specifics);
+                output = DumpSellerListingItemSpecifics(specifics);
                 dsutil.DSUtil.WriteFile(_logfile, output, "admin");
             }
             catch (Exception exc)
             {
                 output = exc.Message;
-                string msg = dsutil.DSUtil.ErrMsg("ItemSpecificSave", exc);
-                dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificSave: " + itemID + " " + msg, "admin");
+                string msg = dsutil.DSUtil.ErrMsg("SellerListingItemSpecificSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + itemID + " " + msg, "admin");
 
-                output = DumpItemSpecifics(specifics);
+                output = DumpSellerListingItemSpecifics(specifics);
                 dsutil.DSUtil.WriteFile(_logfile, output, "admin");
             }
             return output;
         }
-        public static string DumpItemSpecifics(List<ItemSpecific> specifics)
+        public async Task<string> OrderHistoryItemSpecificSave(List<OrderHistoryItemSpecific> specifics)
+        {
+            string output = null;
+            string itemID = null;
+            try
+            {
+                // don't replace a UPC or MPN with another seller's value of 'Does not apply'
+                bool ret = specifics.Remove(specifics.SingleOrDefault(p => p.ItemName == "UPC" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
+                ret = specifics.Remove(specifics.SingleOrDefault(p => p.ItemName == "MPN" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
+
+                // i've also seen seller's use underscores in MPN - is that a valid character in a Walmart MPN?
+
+                itemID = specifics[0].SellerItemID;
+                var found = await this.OrderHistoryItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
+                if (found != null)
+                {
+                    this.OrderHistoryItemSpecifics.RemoveRange(this.OrderHistoryItemSpecifics.Where(x => x.SellerItemID == itemID));
+                }
+                foreach (var item in specifics)
+                {
+                    if (item.ItemValue.Length > 700)
+                    {
+                        dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryItemSpecificSave: ItemValue truncated: " + item.ItemName + " -> " + item.ItemValue, "admin");
+                        item.ItemValue = item.ItemValue.Substring(0, 700);
+                    }
+                    this.OrderHistoryItemSpecifics.Add(item);
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (DbEntityValidationException e)
+            {
+                output = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryItemSpecificSave: " + itemID + " " + output, "admin");
+
+                output = DumpOrderHistoryItemSpecifics(specifics);
+                dsutil.DSUtil.WriteFile(_logfile, output, "admin");
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+                string msg = dsutil.DSUtil.ErrMsg("OrderHistoryItemSpecificSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryItemSpecificSave: " + itemID + " " + msg, "admin");
+
+                output = DumpOrderHistoryItemSpecifics(specifics);
+                dsutil.DSUtil.WriteFile(_logfile, output, "admin");
+            }
+            return output;
+        }
+        public static List<OrderHistoryItemSpecific> CopyFromOrderHistory(List<SellerListingItemSpecific> specifics)
+        {
+            var target = new List<OrderHistoryItemSpecific>();
+            foreach(var i in specifics)
+            {
+                var specific = new OrderHistoryItemSpecific();
+                specific.SellerItemID = i.SellerItemID;
+                specific.ItemName = i.ItemName;
+                specific.ItemValue = i.ItemValue;
+                specific.Flags = i.Flags;
+                
+                target.Add(specific);
+            }
+            return target;
+        }
+        public static string DumpSellerListingItemSpecifics(List<SellerListingItemSpecific> specifics)
+        {
+            string output = null;
+            if (specifics.Count > 0)
+            {
+                output = "ItemID: " + specifics[0].SellerItemID + "\n";
+            }
+            foreach (var spec in specifics)
+            {
+                output += "ItemName: " + spec.ItemName + " -> " + spec.ItemValue + "\n";
+            }
+            return output;
+        }
+        public static string DumpOrderHistoryItemSpecifics(List<OrderHistoryItemSpecific> specifics)
         {
             string output = null;
             if (specifics.Count > 0)
@@ -614,7 +754,8 @@ namespace dsmodels
             return output;
         }
 
-        public async Task ListingSaveAsync(Listing listing, string userID)
+        /*
+        public async Task ListingSaveAsync_old(Listing listing, string userID)
         {
             try
             {
@@ -716,6 +857,42 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
+        */
+        public async Task ListingSaveAsync(Listing listing, string userID, params string[] changedPropertyNames)
+        {
+            try
+            {
+                // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                var found = await this.Listings.AsNoTracking().FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
+                if (found == null)
+                {
+                    listing.Created = DateTime.Now;
+                    listing.CreatedBy = userID;
+                    Listings.Add(listing);
+                }
+                else
+                {
+                    this.Listings.Attach(listing);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        if (propertyName == "SupplierItem.SupplierPrice")
+                        {
+                            this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
+                        }
+                        else
+                        {
+                            this.Entry(listing).Property(propertyName).IsModified = true;
+                        }
+                    }
+                }
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ERROR ListingSaveAsync itemid: " + listing.ItemID, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+            }
+        }
         public async Task NoteSave(ListingNote note)
         {
             try
@@ -759,22 +936,27 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-        public async Task SellerProfileSave(SellerProfile sellerProfile)
+        public async Task SellerProfileSave(SellerProfile sellerProfile, params string[] changedPropertyNames)
         {
             try
             {
-                var found = await this.SellerProfiles.FirstOrDefaultAsync(r => r.Seller == sellerProfile.Seller);
+                var found = await this.SellerProfiles.AsNoTracking().FirstOrDefaultAsync(r => r.Seller == sellerProfile.Seller);
                 if (found == null)
                 {
-                    sellerProfile.Updated = DateTime.Now;
                     SellerProfiles.Add(sellerProfile);
                 }
                 else
                 {
-                    found.Note = sellerProfile.Note;
-                    found.Updated = DateTime.Now;
-                    found.UpdatedBy = sellerProfile.UpdatedBy;
-                    this.Entry(found).State = EntityState.Modified;
+                    //found.Note = sellerProfile.Note;
+                    //found.Updated = DateTime.Now;
+                    //found.UpdatedBy = sellerProfile.UpdatedBy;
+                    //this.Entry(found).State = EntityState.Modified;
+
+                    this.SellerProfiles.Attach(sellerProfile);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(sellerProfile).Property(propertyName).IsModified = true;
+                    }
                 }
                 await this.SaveChangesAsync();
             }
@@ -1078,14 +1260,14 @@ namespace dsmodels
             }
         }
 
-        public static bool ItemSpecificRemove(string connStr, int rptNumber)
+        public static bool OrderHistoryItemSpecificRemove(string connStr, int rptNumber)
         {
             try
             {
                 var r = new UserSettingsView();
                 using (SqlConnection connection = new SqlConnection(connStr))
                 {
-                    SqlCommand cmd = new SqlCommand("sp_ItemSpecificRemove", connection);
+                    SqlCommand cmd = new SqlCommand("sp_OrderHistoryItemSpecificRemove", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@rptNumber", rptNumber);
                     connection.Open();
@@ -1155,7 +1337,18 @@ namespace dsmodels
                 ).AsQueryable();
             return data;
         }
-        public void SupplierItemUpdate(string UPC, string MPN, SupplierItem item)
+
+        /// <summary>
+        /// When we're doing product find on walmart, we're keying off UPC and MPN
+        /// Of course, it's possible the item is already captured in SuppliterItem by a another scrape so we have to take into account
+        /// the item might exist.
+        /// So when saving SupplierItem during a scan, use this method.
+        /// </summary>
+        /// <param name="UPC"></param>
+        /// <param name="MPN"></param>
+        /// <param name="item"></param>
+        /// <param name="changedPropertyNames"></param>
+        public void SupplierItemUpdateScrape(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
             try
@@ -1167,7 +1360,7 @@ namespace dsmodels
                 SupplierItem found = null;
                 if (!string.IsNullOrEmpty(UPC))
                 {
-                    found = this.SupplierItems.FirstOrDefault(p => p.UPC == UPC);
+                    found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == UPC);
                     if (found != null)
                     {
                         found.MPN = item.MPN;
@@ -1177,7 +1370,7 @@ namespace dsmodels
                 {
                     if (!string.IsNullOrEmpty(MPN))
                     {
-                        found = this.SupplierItems.FirstOrDefault(p => p.MPN == MPN);
+                        found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.MPN == MPN);
                         if (found != null)
                         {
                             found.UPC = item.UPC;
@@ -1185,7 +1378,7 @@ namespace dsmodels
                         else
                         {
                             // if the MPN isn't in SupplierItem, the UPC might already be there
-                            found = this.SupplierItems.FirstOrDefault(p => p.UPC == item.UPC);
+                            found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == item.UPC);
                             if (found != null)
                             {
                                 found.MPN = item.MPN;
@@ -1195,21 +1388,16 @@ namespace dsmodels
                 }
                 if (found != null)
                 {
-                    found.Updated = DateTime.Now;
-                    found.MatchCount = item.MatchCount;
-                    found.MatchType = item.MatchType;
-                    found.ItemURL = item.ItemURL;
-                    found.SoldAndShippedBySupplier = item.SoldAndShippedBySupplier;
-                    found.SupplierBrand = item.SupplierBrand;
-                    found.SupplierPrice = item.SupplierPrice;
-                    found.IsVariation = item.IsVariation;
-                    found.SupplierPicURL = item.SupplierPicURL;
-                    //this.Configuration.ValidateOnSaveEnabled = false;   // don't attempt to update other fields
+                    item.ID = found.ID;
+                    this.SupplierItems.Attach(item);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(item).Property(propertyName).IsModified = true;
+                    }
                     this.SaveChanges();
                 }
                 else
                 {
-                    int stop = 99;
                     item.Updated = DateTime.Now;
                     this.SupplierItems.Add(item);
                     this.SaveChanges();
@@ -1229,12 +1417,54 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                string header = string.Format("SupplierItemUpdate UPC: {0} MPN: {1}", UPC, MPN);
+                string header = string.Format("SupplierItemAdd UPC: {0} MPN: {1}", UPC, MPN);
                 ret = dsutil.DSUtil.ErrMsg(header, exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
-
+        
+        public void SupplierItemUpdate(SupplierItem item, params string[] changedPropertyNames)
+        {
+            string ret = null;
+            try
+            {
+                var found = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.ID == item.ID);
+                if (found == null)
+                {
+                    this.SupplierItems.Add(item);
+                    this.SaveChanges();
+                }
+                else
+                {
+                    item.ID = found.ID;
+                    this.SupplierItems.Attach(item);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(item).Property(propertyName).IsModified = true;
+                    }
+                    this.SaveChanges();
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                string header = string.Format("SupplierItemUpdate ID: {0}", item.ID);
+                ret = dsutil.DSUtil.ErrMsg(header, exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+        }
+        
         public bool IsVERO(string brand)
         {
             var exists = this.VEROBrands.SingleOrDefault(p => p.Brand == brand);
@@ -1276,10 +1506,10 @@ namespace dsmodels
         {
             SupplierItem supplierItem = null;
             bool isUPC = false;
-            var spec = this.ItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
+            var spec = this.OrderHistoryItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
             if (spec == null)
             {
-                spec = this.ItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                spec = this.OrderHistoryItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
             }
             else
             {
@@ -1297,7 +1527,7 @@ namespace dsmodels
                     // seller might supply both UPC and MPN (in ItemSpecifics) but both were not collected off supplier website
                     if (supplierItem == null)
                     {
-                        spec = this.ItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                        spec = this.OrderHistoryItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
                         if (spec != null)
                         {
                             supplierItem = this.SupplierItems.SingleOrDefault(p => p.MPN == spec.ItemValue);
