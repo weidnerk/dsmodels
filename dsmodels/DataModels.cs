@@ -247,8 +247,8 @@ namespace dsmodels
         public string ItemValue { get; set; }
 
         [ForeignKey("SellerItemID")]
-        [JsonProperty(PropertyName = "listing")]
-        public SellerListing SellerListing { get; set; }
+        [JsonProperty(PropertyName = "orderHistory")]
+        public OrderHistory OrderHistory { get; set; }
         public bool? Flags { get; set; }
     }
     public class ShippingCostSummary
@@ -310,6 +310,7 @@ namespace dsmodels
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public decimal? ProposePrice { get; set; }
         public bool? ToListing { get; set; }   // Marker which says we can create a Listing record from the scan. 
+        public virtual List<OrderHistoryItemSpecific> ItemSpecifics { get; set; }
     }
 
     [Table("OrderHistoryDetail")]

@@ -328,15 +328,9 @@ namespace dsmodels
         {
             try
             {
-                var found = OrderHistory.FirstOrDefault(p => p.ItemID == sellerItemId);
-                if (found == null)
-                {
-                    // don't remove itemspecifics if found in OrderHistory (a scan)
-
-                    // first remove item specifics
-                    this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
-                    await this.SaveChangesAsync();
-                }
+                // first remove item specifics
+                this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
+                await this.SaveChangesAsync();
 
                 var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemId);
                 if (listing != null)
@@ -627,7 +621,7 @@ namespace dsmodels
             }
             return output;
         }
-        public static List<OrderHistoryItemSpecific> CopyFromOrderHistory(List<SellerListingItemSpecific> specifics)
+        public static List<OrderHistoryItemSpecific> CopyFromSellerListing(List<SellerListingItemSpecific> specifics)
         {
             var target = new List<OrderHistoryItemSpecific>();
             foreach(var i in specifics)
@@ -638,6 +632,21 @@ namespace dsmodels
                 specific.ItemValue = i.ItemValue;
                 specific.Flags = i.Flags;
                 
+                target.Add(specific);
+            }
+            return target;
+        }
+        public static List<SellerListingItemSpecific> CopyFromOrderHistory(List<OrderHistoryItemSpecific> specifics)
+        {
+            var target = new List<SellerListingItemSpecific>();
+            foreach (var i in specifics)
+            {
+                var specific = new SellerListingItemSpecific();
+                specific.SellerItemID = i.SellerItemID;
+                specific.ItemName = i.ItemName;
+                specific.ItemValue = i.ItemValue;
+                specific.Flags = i.Flags;
+
                 target.Add(specific);
             }
             return target;
@@ -919,7 +928,7 @@ namespace dsmodels
         {
             try
             {
-                var sellerprofile = await this.SellerProfiles.FirstOrDefaultAsync(r => r.Seller == seller);
+                var sellerprofile = await this.SellerProfiles.AsNoTracking().FirstOrDefaultAsync(r => r.Seller == seller);
                 return sellerprofile;
             }
             catch (Exception exc)
@@ -1400,7 +1409,7 @@ namespace dsmodels
         {
             try
             {
-                var rpt = this.SearchHistory.Where(p => p.Seller == seller).OrderByDescending(item => item.ID).FirstOrDefault();
+                var rpt = this.SearchHistory.AsNoTracking().Where(p => p.Seller == seller).OrderByDescending(item => item.ID).FirstOrDefault();
                 //var items = from t1 in this.SearchHistory.Where(p => p.Seller == seller)
                 //            join t2 in this.OrderHistory on t1.ID equals t2.RptNumber into notes
                 //            select notes.Max(x => (int?)x.RptNumber);
@@ -1468,8 +1477,38 @@ namespace dsmodels
         }
         public List<SearchHistory> GetSellers(int storeID)
         {
-            var sellers = this.SearchHistory.Where(p => p.StoreID == storeID).ToList();
+            var sellers = this.SearchHistory.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
             return sellers;
+        }
+
+        /// <summary>
+        /// When copying from Research to Listing, does product ID exist in SellerListing?
+        /// </summary>
+        /// <param name="UPC"></param>
+        /// <param name="MPN"></param>
+        /// <param name="storeID"></param>
+        /// <returns></returns>
+        public string ProdIDExists(string UPC, string MPN, int storeID)
+        {
+            //var x = SellerListings.Where(p => p.Listings.sto)
+            var listings = Listings.Where(p => p.StoreID == storeID).ToList();
+            foreach(var listing in listings)
+            {
+                var foundUPC = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "UPC" && p.ItemValue == UPC).SingleOrDefault();
+                if (foundUPC == null)
+                {
+                    var foundMPN = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "MPN" && p.ItemValue == MPN).SingleOrDefault();
+                    if (foundMPN != null)
+                    {
+                        return "MPN exists in SellerListing (not copied): " + MPN;
+                    }
+                }
+                else
+                {
+                    return "UPC exists in SellerListing (not copied): " + UPC;
+                }
+            }
+            return null;
         }
     }
 }
