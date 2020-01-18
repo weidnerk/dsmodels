@@ -395,7 +395,7 @@ namespace dsmodels
         public string Seller { get; set; }
         public string EbaySellerTitle { get; set; }
         public int SoldQty { get; set; }
-        public string EbayUrl { get; set; }
+        public string EbayURL { get; set; }
         public int RptNumber { get; set; }
         //public string ImageUrl { get; set; }
         public decimal Price { get; set; }  // last sold price
