@@ -488,9 +488,12 @@ namespace dsmodels
                     int stop = 99;
                 }
                 var found = this.OrderHistory.AsNoTracking().SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
-                orderHistory.ProposePrice = Math.Round(orderHistory.ProposePrice.Value, 2);
                 if (found == null)
                 {
+                    if (orderHistory.ProposePrice.HasValue)
+                    {
+                        orderHistory.ProposePrice = Math.Round(orderHistory.ProposePrice.Value, 2);
+                    }
                     this.OrderHistory.Add(orderHistory);
                     this.SaveChanges();
                     Entry(orderHistory).State = EntityState.Detached;
@@ -501,6 +504,13 @@ namespace dsmodels
                     this.OrderHistory.Attach(orderHistory);
                     foreach (var propertyName in changedPropertyNames)
                     {
+                        if (propertyName == "ProposePrice")
+                        {
+                            if (orderHistory.ProposePrice.HasValue)
+                            {
+                                orderHistory.ProposePrice = Math.Round(orderHistory.ProposePrice.Value, 2);
+                            }
+                        }
                         this.Entry(orderHistory).Property(propertyName).IsModified = true;
                     }
                     this.SaveChanges();
@@ -810,6 +820,11 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
+                if (listing.SellerListing != null)
+                {
+                    Entry(listing.SellerListing).State = EntityState.Detached;
+                }
+                Entry(listing).State = EntityState.Detached;
             }
             catch (Exception exc)
             {
@@ -902,18 +917,18 @@ namespace dsmodels
             var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
             return found;
         }
-        public async Task<Listing> ListingGet(string itemID)
+        public Listing ListingGet(string itemID)
         {
             try
             {
-                var listing = await this.Listings.Include(p => p.SellerListing).Include(p => p.SupplierItem).FirstOrDefaultAsync(r => r.ItemID == itemID);
+                var listing = this.Listings.Include(p => p.SellerListing).Include(p => p.SupplierItem).FirstOrDefault(r => r.ItemID == itemID);
                 if (listing == null)
                 {
                     return null;
                 }
                 // not sure why listing.SupplierItem is null after this line, so load manually....
-                var si = this.GetSupplierItem(itemID);
-                listing.SupplierItem = si;
+                //var si = this.GetSupplierItem(itemID);
+                //listing.SupplierItem = si;
                 return listing;
             }
             catch (Exception exc)
@@ -1440,10 +1455,10 @@ namespace dsmodels
         {
             SupplierItem supplierItem = null;
             bool isUPC = false;
-            var spec = this.OrderHistoryItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
+            var spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
             if (spec == null)
             {
-                spec = this.OrderHistoryItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
             }
             else
             {
@@ -1457,20 +1472,20 @@ namespace dsmodels
                     // an MPN which might have various versions that lead back to same UPC
                     // Need to decide how to handle.
                     // For now, use FirstOrdDefault instead of SingleOrDefault.
-                    supplierItem = this.SupplierItems.FirstOrDefault(p => p.UPC == spec.ItemValue);
+                    supplierItem = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == spec.ItemValue);
                     // seller might supply both UPC and MPN (in ItemSpecifics) but both were not collected off supplier website
                     if (supplierItem == null)
                     {
-                        spec = this.OrderHistoryItemSpecifics.FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                        spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
                         if (spec != null)
                         {
-                            supplierItem = this.SupplierItems.SingleOrDefault(p => p.MPN == spec.ItemValue);
+                            supplierItem = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.MPN == spec.ItemValue);
                         }
                     }
                 }
                 else
                 {
-                    supplierItem = this.SupplierItems.SingleOrDefault(p => p.MPN == spec.ItemValue);
+                    supplierItem = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.MPN == spec.ItemValue);
                 }
             }
             return supplierItem;
@@ -1491,7 +1506,7 @@ namespace dsmodels
         public string ProdIDExists(string UPC, string MPN, int storeID)
         {
             //var x = SellerListings.Where(p => p.Listings.sto)
-            var listings = Listings.Where(p => p.StoreID == storeID).ToList();
+            var listings = Listings.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
             foreach(var listing in listings)
             {
                 var foundUPC = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "UPC" && p.ItemValue == UPC).SingleOrDefault();
