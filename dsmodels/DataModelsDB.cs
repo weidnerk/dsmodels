@@ -33,7 +33,8 @@ namespace dsmodels
         public DbSet<OrderHistory> OrderHistory { get; set; }
         public DbSet<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }   // user's current selection
-        //public DbSet<UserSettingsView> UserSettingsView { get; set; }
+        public DbSet<UserSettingsView> UserSettingsView { get; set; }
+        public DbSet<UserStoreView> UserStoreView { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
         public DbSet<SellerProfile> SellerProfiles { get; set; }
@@ -52,24 +53,22 @@ namespace dsmodels
             return id;
         }
 
-        public UserSettings GetUserSetting(string userid)
-        {
-            var setting = this.UserSettings.Find(userid, 1);
-            return setting;
-        }
+        //public UserSettings GetUserSetting(string userid)
+        //{
+        //    var setting = this.UserSettings.Find(userid, 1);
+        //    return setting;
+        //}
 
         /// <summary>
         /// Return user profile based in his appID setting in UserSetting
         /// </summary>
-        /// <param name="userid"></param>
+        /// <param name="userID"></param>
         /// <returns></returns>
-        public UserSettingsView GetUserSettings(string connStr, string userid)
+        public UserSettingsView GetUserSettingsView(string connStr, string userID)
         {
             try
             {
-                // match composite key, UserId/ApplicationID; ApplicationID=1 for ds109
-                //var setting = this.UserSettingsView.Find(userid);
-                var setting = GetUserSetting(connStr, userid, 1);
+                var setting = GetUserSettingView(connStr, userID, 1);
                 if (setting != null)
                 {
                     return setting;
@@ -299,8 +298,9 @@ namespace dsmodels
         public DateTime? fromDateToScan(int rptNumber)
         {
             DateTime fromDate = DateTime.Now;
-          
-            try {
+
+            try
+            {
                 var its = this.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber).OrderByDescending(o => o.DateOfPurchase).ToList();
                 var lastSoldItem = its.FirstOrDefault();
                 if (lastSoldItem != null)
@@ -567,7 +567,7 @@ namespace dsmodels
             catch (DbEntityValidationException e)
             {
                 output = GetValidationErr(e);
-                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + itemID  + " " + output, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + itemID + " " + output, "admin");
 
                 output = DumpSellerListingItemSpecifics(specifics);
                 dsutil.DSUtil.WriteFile(_logfile, output, "admin");
@@ -634,14 +634,14 @@ namespace dsmodels
         public static List<OrderHistoryItemSpecific> CopyFromSellerListing(List<SellerListingItemSpecific> specifics)
         {
             var target = new List<OrderHistoryItemSpecific>();
-            foreach(var i in specifics)
+            foreach (var i in specifics)
             {
                 var specific = new OrderHistoryItemSpecific();
                 specific.SellerItemID = i.SellerItemID;
                 specific.ItemName = i.ItemName;
                 specific.ItemValue = i.ItemValue;
                 specific.Flags = i.Flags;
-                
+
                 target.Add(specific);
             }
             return target;
@@ -688,110 +688,6 @@ namespace dsmodels
             return output;
         }
 
-        /*
-        public async Task ListingSaveAsync_old(Listing listing, string userID)
-        {
-            try
-            {
-                // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
-                if (found == null)
-                {
-                    listing.Created = DateTime.Now;
-                    listing.CreatedBy = userID;
-                    Listings.Add(listing);
-                }
-                else
-                {
-                    this.Entry(found).State = EntityState.Modified;
-
-                    // https://stackoverflow.com/questions/10822656/entity-framework-include-multiple-levels-of-properties
-                    // this.Entry(found).Property(e => e.ItemSpecifics.Select(y => y.Listing)).IsModified = true;
-
-                    found.SupplierItem.SupplierPrice = listing.SupplierItem.SupplierPrice;
-                    found.ListingPrice = listing.ListingPrice;
-                    //found.SourceID = listing.SourceID;
-
-                    // User may have just copied in supplier URL and clicked Save in which case we don't have pictures
-                    // but can't see storing picture urls each time, so check first
-                    if (string.IsNullOrEmpty(found.PictureUrl))
-                    {
-                        found.PictureUrl = listing.PictureUrl;
-                    }
-                    found.PictureUrl = listing.PictureUrl;
-                    // found.Title = listing.Title;
-                    found.ListingTitle = listing.ListingTitle;
-                    // found.EbayUrl = listing.EbayUrl;
-                    // found.PrimaryCategoryID = listing.PrimaryCategoryID;
-                    // found.PrimaryCategoryName = listing.PrimaryCategoryName;
-                    found.Description = listing.Description;
-                    // found.SourceID = listing.SourceID;
-                    found.Qty = listing.Qty;
-                    // found.Seller = listing.Seller;
-                    // found.ItemSpecifics = listing.ItemSpecifics; // store when created, don't need to update
-                    found.Profit = listing.Profit;
-                    found.ProfitMargin = listing.ProfitMargin;
-
-                    if (listing.CheckCategory.HasValue)
-                    {
-                        found.CheckCategory = listing.CheckCategory;
-                    }
-                    if (listing.CheckCompetition.HasValue)
-                    {
-                        found.CheckCompetition = listing.CheckCompetition;
-                    }
-                    if (listing.CheckMainCompetitor.HasValue)
-                    {
-                        found.CheckMainCompetitor = listing.CheckMainCompetitor;
-                    }
-                    if (listing.CheckSellerShipping.HasValue)
-                    {
-                        found.CheckSellerShipping = listing.CheckSellerShipping;
-                    }
-                    if (listing.CheckShipping.HasValue)
-                    {
-                        found.CheckShipping = listing.CheckShipping;
-                    }
-                    if (listing.CheckSource.HasValue)
-                    {
-                        found.CheckSource = listing.CheckSource;
-                    }
-                    if (listing.CheckSupplierItem.HasValue)
-                    {
-                        found.CheckSupplierItem = listing.CheckSupplierItem;
-                    }
-                    if (listing.CheckSupplierPics.HasValue)
-                    {
-                        found.CheckSupplierPics = listing.CheckSupplierPics;
-                    }
-                    if (listing.CheckSupplierPrice.HasValue)
-                    {
-                        found.CheckSupplierPrice = listing.CheckSupplierPrice;
-                    }
-                    if (listing.CheckVero.HasValue)
-                    {
-                        found.CheckVero = listing.CheckVero;
-                    }
-                    if (listing.CheckIsVariation.HasValue)
-                    {
-                        found.CheckIsVariation = listing.CheckIsVariation;
-                    }
-                    if (listing.CheckVariationURL.HasValue)
-                    {
-                        found.CheckVariationURL = listing.CheckVariationURL;
-                    }
-                    found.Updated = DateTime.Now;
-                    found.UpdatedBy = userID;
-                }
-                await this.SaveChangesAsync();
-            }
-            catch (Exception exc)
-            {
-                string msg = dsutil.DSUtil.ErrMsg("ERROR ListingSaveAsync itemid: " + listing.ItemID, exc);
-                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
-            }
-        }
-        */
         public async Task ListingSaveAsync(Listing listing, string userID, params string[] changedPropertyNames)
         {
             try
@@ -956,7 +852,7 @@ namespace dsmodels
 
         public async Task<bool> ListedItemIDUpdate(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null)
         {
-            string errStr = null; 
+            string errStr = null;
             bool ret = false;
             try
             {
@@ -976,7 +872,7 @@ namespace dsmodels
                         rec.ListedBy = userId;
                         rec.Listed = listing.Listed;
                     }
-                    
+
                     rec.ListedWithAPI = listedWithAPI;
                     rec.ListedResponse = listedResponse;
 
@@ -1056,7 +952,7 @@ namespace dsmodels
             //var settings =GetUserSettings(userid);
             var sellerrec = this.SearchHistory.Where(r => r.Seller == seller).ToList();
             if (sellerrec.Count > 0)
-            { 
+            {
                 var rec = sellerrec.Where(r => r.UserId == userid).Count();
                 if (rec == 0)
                 {
@@ -1092,78 +988,13 @@ namespace dsmodels
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="p"></param>
-        /// <param name="userid"></param>
-        /// <returns>null if success</returns>
-        public async Task<string> UserProfileSaveAsync(UserSettingsView p, string userid)
-        {
-            string ret = null;
-            try
-            {
-                //var profile = this.UserProfiles.Where(k => k.AppID == p.AppID).FirstOrDefault();
-                //if (profile == null)
-                //{
-                //    var newprofile = new UserProfile();
-                //    newprofile.AppID = p.AppID;
-                //    newprofile.CertID = p.CertID;
-                //    newprofile.DevID = p.DevID;
-                //    newprofile.UserToken = p.UserToken;
-                //    newprofile.UserID = userid;
-                //    UserProfiles.Add(newprofile);
-                //}
-
-                var settings = this.UserSettings.Find(userid, 1);
-                if (settings != null)
-                {
-                    var storeProfile = StoreProfiles.Find(GetUserSetting(userid).StoreID);
-                    // storeProfile.AppID = p.AppID;
-                    settings.UserID = userid;
-                    // settings.ApplicationID = 1;
-                    this.Entry(settings).State = EntityState.Modified;
-                }
-                else
-                {
-                    //var newprofile = new UserProfile();
-                    //newprofile.AppID = p.AppID;
-                    //newprofile.CertID = p.CertID;
-                    //newprofile.DevID = p.DevID;
-                    //newprofile.UserToken = p.UserToken;
-                    //newprofile.Id = user.Id;
-                    //newprofile.Firstname = p.Firstname;
-                    //newprofile.Lastname = p.Lastname;
-                    //UserProfiles.Add(newprofile);
-                }
-                await this.SaveChangesAsync();
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-            }
-            catch (Exception exc)
-            {
-                ret = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            return ret;
-        }
-
-        /// <summary>
         /// Had 'UserSettingsView' marked as a [Table] but EF kept giving model validation errors after I moved Framework to 4.7.2
         /// </summary>
         /// <param name="connStr"></param>
         /// <param name="userId"></param>
         /// <param name="applicationId"></param>
         /// <returns></returns>
-        public static UserSettingsView GetUserSetting(string connStr, string userId, int applicationId)
+        public static UserSettingsView GetUserSettingView(string connStr, string userId, int applicationId)
         {
             try
             {
@@ -1371,7 +1202,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
-        
+
         public void SupplierItemUpdate(SupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
@@ -1413,7 +1244,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
-        
+
         public bool IsVERO(string brand)
         {
             var exists = this.VEROBrands.SingleOrDefault(p => p.Brand == brand);
@@ -1507,7 +1338,7 @@ namespace dsmodels
         {
             //var x = SellerListings.Where(p => p.Listings.sto)
             var listings = Listings.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
-            foreach(var listing in listings)
+            foreach (var listing in listings)
             {
                 var foundUPC = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "UPC" && p.ItemValue == UPC).SingleOrDefault();
                 if (foundUPC == null)
@@ -1524,6 +1355,49 @@ namespace dsmodels
                 }
             }
             return null;
+        }
+        public string UserSettingsSave(UserSettings settings, params string[] changedPropertyNames)
+        {
+            string ret = string.Empty;
+            try
+            {
+                // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
+                // by I will get an error trying to save the same itemId/rptNumber so remove 
+                var itemExists = UserSettings.SingleOrDefault(r => r.UserID == settings.UserID);
+                if (itemExists == null)
+                {
+                    UserSettings.Add(settings);
+                    this.SaveChanges();
+                }
+                else
+                {
+                    this.UserSettings.Attach(settings);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(settings).Property(propertyName).IsModified = true;
+                    }
+                    SaveChanges();
+                    Entry(settings).State = EntityState.Detached;
+                    return null;
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                ret = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "UserSettingsSave: " + settings.UserID + " " + ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("UserSettingsSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "UserSettingsSave: " + settings.UserID + " " + msg, "admin");
+                ret += exc.Message;
+            }
+            return ret;
+        }
+        public List<UserStoreView> GetUserStores(UserSettings settings)
+        {
+            var ret = UserStoreView.Where(p => p.UserID == settings.UserID).ToList();
+            return ret;
         }
     }
 }

@@ -57,16 +57,23 @@ namespace dsmodels
         public string Token { get; set; }
     }
 
+    /// <summary>
+    /// Current user settings
+    /// </summary>
     [Table("UserSettings")]
     public class UserSettings
     {
         [Key]
         [Column(Order = 1)]
+        [JsonProperty(PropertyName = "userID")]
         public string UserID { get; set; }
         [Key]
         [Column(Order = 2)]
+        [JsonProperty(PropertyName = "applicationID")]
         public int ApplicationID { get; set; }
+        [JsonProperty(PropertyName = "storeID")]
         public int StoreID { get; set; }    // What store is user currently working on?
+        [JsonProperty(PropertyName = "keysID")]
         public int KeysID { get; set; }     // User can use different key sets
         [ForeignKey("UserID")]
         public AspNetUser AspNetUser { get; set; }
@@ -127,7 +134,10 @@ namespace dsmodels
         [JsonProperty(PropertyName = "userName")]
         public string UserName { get; set; }
     }
-    // Which stores does user have access to?
+    /// <summary>
+    /// Which stores does user have access to?
+    /// As user selects, update StoreID in UserSettings
+    /// </summary>
     [Table("UserStore")]
     public class UserStore
     {
@@ -138,6 +148,20 @@ namespace dsmodels
         [Column(Order = 2)]
         public int StoreID { get; set; }
     }
-
+    [Table("vwUserStore")]
+    public class UserStoreView
+    {
+        [Key]
+        [Column(Order = 1)]
+        [JsonProperty(PropertyName = "userID")]
+        public string UserID { get; set; }
+        [Key]
+        [Column(Order = 2)]
+        [JsonProperty(PropertyName = "storeID")]
+        public int StoreID { get; set; }
+        [JsonProperty(PropertyName = "storeName")]
+        public string StoreName { get; set; }
+    }
 
 }
+
