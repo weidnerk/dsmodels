@@ -507,6 +507,17 @@ namespace dsmodels
                 }
                 else
                 {
+                    // Cant do this following detachmanets - get {"The entity type List`1 is not part of the model for the current context."}
+                    /*
+                    if (orderHistory.ItemSpecifics != null)
+                    {
+                        Entry(orderHistory.ItemSpecifics).State = EntityState.Detached;
+                    }
+                    if (orderHistory.OrderHistoryDetails != null)
+                    {
+                        Entry(orderHistory.OrderHistoryDetails).State = EntityState.Detached;
+                    }
+                    */
                     this.OrderHistory.Attach(orderHistory);
                     foreach (var propertyName in changedPropertyNames)
                     {
@@ -735,19 +746,6 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
-                //if (updateSupplierPrice)
-                //{
-                //    var supplierPrice = listing.SupplierItem.SupplierPrice;
-                //}
-                //if (listing.SellerListing != null)
-                //{
-                //    Entry(listing.SellerListing).State = EntityState.Detached;
-                //}
-                //if (listing.SupplierItem != null)
-                //{
-                //    Entry(listing.SupplierItem).State = EntityState.Detached;
-                //}
-                //Entry(listing).State = EntityState.Detached;
 
                 if (updateSupplierPrice)
                 {
@@ -822,11 +820,6 @@ namespace dsmodels
                 }
                 else
                 {
-                    //found.Note = sellerProfile.Note;
-                    //found.Updated = DateTime.Now;
-                    //found.UpdatedBy = sellerProfile.UpdatedBy;
-                    //this.Entry(found).State = EntityState.Modified;
-
                     this.SellerProfiles.Attach(sellerProfile);
                     foreach (var propertyName in changedPropertyNames)
                     {
@@ -857,23 +850,7 @@ namespace dsmodels
         {
             try
             {
-                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
-
-                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
-                
-                var listing = this.Listings.SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
-                var sellerListing = SellerListings.Where(p => p.ItemID == itemID).SingleOrDefault();
-                var supplierItem = SupplierItems.Where(p => p.ID == listing.SupplierID).SingleOrDefault();
-
-                listing.SellerListing = new SellerListing();
-                listing.SellerListing = sellerListing;
-
-                listing.SupplierItem = new SupplierItem();
-                listing.SupplierItem = supplierItem;
-
-                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
-
-                //var listing = Listings.Find(63);
+                var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
                 if (listing == null)
                 {
                     return null;
