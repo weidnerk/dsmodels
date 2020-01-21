@@ -233,6 +233,7 @@ namespace dsmodels
                 this.SearchHistory.Attach(sh);
                 this.SearchHistory.Remove(sh);
                 await this.SaveChangesAsync();
+                Entry(sh).State = EntityState.Detached;
             }
             catch (DbEntityValidationException e)
             {
@@ -324,15 +325,14 @@ namespace dsmodels
                 return null;
             }
         }
-        public async Task DeleteListingRecord(string sellerItemId)
+        public async Task DeleteListingRecord(string sellerItemId, int storeID)
         {
             try
             {
-                // first remove item specifics
-                this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
-                await this.SaveChangesAsync();
+                var listings = Listings.Where(p => p.ItemID == sellerItemId).ToList();
+                var multStores = (listings.Count > 1) ? true : false;
 
-                var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemId);
+                var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemId && p.StoreID == storeID);
                 if (listing != null)
                 {
                     //var sh = new Listing() { ItemID = sellerItemId, ID = listing.ID };
@@ -340,10 +340,17 @@ namespace dsmodels
                     this.Listings.Remove(listing);
                     await this.SaveChangesAsync();
 
-                    var sl = new SellerListing() { ItemID = sellerItemId };
-                    this.SellerListings.Attach(sl);
-                    this.SellerListings.Remove(sl);
-                    await this.SaveChangesAsync();
+                    if (!multStores)
+                    {
+                        // first remove item specifics
+                        this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
+                        await this.SaveChangesAsync();
+
+                        var sl = new SellerListing() { ItemID = sellerItemId };
+                        this.SellerListings.Attach(sl);
+                        this.SellerListings.Remove(sl);
+                        await this.SaveChangesAsync();
+                    }
                 }
             }
             catch (Exception exc)
@@ -478,6 +485,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + msg, "admin");
             }
         }
+       
         public void OrderHistoryUpdate(OrderHistory orderHistory, params string[] changedPropertyNames)
         {
             string output = null;
@@ -496,11 +504,9 @@ namespace dsmodels
                     }
                     this.OrderHistory.Add(orderHistory);
                     this.SaveChanges();
-                    Entry(orderHistory).State = EntityState.Detached;
                 }
                 else
                 {
-                    orderHistory.ItemID = found.ItemID;
                     this.OrderHistory.Attach(orderHistory);
                     foreach (var propertyName in changedPropertyNames)
                     {
@@ -529,6 +535,17 @@ namespace dsmodels
                 string msg = dsutil.DSUtil.ErrMsg("OrderHistoryUpdate", exc);
                 dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryUpdate: " + orderHistory.ItemID + " " + msg, "admin");
             }
+        }
+        public void DetachAllEntities()
+        {
+            var changedEntriesCopy = this.ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added ||
+                            e.State == EntityState.Modified ||
+                            e.State == EntityState.Deleted)
+                .ToList();
+
+            foreach (var entry in changedEntriesCopy)
+                entry.State = EntityState.Detached;
         }
         /// <summary>
         /// Now stored when running seller scrape.
@@ -692,8 +709,9 @@ namespace dsmodels
         {
             try
             {
+                bool updateSupplierPrice = false;
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-                var found = await this.Listings.AsNoTracking().FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
+                var found = await this.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ItemID == listing.ItemID && r.StoreID == listing.StoreID);
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
@@ -707,7 +725,8 @@ namespace dsmodels
                     {
                         if (propertyName == "SupplierItem.SupplierPrice")
                         {
-                            this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
+                            //this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
+                            updateSupplierPrice = true;
                         }
                         else
                         {
@@ -716,11 +735,32 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
-                if (listing.SellerListing != null)
+                //if (updateSupplierPrice)
+                //{
+                //    var supplierPrice = listing.SupplierItem.SupplierPrice;
+                //}
+                //if (listing.SellerListing != null)
+                //{
+                //    Entry(listing.SellerListing).State = EntityState.Detached;
+                //}
+                //if (listing.SupplierItem != null)
+                //{
+                //    Entry(listing.SupplierItem).State = EntityState.Detached;
+                //}
+                //Entry(listing).State = EntityState.Detached;
+
+                if (updateSupplierPrice)
                 {
-                    Entry(listing.SellerListing).State = EntityState.Detached;
+                    var supplierItem = new SupplierItem();
+                    supplierItem.ID = listing.SupplierID;
+                    supplierItem.SupplierPrice = listing.SupplierItem.SupplierPrice;
+                    if (listing.SupplierItem != null)
+                    {
+                        Entry(listing.SupplierItem).State = EntityState.Detached;
+                    }
+                    SupplierItemUpdate(supplierItem, "SupplierPrice");
                 }
-                Entry(listing).State = EntityState.Detached;
+        
             }
             catch (Exception exc)
             {
@@ -813,18 +853,31 @@ namespace dsmodels
             var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
             return found;
         }
-        public Listing ListingGet(string itemID)
+        public Listing ListingGet(string itemID, int storeID)
         {
             try
             {
-                var listing = this.Listings.Include(p => p.SellerListing).Include(p => p.SupplierItem).FirstOrDefault(r => r.ItemID == itemID);
+                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
+
+                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
+                
+                var listing = this.Listings.SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
+                var sellerListing = SellerListings.Where(p => p.ItemID == itemID).SingleOrDefault();
+                var supplierItem = SupplierItems.Where(p => p.ID == listing.SupplierID).SingleOrDefault();
+
+                listing.SellerListing = new SellerListing();
+                listing.SellerListing = sellerListing;
+
+                listing.SupplierItem = new SupplierItem();
+                listing.SupplierItem = supplierItem;
+
+                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
+
+                //var listing = Listings.Find(63);
                 if (listing == null)
                 {
                     return null;
                 }
-                // not sure why listing.SupplierItem is null after this line, so load manually....
-                //var si = this.GetSupplierItem(itemID);
-                //listing.SupplierItem = si;
                 return listing;
             }
             catch (Exception exc)
@@ -1224,6 +1277,7 @@ namespace dsmodels
                     }
                     this.SaveChanges();
                 }
+                Entry(item).State = EntityState.Detached;
             }
             catch (DbEntityValidationException e)
             {
@@ -1398,6 +1452,11 @@ namespace dsmodels
         {
             var ret = UserStoreView.Where(p => p.UserID == settings.UserID).ToList();
             return ret;
+        }
+        public SellerListing GetSellerListing(string itemID)
+        {
+            var found = SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
+            return found;
         }
     }
 }

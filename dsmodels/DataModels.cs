@@ -9,32 +9,22 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
+    public class ListingDTO
+    {
+        public Listing Listing { get; set; }
+        public string[] FieldNames { get; set; }
+    }
     /// <summary>
     /// Used for scan history page.
     /// </summary>
     [Table("vwSearchHistory")]
-    public class SearchHistoryView : SearchHistory
-    {
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [JsonProperty(PropertyName = "userName")]
-        public string UserName { get; set; }
-
-        [JsonProperty(PropertyName = "listingCount")]
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public int ListingCount { get; set; }
-
-    }
-
-    [Table("SearchHistory")]
-    public class SearchHistory
+    public class SearchHistoryView
     {
         [JsonProperty(PropertyName = "id")]
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int ID { get; set; }
         [JsonProperty(PropertyName = "seller")]
         public string Seller { get; set; }
 
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [JsonProperty(PropertyName = "updated")]
         public DateTime Updated { get; set; }
         public string UserId { get; set; }
@@ -44,7 +34,30 @@ namespace dsmodels
         public int StoreID { get; set; }
         [JsonProperty(PropertyName = "calculateMatch")]
         public DateTime? CalculateMatch { get; set; }
-        //public virtual List<OrderHistory> OrderHistory { get; set; }
+        [JsonProperty(PropertyName = "userName")]
+        public string UserName { get; set; }
+        [JsonProperty(PropertyName = "listingCount")]
+        public int ListingCount { get; set; }
+
+    }
+
+    [Table("SearchHistory")]
+    public class SearchHistory
+    {
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }
+        [JsonProperty(PropertyName = "seller")]
+        public string Seller { get; set; }
+
+        [JsonProperty(PropertyName = "updated")]
+        public DateTime Updated { get; set; }
+        public string UserId { get; set; }
+        public int DaysBack { get; set; }
+        public int MinSoldFilter { get; set; }
+        public bool? Running { get; set; }
+        public int StoreID { get; set; }
+        [JsonProperty(PropertyName = "calculateMatch")]
+        public DateTime? CalculateMatch { get; set; }
     }
 
     /// <summary>
