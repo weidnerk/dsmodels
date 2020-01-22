@@ -46,6 +46,7 @@ namespace dsmodels
         public DbSet<VEROBrands> VEROBrands { get; set; }
         public DbSet<SellerListing> SellerListings { get; set; }
         public DbSet<SupplierItem> SupplierItems { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
 
         public string GetUserIDFromName(string username)
         {
@@ -1411,6 +1412,23 @@ namespace dsmodels
         {
             var found = SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
             return found;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="storeID"></param>
+        /// <returns></returns>
+        public string GetToken(int storeID)
+        {
+            // UserToken contains a user as a PK but not sure why I did it this way.
+            // So just get first matching store.
+            string token = null;
+            var result = UserTokens.Where(p => p.StoreID == storeID).FirstOrDefault();
+            if (result != null)
+            {
+                token = result.Token;
+            }
+            return token;
         }
     }
 }

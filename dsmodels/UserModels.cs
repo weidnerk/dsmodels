@@ -44,10 +44,15 @@ namespace dsmodels
         public string CertID { get; set; }
     }
 
-    // ds109 user may be associated with multiple store tokens
+    /// <summary>
+    /// ds109 user may be associated with multiple store tokens 
+    /// 01.22.2020 what exactly do I mean by this?  Why do I associate a user with a token?
+    /// </summary>
     [Table("UserToken")]
     public class UserToken
     {
+        // Not exactly sure I like userID being part of token or even calling this USerToken.
+
         [Key]
         [Column(Order = 1)]
         public string UserID { get; set; }
