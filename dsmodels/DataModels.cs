@@ -106,7 +106,6 @@ namespace dsmodels
         //public byte SourceID { get; set; }
         public string ListedItemID { get; set; }
         //public string SupplierItemID { get; set; }
-        public bool OOS { get; set; }
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
         public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
@@ -187,7 +186,6 @@ namespace dsmodels
         public int Qty { get; set; }
         public DateTime? Listed { get; set; }
         public string ListedItemID { get; set; }
-        public bool OOS { get; set; }
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
         public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)

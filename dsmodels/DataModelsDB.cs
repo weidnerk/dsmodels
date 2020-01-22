@@ -785,30 +785,7 @@ namespace dsmodels
             var notes = await this.ListingNotesView.Where(p => p.ItemID == itemID && p.StoreID == storeID).OrderBy(o => o.Updated).ToListAsync();
             return notes;
         }
-        public async Task OOSSave(Listing listing)
-        {
-            try
-            {
-                var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
-                if (found == null)
-                {
-                    // error
-                    //   Listings.Add(listing);
-                }
-                else
-                {
-                    found.OOS = listing.OOS;
-                    found.Updated = DateTime.Now;
-                    this.Entry(found).State = EntityState.Modified;
-                }
-                await this.SaveChangesAsync();
-            }
-            catch (Exception exc)
-            {
-                string msg = dsutil.DSUtil.ErrMsg("", exc);
-                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
-            }
-        }
+       
         public async Task SellerProfileSave(SellerProfile sellerProfile, params string[] changedPropertyNames)
         {
             try
@@ -931,22 +908,22 @@ namespace dsmodels
             return ret;
         }
 
-        public async Task<bool> OOSUpdate(string listedItemID, bool OOS)
-        {
-            bool ret = false;
-            // find item by looking up seller's listing id
-            var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemID);
-            if (rec != null)
-            {
-                ret = true;
-                rec.OOS = OOS;
+        //public async Task<bool> OOSUpdate(string listedItemID, bool OOS)
+        //{
+        //    bool ret = false;
+        //    // find item by looking up seller's listing id
+        //    var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemID);
+        //    if (rec != null)
+        //    {
+        //        ret = true;
+        //        rec.OOS = OOS;
 
-                // Pass the entity to Entity Framework and mark it as modified
-                this.Entry(rec).State = EntityState.Modified;
-                this.SaveChanges();
-            }
-            return ret;
-        }
+        //        // Pass the entity to Entity Framework and mark it as modified
+        //        this.Entry(rec).State = EntityState.Modified;
+        //        this.SaveChanges();
+        //    }
+        //    return ret;
+        //}
 
         public async Task<bool> UpdateRemovedDate(Listing listing)
         {
