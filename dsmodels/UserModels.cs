@@ -80,8 +80,23 @@ namespace dsmodels
     }
     /// <summary>
     /// </summary>
-    public class UserSettingsView : UserSettings
+    public class UserSettingsView
     {
+        [Key]
+        [Column(Order = 1)]
+        [JsonProperty(PropertyName = "userID")]
+        public string UserID { get; set; }
+        [Key]
+        [Column(Order = 2)]
+        [JsonProperty(PropertyName = "applicationID")]
+        public int ApplicationID { get; set; }
+        [JsonProperty(PropertyName = "storeID")]
+        public int StoreID { get; set; }    // What store is user currently working on?
+        [JsonProperty(PropertyName = "keysID")]
+        public int KeysID { get; set; }     // User can use different key sets
+        [ForeignKey("UserID")]
+        public AspNetUser AspNetUser { get; set; }
+
         [JsonProperty(PropertyName = "userName")]
         public string UserName { get; set; }
 

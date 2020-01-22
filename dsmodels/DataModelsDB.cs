@@ -1387,18 +1387,18 @@ namespace dsmodels
             }
             return null;
         }
-        public string UserSettingsSave(UserSettings settings, params string[] changedPropertyNames)
+        public async Task<string> UserSettingsSave(UserSettings settings, params string[] changedPropertyNames)
         {
             string ret = string.Empty;
             try
             {
                 // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
                 // by I will get an error trying to save the same itemId/rptNumber so remove 
-                var itemExists = UserSettings.SingleOrDefault(r => r.UserID == settings.UserID);
+                var itemExists = UserSettings.AsNoTracking().SingleOrDefault(r => r.UserID == settings.UserID);
                 if (itemExists == null)
                 {
                     UserSettings.Add(settings);
-                    this.SaveChanges();
+                    await this.SaveChangesAsync();
                 }
                 else
                 {
@@ -1407,7 +1407,7 @@ namespace dsmodels
                     {
                         this.Entry(settings).Property(propertyName).IsModified = true;
                     }
-                    SaveChanges();
+                    await SaveChangesAsync();
                     Entry(settings).State = EntityState.Detached;
                     return null;
                 }
@@ -1425,7 +1425,7 @@ namespace dsmodels
             }
             return ret;
         }
-        public List<UserStoreView> GetUserStores(UserSettings settings)
+        public List<UserStoreView> GetUserStores(UserSettingsView settings)
         {
             var ret = UserStoreView.Where(p => p.UserID == settings.UserID).ToList();
             return ret;

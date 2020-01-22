@@ -9,10 +9,18 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
-    public class ListingDTO
+    public class DTO
+    {
+        public string[] FieldNames { get; set; }
+
+    }
+    public class ListingDTO : DTO
     {
         public Listing Listing { get; set; }
-        public string[] FieldNames { get; set; }
+    }
+    public class UserSettingsDTO : DTO
+    {
+        public UserSettings UserSettings { get; set; }
     }
     /// <summary>
     /// Used for scan history page.
