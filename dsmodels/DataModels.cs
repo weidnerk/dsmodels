@@ -22,6 +22,10 @@ namespace dsmodels
     {
         public UserSettings UserSettings { get; set; }
     }
+    public class UpdateToListingDTO : DTO
+    {
+        public UpdateToListing UpdateToListing { get; set; }
+    }
     /// <summary>
     /// Used for scan history page.
     /// </summary>
@@ -328,7 +332,6 @@ namespace dsmodels
         public bool? IsSellerVariation { get; set; }
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public decimal? ProposePrice { get; set; }
-        public bool? ToListing { get; set; }   // Marker which says we can create a Listing record from the scan. 
         public virtual List<OrderHistoryItemSpecific> ItemSpecifics { get; set; }
     }
 
@@ -513,5 +516,14 @@ namespace dsmodels
         public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
         public DateTime? Updated { get; set; }
         public int SourceID { get; set; }
+    }
+    [Table("UpdateToListing")]
+    public class UpdateToListing
+    {
+        public int ID { get; set; }
+        public string UserID { get; set; }
+        public string ItemID { get; set; }
+        public bool ToListing { get; set; }
+        public int StoreID { get; set; }
     }
 }

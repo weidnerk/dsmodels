@@ -47,7 +47,7 @@ namespace dsmodels
         public DbSet<SellerListing> SellerListings { get; set; }
         public DbSet<SupplierItem> SupplierItems { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
-
+        public DbSet<UpdateToListing> UpdateToListing { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -131,37 +131,6 @@ namespace dsmodels
                 this.SaveChanges();
             }
             return ret;
-        }
-        public async Task OrderHistorySaveToList(OrderHistory oh)
-        {
-            string ret = null;
-            try
-            {
-                var rec = await this.OrderHistory.FirstOrDefaultAsync(r => r.ItemID == oh.ItemID);
-                if (rec != null)
-                {
-                    rec.ToListing = oh.ToListing;
-                    this.Entry(rec).State = EntityState.Modified;
-                    await this.SaveChangesAsync();
-                }
-            }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
-            catch (Exception exc)
-            {
-                ret = dsutil.DSUtil.ErrMsg("OrderHistorySaveToList", exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
-            }
         }
 
         public string getUrl(int categoryId)
@@ -251,6 +220,43 @@ namespace dsmodels
             catch (Exception exc)
             {
                 ret = dsutil.DSUtil.ErrMsg("HistoryRemove", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+        }
+        public async Task UpdateToListingRemove(UpdateToListing obj)
+        {
+            string ret = null;
+            try
+            {
+                if (obj.ID == 0)
+                {
+                    var found = UpdateToListing.AsNoTracking().Where(p => p.StoreID == obj.StoreID && p.ItemID == obj.ItemID).SingleOrDefault();
+                    if (found == null)
+                    {
+                        throw new ArgumentException("ERROR UpdateToListingRemove - could not find StoreID/ItemID");
+                    }
+                    obj.ID = found.ID;
+                }
+                this.UpdateToListing.Attach(obj);
+                this.UpdateToListing.Remove(obj);
+                await this.SaveChangesAsync();
+                Entry(obj).State = EntityState.Detached;
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    ret = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        ret += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                ret = dsutil.DSUtil.ErrMsg("UpdateToListingRemove", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
@@ -1430,5 +1436,45 @@ namespace dsmodels
             }
             return token;
         }
+        public async Task<string> UpdateToListSave(UpdateToListing updateToList, params string[] changedPropertyNames)
+        {
+            string ret = string.Empty;
+            try
+            {
+                // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
+                // by I will get an error trying to save the same itemId/rptNumber so remove 
+                var itemExists = UpdateToListing.AsNoTracking().SingleOrDefault(r => r.UserID == updateToList.UserID && r.StoreID == updateToList.StoreID);
+                if (itemExists == null)
+                {
+                    UpdateToListing.Add(updateToList);
+                    await this.SaveChangesAsync();
+                }
+                else
+                {
+                    updateToList.ID = itemExists.ID;
+                    this.UpdateToListing.Attach(updateToList);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(updateToList).Property(propertyName).IsModified = true;
+                    }
+                    await SaveChangesAsync();
+                    Entry(updateToList).State = EntityState.Detached;
+                    return null;
+                }
+            }
+            catch (DbEntityValidationException e)
+            {
+                ret = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "UpdateToListSave: " + updateToList.UserID + " " + ret, "admin");
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("UpdateToListSave", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "UpdateToListSave: " + updateToList.UserID + " " + msg, "admin");
+                ret += exc.Message;
+            }
+            return ret;
+        }
+
     }
 }
