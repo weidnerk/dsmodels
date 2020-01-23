@@ -1436,7 +1436,7 @@ namespace dsmodels
             }
             return token;
         }
-        public async Task<string> UpdateToListSave(UpdateToListing updateToList, params string[] changedPropertyNames)
+        public async Task<string> UpdateToListingSave(UpdateToListing updateToList, params string[] changedPropertyNames)
         {
             string ret = string.Empty;
             try
