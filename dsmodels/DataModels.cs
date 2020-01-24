@@ -182,7 +182,7 @@ namespace dsmodels
         public virtual SellerListing SellerListing { get; set; }    // listing will typically be based on some seller's listing
         public string ListingTitle { get; set; }
         public string Description { get; set; }
-        public string PictureUrl { get; set; }                      // store picture urls as a semi-colon delimited string
+        public string PictureURL { get; set; }                      // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
         public string SourceUrl { get; set; }
         public string PrimaryCategoryID { get; set; }
