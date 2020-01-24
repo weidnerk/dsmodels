@@ -70,6 +70,10 @@ namespace dsmodels
         public int StoreID { get; set; }
         [JsonProperty(PropertyName = "calculateMatch")]
         public DateTime? CalculateMatch { get; set; }
+
+        [ForeignKey("Seller")]
+        public SellerProfile SellerProfile { get; set; }
+
     }
 
     /// <summary>
@@ -317,15 +321,12 @@ namespace dsmodels
         [Key]
         public string ItemID { get; set; }
         public int SourceID { get; set; }
-        //public string SupplierItemID { get; set; }
         public string SourceDescription { get; set; }
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public string PictureUrl { get; set; }
         public string Description { get; set; }
-        //public string EbaySeller { get; set; }
         public decimal? EbaySellerPrice { get; set; }   // seller's listed price
-        //public int CategoryId { get; set; }
         public decimal? ShippingAmount { get; set; }
         public string SellingState { get; set; }
         public string ListingStatus { get; set; }   // Active, Completed
@@ -401,6 +402,7 @@ namespace dsmodels
         public string UpdatedBy { get; set; }
         public string UserID { get; set; }
         public bool Active { get; set; }
+        public virtual List<SearchHistory> SearchHistory { get; set; }
     }
     public class ModelViewTimesSold
     {

@@ -1336,9 +1336,10 @@ namespace dsmodels
             }
             return supplierItem;
         }
-        public List<SearchHistory> GetSellers(int storeID)
+        public List<SearchHistory> GetSellers()
         {
-            var sellers = this.SearchHistory.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
+            var sellers = this.SearchHistory.AsNoTracking().Where(p => p.SellerProfile.Active).ToList();
+            //var sellers = SellerProfiles.AsNoTracking().Where(p => p.Active).ToList();
             return sellers;
         }
 
@@ -1475,6 +1476,10 @@ namespace dsmodels
             }
             return ret;
         }
-
+        public bool SellerExists(string seller)
+        {
+            var exists = SellerProfiles.Where(p => p.Seller == seller).SingleOrDefault();
+            return (exists == null) ? false : true;
+        }
     }
 }
