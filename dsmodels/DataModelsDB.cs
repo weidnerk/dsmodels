@@ -1,10 +1,15 @@
-﻿using System;
+﻿/*
+ * Use OrderHistoryUpdate as new model of insert/update 
+ * 
+ */
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -471,6 +476,7 @@ namespace dsmodels
                 {
                     this.OrderHistoryItemSpecifics.Add(specific);
                     this.SaveChanges();
+                    Entry(specific).State = EntityState.Detached;
                 }
                 else
                 {
@@ -478,6 +484,7 @@ namespace dsmodels
                     this.OrderHistoryItemSpecifics.Attach(specific);
                     this.Entry(specific).State = EntityState.Modified;
                     this.SaveChanges();
+                    Entry(specific).State = EntityState.Detached;
                 }
             }
             catch (DbEntityValidationException e)
@@ -502,7 +509,7 @@ namespace dsmodels
                 {
                     int stop = 99;
                 }
-                var found = this.OrderHistory.AsNoTracking().SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
+                var found = this.OrderHistory.SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
                 if (found == null)
                 {
                     if (orderHistory.ProposePrice.HasValue)
@@ -514,31 +521,17 @@ namespace dsmodels
                 }
                 else
                 {
-                    // Cant do this following detachmanets - get {"The entity type List`1 is not part of the model for the current context."}
-                    /*
-                    if (orderHistory.ItemSpecifics != null)
+                    Entry(found).CurrentValues.SetValues(orderHistory);
+                    var r = Entry(found).CurrentValues.PropertyNames;
+                    foreach(string field in r)
                     {
-                        Entry(orderHistory.ItemSpecifics).State = EntityState.Detached;
-                    }
-                    if (orderHistory.OrderHistoryDetails != null)
-                    {
-                        Entry(orderHistory.OrderHistoryDetails).State = EntityState.Detached;
-                    }
-                    */
-                    this.OrderHistory.Attach(orderHistory);
-                    foreach (var propertyName in changedPropertyNames)
-                    {
-                        if (propertyName == "ProposePrice")
+                        if (!changedPropertyNames.Contains(field))
                         {
-                            if (orderHistory.ProposePrice.HasValue)
-                            {
-                                orderHistory.ProposePrice = Math.Round(orderHistory.ProposePrice.Value, 2);
-                            }
+                            this.Entry(found).Property(field).IsModified = false;
                         }
-                        this.Entry(orderHistory).Property(propertyName).IsModified = true;
                     }
                     this.SaveChanges();
-                    Entry(orderHistory).State = EntityState.Detached;
+                    // Entry(orderHistory).State = EntityState.Detached;
                 }
             }
             catch (DbEntityValidationException e)
@@ -1089,7 +1082,7 @@ namespace dsmodels
                 new SqlParameter("dateFrom", dateFrom),
                 new SqlParameter("storeID", storeID),
                 new SqlParameter("minSoldQty", 3)
-                ).AsQueryable();
+                ).AsQueryable().AsNoTracking();
             return data;
         }
         /// <summary>
@@ -1118,7 +1111,7 @@ namespace dsmodels
                 new SqlParameter("dateFrom", dateFrom),
                 new SqlParameter("storeID", storeID),
                 p
-                ).AsQueryable();
+                ).AsQueryable().AsNoTracking();
             return data;
         }
 
@@ -1336,10 +1329,11 @@ namespace dsmodels
             }
             return supplierItem;
         }
-        public List<SearchHistory> GetSellers()
+        public List<SellerProfile> GetSellers()
         {
-            var sellers = this.SearchHistory.AsNoTracking().Where(p => p.SellerProfile.Active).ToList();
+            //var sellers = this.SearchHistory.AsNoTracking().Where(p => p.SellerProfile.Active).ToList();
             //var sellers = SellerProfiles.AsNoTracking().Where(p => p.Active).ToList();
+            var sellers = this.SellerProfiles.AsNoTracking().Include(p => p.SearchHistory).Where(o => o.Active).ToList();
             return sellers;
         }
 
@@ -1480,6 +1474,36 @@ namespace dsmodels
         {
             var exists = SellerProfiles.Where(p => p.Seller == seller).SingleOrDefault();
             return (exists == null) ? false : true;
+        }
+
+        public string ClearOrderHistory(int rptNumber)
+        {
+            string ret = string.Empty;
+            try
+            {
+                var report = OrderHistory.Where(p => p.RptNumber == rptNumber).ToList();
+                report.ForEach(a =>
+                    {
+                        a.MatchCount = null;
+                        a.MatchType = null;
+                        a.SourceID = null;
+                        a.SupplierItemID = null;
+                    }
+                );
+                SaveChanges();
+            }
+            catch (DbEntityValidationException e)
+            {
+                ret = GetValidationErr(e);
+                dsutil.DSUtil.WriteFile(_logfile, "ClearOrderHistory: rptNumber: " + rptNumber, "admin");
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ClearOrderHistory", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ClearOrderHistory: rptNumber: " + rptNumber + " " + msg, "admin");
+                ret += exc.Message;
+            }
+            return ret;
         }
     }
 }

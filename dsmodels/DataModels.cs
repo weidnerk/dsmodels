@@ -320,7 +320,7 @@ namespace dsmodels
         public int PageNumber { get; set; }
         [Key]
         public string ItemID { get; set; }
-        public int SourceID { get; set; }
+        public int? SourceID { get; set; }
         public string SourceDescription { get; set; }
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
@@ -334,6 +334,10 @@ namespace dsmodels
         public virtual List<OrderHistoryDetail> OrderHistoryDetails { get; set; }
         public decimal? ProposePrice { get; set; }
         public virtual List<OrderHistoryItemSpecific> ItemSpecifics { get; set; }
+        public byte? MatchCount { get; set; }
+        public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
+        public int? SupplierItemID { get; set; }
+
     }
 
     [Table("OrderHistoryDetail")]
@@ -496,7 +500,7 @@ namespace dsmodels
         //[ForeignKey("Listing")]
         public int ID { get; set; }
 
-        public byte? MatchCount { get; set; }
+        //public byte? MatchCount { get; set; }
         public string ItemURL { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }
@@ -515,7 +519,7 @@ namespace dsmodels
         public DateTime? Arrives { get; set; }
         [NotMapped]
         public bool? IsVERO { get; set; }
-        public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
+        //public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
         public DateTime? Updated { get; set; }
         public int SourceID { get; set; }
     }
