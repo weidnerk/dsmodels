@@ -53,6 +53,7 @@ namespace dsmodels
         public DbSet<SupplierItem> SupplierItems { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
         public DbSet<UpdateToListing> UpdateToListing { get; set; }
+        public DbSet<SalesOrder> SalesOrders { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -1255,7 +1256,12 @@ namespace dsmodels
 
         public bool IsVERO(string brand)
         {
-            var exists = this.VEROBrands.SingleOrDefault(p => p.Brand == brand);
+            var exists = this.VEROBrands.AsNoTracking().SingleOrDefault(p => p.Brand == brand);
+            return (exists != null);
+        }
+        public bool SalesOrderExists(string supplierOrderNumber)
+        {
+            var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.SupplierOrderNumber == supplierOrderNumber);
             return (exists != null);
         }
 
@@ -1505,5 +1511,33 @@ namespace dsmodels
             }
             return ret;
         }
+        public async Task SalesOrderSaveAsync(SalesOrder salesOrder, params string[] changedPropertyNames)
+        {
+            try
+            {
+                var found = await this.SalesOrders.AsNoTracking().SingleOrDefaultAsync(r => r.SupplierOrderNumber == salesOrder.SupplierOrderNumber);
+                if (found == null)
+                {
+                    SalesOrders.Add(salesOrder);
+                }
+                else
+                {
+                    salesOrder.ID = found.ID;
+                    this.SalesOrders.Attach(salesOrder);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(salesOrder).Property(propertyName).IsModified = true;
+                    }
+                }
+                await this.SaveChangesAsync();
+                Entry(salesOrder).State = EntityState.Detached;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ERROR SalesOrderSaveAsync ListedItemID: " + salesOrder.ListedItemID, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+            }
+        }
+
     }
 }

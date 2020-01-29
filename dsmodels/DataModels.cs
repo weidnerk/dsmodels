@@ -11,7 +11,7 @@ namespace dsmodels
 {
     public class DTO
     {
-        public string[] FieldNames { get; set; }
+        public List<string> FieldNames { get; set; }
 
     }
     public class ListingDTO : DTO
@@ -25,6 +25,10 @@ namespace dsmodels
     public class UpdateToListingDTO : DTO
     {
         public UpdateToListing UpdateToListing { get; set; }
+    }
+    public class SalesOrderDTO : DTO
+    {
+        public SalesOrder SalesOrder { get; set; }
     }
     /// <summary>
     /// Used for scan history page.
@@ -193,7 +197,7 @@ namespace dsmodels
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
         public DateTime? Listed { get; set; }
-        public string ListedItemID { get; set; }
+        public string ListedItemID { get; set; }            // ID created for my listing, not the seller's itemID
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
         public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
@@ -531,5 +535,28 @@ namespace dsmodels
         public string ItemID { get; set; }
         public bool ToListing { get; set; }
         public int StoreID { get; set; }
+    }
+    [Table("SalesOrder")]
+    public class SalesOrder
+    {
+        public int ID { get; set; }
+        public string ListedItemID { get; set; }
+        public DateTime DatePurchased { get; set; }
+        public int Qty { get; set; }
+
+        // you can argue that this fields s/b the PK but what if same order number used between different suppliers?
+        // or even same supplier re-uses order number?
+        // for now, I have place a unique constraint on it - see what happens
+        public string SupplierOrderNumber { get; set; }
+        public string eBayOrderNumber { get; set; }
+        public string Buyer { get; set; }
+        public string BuyerHandle { get; set; }
+    }
+
+    public class eBayOrder
+    {
+        public string BuyerHandle { get; set; }
+        public string Buyer { get; set; }
+        public DateTime DatePurchased { get; set; }
     }
 }
