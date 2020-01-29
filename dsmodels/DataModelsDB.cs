@@ -338,17 +338,16 @@ namespace dsmodels
                 return null;
             }
         }
-        public async Task DeleteListingRecord(string sellerItemId, int storeID)
+        public async Task DeleteListingRecordAsync(string sellerItemID, int storeID)
         {
             try
             {
-                var listings = Listings.Where(p => p.ItemID == sellerItemId).ToList();
+                var listings = Listings.Where(p => p.ItemID == sellerItemID).ToList();
                 var multStores = (listings.Count > 1) ? true : false;
 
-                var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemId && p.StoreID == storeID);
+                var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemID && p.StoreID == storeID);
                 if (listing != null)
                 {
-                    //var sh = new Listing() { ItemID = sellerItemId, ID = listing.ID };
                     this.Listings.Attach(listing);
                     this.Listings.Remove(listing);
                     await this.SaveChangesAsync();
@@ -356,10 +355,10 @@ namespace dsmodels
                     if (!multStores)
                     {
                         // first remove item specifics
-                        this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemId));
+                        this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemID));
                         await this.SaveChangesAsync();
 
-                        var sl = new SellerListing() { ItemID = sellerItemId };
+                        var sl = new SellerListing() { ItemID = sellerItemID };
                         this.SellerListings.Attach(sl);
                         this.SellerListings.Remove(sl);
                         await this.SaveChangesAsync();
@@ -842,6 +841,24 @@ namespace dsmodels
                 return null;
             }
         }
+        public Listing ListingGet(string listedItemID)
+        {
+            try
+            {
+                var listing = this.Listings.AsNoTracking().Include(p => p.SupplierItem).AsNoTracking().Include(p => p.SellerListing).SingleOrDefault(r => r.ListedItemID == listedItemID);
+                if (listing == null)
+                {
+                    return null;
+                }
+                return listing;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ListingGet, ListedItemID: " + listedItemID, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                return null;
+            }
+        }
 
         public async Task<SellerProfile> SellerProfileGet(string seller)
         {
@@ -926,24 +943,6 @@ namespace dsmodels
         //    return ret;
         //}
 
-        public async Task<bool> UpdateRemovedDate(Listing listing)
-        {
-            bool ret = false;
-            var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
-            if (rec != null)
-            {
-                ret = true;
-                //rec.Removed = DateTime.Now;
-
-                using (var context = new DataModelsDB())
-                {
-                    // Pass the entity to Entity Framework and mark it as modified
-                    context.Entry(rec).State = EntityState.Modified;
-                    context.SaveChanges();
-                }
-            }
-            return ret;
-        }
 
         /// <summary>
         /// Users get to have their own sellers.
@@ -1262,6 +1261,11 @@ namespace dsmodels
         public bool SalesOrderExists(string supplierOrderNumber)
         {
             var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.SupplierOrderNumber == supplierOrderNumber);
+            return (exists != null);
+        }
+        public bool SalesExists(string listedItemID)
+        {
+            var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.ListedItemID == listedItemID);
             return (exists != null);
         }
 

@@ -230,7 +230,8 @@ namespace dsmodels
         public int SupplierID { get; set; }
         [ForeignKey("SupplierID")]
         public virtual SupplierItem SupplierItem { get; set; }
-
+        public DateTime? Ended { get; set; }
+        public string EndedBy { get; set; }
     }
 
     // SellerItemID here can either point to SellerListing or OrderHistory.
