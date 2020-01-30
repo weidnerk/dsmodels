@@ -338,8 +338,16 @@ namespace dsmodels
                 return null;
             }
         }
-        public async Task DeleteListingRecordAsync(string sellerItemID, int storeID)
+
+        /// <summary>
+        /// https://www.entityframeworktutorial.net/entityframework6/transaction-in-entity-framework.aspx
+        /// </summary>
+        /// <param name="sellerItemID"></param>
+        /// <param name="storeID"></param>
+        /// <returns></returns>
+        public async Task<string> DeleteListingRecordAsync(string sellerItemID, int storeID)
         {
+            string ret = null;
             try
             {
                 var listings = Listings.Where(p => p.ItemID == sellerItemID).ToList();
@@ -350,26 +358,25 @@ namespace dsmodels
                 {
                     this.Listings.Attach(listing);
                     this.Listings.Remove(listing);
-                    await this.SaveChangesAsync();
 
                     if (!multStores)
                     {
                         // first remove item specifics
                         this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemID));
-                        await this.SaveChangesAsync();
 
                         var sl = new SellerListing() { ItemID = sellerItemID };
                         this.SellerListings.Attach(sl);
                         this.SellerListings.Remove(sl);
-                        await this.SaveChangesAsync();
                     }
+                    await this.SaveChangesAsync();
                 }
             }
             catch (Exception exc)
             {
-                string ret = dsutil.DSUtil.ErrMsg("DeleteListingRecord", exc);
+                ret = dsutil.DSUtil.ErrMsg("DeleteListingRecord", exc);
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
+            return ret;
         }
 
         /// <summary>
