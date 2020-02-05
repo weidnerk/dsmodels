@@ -178,6 +178,8 @@ namespace dsmodels
         public string PrimaryCategoryName { get; set; }
         public int? Qty { get; set; }
         public DateTime Updated { get; set; }
+        [NotMapped]
+        public List<Variation> Variations { get; set; }
     }
 
     [Table("Listing")]
@@ -192,7 +194,7 @@ namespace dsmodels
         public string Description { get; set; }
         public string PictureURL { get; set; }                      // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
-        public string SourceUrl { get; set; }
+        //public string SourceUrl { get; set; }
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
@@ -560,4 +562,5 @@ namespace dsmodels
         public string Buyer { get; set; }
         public DateTime DatePurchased { get; set; }
     }
+
 }
