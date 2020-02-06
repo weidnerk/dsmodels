@@ -113,9 +113,7 @@ namespace dsmodels
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
         public DateTime? Listed { get; set; }
-        //public byte SourceID { get; set; }
         public string ListedItemID { get; set; }
-        //public string SupplierItemID { get; set; }
         public DateTime? Updated { get; set; }
         public string UpdatedBy { get; set; }
         public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
@@ -522,9 +520,10 @@ namespace dsmodels
         public DateTime? Arrives { get; set; }
         [NotMapped]
         public bool? IsVERO { get; set; }
-        //public byte? MatchType { get; set; }    // 1=UPC, 2=MPN
         public DateTime? Updated { get; set; }
         public int SourceID { get; set; }
+        [NotMapped]
+        public List<string> VariationPicURL { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
