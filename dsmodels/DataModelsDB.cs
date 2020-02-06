@@ -150,8 +150,16 @@ namespace dsmodels
 
         public async Task<SearchHistory> SearchHistoryAdd(SearchHistory sh)
         {
-            this.SearchHistory.Add(sh);
-            await this.SaveChangesAsync();
+            try
+            {
+                this.SearchHistory.Add(sh);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string ret = dsutil.DSUtil.ErrMsg("SearchHistoryAdd", exc);
+                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+            }
             return sh;
         }
         public SearchHistory SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames)

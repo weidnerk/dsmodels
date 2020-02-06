@@ -71,7 +71,7 @@ namespace dsmodels
         public int DaysBack { get; set; }
         public int MinSoldFilter { get; set; }
         public bool? Running { get; set; }
-        public int StoreID { get; set; }
+        //public int StoreID { get; set; }
         [JsonProperty(PropertyName = "calculateMatch")]
         public DateTime? CalculateMatch { get; set; }
 
@@ -99,8 +99,6 @@ namespace dsmodels
         public string Seller { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string Title { get; set; }
-
-
         [Key]
         public int ID { get; set; }
         public string ItemID { get; set; }
@@ -110,7 +108,7 @@ namespace dsmodels
         public string Description { get; set; }
         public string PictureUrl { get; set; }                      // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
-        public string SourceUrl { get; set; }
+        public string SourceURL { get; set; }
         public string PrimaryCategoryID { get; set; }
         public string PrimaryCategoryName { get; set; }
         public int Qty { get; set; }
@@ -144,8 +142,6 @@ namespace dsmodels
         public bool? CheckVariationURL { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? Created { get; set; }
-
-
     }
 
     /// <summary>
