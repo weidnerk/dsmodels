@@ -91,13 +91,13 @@ namespace dsmodels
     public class ListingView
     {
         // Returned by view as read/only
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string ListedByName { get; set;}
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string CreatedByName { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string Seller { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string Title { get; set; }
         [Key]
         public int ID { get; set; }
@@ -115,7 +115,7 @@ namespace dsmodels
         public DateTime? Listed { get; set; }
         public string ListedItemID { get; set; }
         public DateTime? Updated { get; set; }
-        public string UpdatedBy { get; set; }
+        //public string UpdatedBy { get; set; }
         public bool? CheckShipping { get; set; }         // no supplier shipping issues (like back-ordered)
         public bool? CheckSource { get; set; }           // that supplier is walmart
         public bool? CheckVero { get; set; }
@@ -140,6 +140,8 @@ namespace dsmodels
         public bool? CheckVariationURL { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? Created { get; set; }
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public string UpdatedByName { get; set; }
     }
 
     /// <summary>

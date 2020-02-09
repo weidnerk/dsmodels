@@ -746,8 +746,13 @@ namespace dsmodels
                 }
                 else
                 {
+                    listing.Updated = DateTime.Now;
+                    listing.UpdatedBy = userID;
                     this.Listings.Attach(listing);
-                    foreach (var propertyName in changedPropertyNames)
+                    var changedProperties = changedPropertyNames.ToList();
+                    changedProperties.Add("Updated");
+                    changedProperties.Add("UpdatedBy");
+                    foreach (var propertyName in changedProperties)
                     {
                         if (propertyName == "SupplierItem.SupplierPrice")
                         {
