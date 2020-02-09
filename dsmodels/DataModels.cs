@@ -549,13 +549,21 @@ namespace dsmodels
         public string eBayOrderNumber { get; set; }
         public string Buyer { get; set; }
         public string BuyerHandle { get; set; }
+        public decimal BuyerPaid { get; set; }
+        public decimal I_Paid { get; set; }
+        public string BuyerState { get; set; }
     }
 
-    public class eBayOrder
+    /// <summary>
+    /// Intent is response from GetOrders() vs db table, SalesOrder.
+    /// </summary>
+    public class GetOrdersResponse
     {
         public string BuyerHandle { get; set; }
         public string Buyer { get; set; }
         public DateTime DatePurchased { get; set; }
+        public decimal BuyerPaid { get; set; }
+        public string BuyerState { get; set; }
     }
 
 }
