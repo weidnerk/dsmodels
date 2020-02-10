@@ -54,6 +54,7 @@ namespace dsmodels
         public DbSet<UserToken> UserTokens { get; set; }
         public DbSet<UpdateToListing> UpdateToListing { get; set; }
         public DbSet<SalesOrder> SalesOrders { get; set; }
+        public DbSet<AppSettings> AppSettings { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -578,25 +579,23 @@ namespace dsmodels
         /// </summary>
         /// <param name="specifics"></param>
         /// <returns></returns>
-        public async Task<string> SellerListingItemSpecificSave(List<SellerListingItemSpecific> specifics)
+        public async Task<string> SellerListingItemSpecificSave(SellerListing sellerListing)
         {
             string output = null;
-            string itemID = null;
             try
             {
                 // don't replace a UPC or MPN with another seller's value of 'Does not apply'
-                bool ret = specifics.Remove(specifics.SingleOrDefault(p => p.ItemName == "UPC" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
-                ret = specifics.Remove(specifics.SingleOrDefault(p => p.ItemName == "MPN" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
+                bool ret = sellerListing.ItemSpecifics.Remove(sellerListing.ItemSpecifics.SingleOrDefault(p => p.ItemName == "UPC" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
+                ret = sellerListing.ItemSpecifics.Remove(sellerListing.ItemSpecifics.SingleOrDefault(p => p.ItemName == "MPN" && p.ItemValue.ToUpper() == "DOES NOT APPLY"));
 
                 // i've also seen seller's use underscores in MPN - is that a valid character in a Walmart MPN?
 
-                itemID = specifics[0].SellerItemID;
-                var found = await this.SellerListingItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
+                var found = await this.SellerListingItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == sellerListing.ItemID);
                 if (found != null)
                 {
-                    this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == itemID));
+                    this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerListing.ItemID));
                 }
-                foreach (var item in specifics)
+                foreach (var item in sellerListing.ItemSpecifics)
                 {
                     if (item.ItemValue.Length > 700)
                     {
@@ -610,18 +609,18 @@ namespace dsmodels
             catch (DbEntityValidationException e)
             {
                 output = GetValidationErr(e);
-                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + itemID + " " + output, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + sellerListing.ItemID + " " + output, "admin");
 
-                output = DumpSellerListingItemSpecifics(specifics);
+                output = DumpSellerListingItemSpecifics(sellerListing.ItemSpecifics);
                 dsutil.DSUtil.WriteFile(_logfile, output, "admin");
             }
             catch (Exception exc)
             {
                 output = exc.Message;
                 string msg = dsutil.DSUtil.ErrMsg("SellerListingItemSpecificSave", exc);
-                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + itemID + " " + msg, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: " + sellerListing.ItemID + " " + msg, "admin");
 
-                output = DumpSellerListingItemSpecifics(specifics);
+                output = DumpSellerListingItemSpecifics(sellerListing.ItemSpecifics);
                 dsutil.DSUtil.WriteFile(_logfile, output, "admin");
             }
             return output;
@@ -838,9 +837,14 @@ namespace dsmodels
             return found;
         }
 
-        public async Task<Listing> GetListing(string itemId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public async Task<Listing> GetListing(int ID)
         {
-            var found = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == itemId);
+            var found = await this.Listings.AsQueryable().SingleOrDefaultAsync(r => r.ID == ID);
             return found;
         }
         public Listing ListingGet(string itemID, int storeID)
@@ -1562,6 +1566,10 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-
+        public string GetAppSetting(string settingName)
+        {
+            var settingValue = AppSettings.Where(p => p.SettingName == settingName).Select(s => s.SettingValue).Single();
+            return settingValue;
+        }
     }
 }

@@ -260,6 +260,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "listing")]
         public SellerListing SellerListing { get; set; }
         public bool? Flags { get; set; }
+        public DateTime? Updated { get; set; }
     }
     [Table("OrderHistoryItemSpecific")]
     public class OrderHistoryItemSpecific
@@ -568,4 +569,11 @@ namespace dsmodels
         public string BuyerState { get; set; }
     }
 
+    [Table("AppSettings")]
+    public class AppSettings
+    {
+        [Key]
+        public string SettingName { get; set; }
+        public string SettingValue { get; set; }
+    }
 }
