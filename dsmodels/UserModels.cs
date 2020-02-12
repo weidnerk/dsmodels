@@ -131,6 +131,10 @@ namespace dsmodels
         public string StoreName { get; set; }
     }
 
+    /// <summary>
+    /// Should listing note be linked to store?
+    /// Recall item can go in multiple stores - argue both ways - right now note is linked to store.
+    /// </summary>
     [Table("ListingNote")]
     public class ListingNote
     {
