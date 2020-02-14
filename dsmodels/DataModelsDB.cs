@@ -765,6 +765,8 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
+                Entry(listing.SellerListing).State = EntityState.Detached;
+                Entry(listing).State = EntityState.Detached;
 
                 if (updateSupplierPrice)
                 {
@@ -1472,7 +1474,7 @@ namespace dsmodels
             {
                 // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
                 // by I will get an error trying to save the same itemId/rptNumber so remove 
-                var itemExists = UpdateToListing.AsNoTracking().SingleOrDefault(r => r.UserID == updateToList.UserID && r.StoreID == updateToList.StoreID);
+                var itemExists = UpdateToListing.AsNoTracking().SingleOrDefault(r => r.ItemID == updateToList.ItemID && r.StoreID == updateToList.StoreID);
                 if (itemExists == null)
                 {
                     UpdateToListing.Add(updateToList);
