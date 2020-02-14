@@ -765,7 +765,10 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
-                Entry(listing.SellerListing).State = EntityState.Detached;
+                if (listing.SellerListing != null)
+                {
+                    Entry(listing.SellerListing).State = EntityState.Detached;
+                }
                 Entry(listing).State = EntityState.Detached;
 
                 if (updateSupplierPrice)
