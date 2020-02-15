@@ -577,4 +577,15 @@ namespace dsmodels
         public string SettingName { get; set; }
         public string SettingValue { get; set; }
     }
+
+    /// <summary>
+    /// Created to display price information generated when calculating wm price.
+    /// </summary>
+    public class PriceProfit
+    {
+        [JsonProperty(PropertyName = "breakEven")]
+        public decimal BreakEven { get; set; }
+        [JsonProperty(PropertyName = "proposePrice")]
+        public decimal ProposePrice { get; set; }
+    }
 }
