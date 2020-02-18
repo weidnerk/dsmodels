@@ -765,24 +765,33 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
-                if (listing.SellerListing != null)
-                {
-                    Entry(listing.SellerListing).State = EntityState.Detached;
-                }
-                Entry(listing).State = EntityState.Detached;
-
+              
                 if (updateSupplierPrice)
                 {
                     var supplierItem = new SupplierItem();
                     supplierItem.ID = listing.SupplierID;
+                    //if (listing.SupplierItem == null)
+                    //{
+                    //    this.Entry(listing).Reference(s => s.SupplierItem).Load();
+                    //}
                     supplierItem.SupplierPrice = listing.SupplierItem.SupplierPrice;
+
+                    // need this or SupplierItemUpdate() will complain about existing PK
                     if (listing.SupplierItem != null)
                     {
                         Entry(listing.SupplierItem).State = EntityState.Detached;
                     }
                     SupplierItemUpdate(supplierItem, "SupplierPrice");
                 }
-        
+                if (listing.SupplierItem != null)
+                {
+                    Entry(listing.SupplierItem).State = EntityState.Detached;
+                }
+                if (listing.SellerListing != null)
+                {
+                    Entry(listing.SellerListing).State = EntityState.Detached;
+                }
+                Entry(listing).State = EntityState.Detached;
             }
             catch (Exception exc)
             {
