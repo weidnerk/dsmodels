@@ -502,10 +502,7 @@ namespace dsmodels
         // Need to research the reasoning.
 
         // https://entityframework.net/one-to-one-relationship
-        //[ForeignKey("Listing")]
         public int ID { get; set; }
-
-        //public byte? MatchCount { get; set; }
         public string ItemURL { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }
@@ -518,7 +515,9 @@ namespace dsmodels
         public string ItemID { get; set; }  // this is supplier item number, not to be confused with ebay seller itemID
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
-        public virtual List<Listing> Listing { get; set; }
+        //[ForeignKey("ID")]
+        //public virtual List<Listing> Listing { get; set; }
+        //public virtual Listing Listing { get; set; }
 
         [NotMapped]
         public DateTime? Arrives { get; set; }

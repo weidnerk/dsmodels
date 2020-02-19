@@ -856,7 +856,7 @@ namespace dsmodels
         /// </summary>
         /// <param name="itemId"></param>
         /// <returns></returns>
-        public async Task<Listing> GetListing(int ID)
+        public async Task<Listing> GetListing_notused(int ID)
         {
             var found = await this.Listings.AsQueryable().SingleOrDefaultAsync(r => r.ID == ID);
             return found;
@@ -875,6 +875,45 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("ListingGet, itemID: " + itemID, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                return null;
+            }
+        }
+        public Listing ListingGet(int listingID)
+        {
+            try
+            {
+                var listing = this.Listings.SingleOrDefault(r => r.ID == listingID);
+                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ID == listingID);
+                //var listing = this.Listings.AsNoTracking().Include(p => p.SellerListing).AsNoTracking().SingleOrDefault(r => r.ID == listingID);
+                //this.Entry(listing).Reference(s => s.SupplierItem).Load();
+                if (listing == null)
+                {
+                    return null;
+                }
+                return listing;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ListingGet, listingID: " + listingID, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                return null;
+            }
+        }
+        public SupplierItem SupplierItemGet(int ID)
+        {
+            try
+            {
+                var supplierItem = this.SupplierItems.SingleOrDefault(r => r.ID == ID);
+                if (supplierItem == null)
+                {
+                    return null;
+                }
+                return supplierItem;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("SupplierItemGet, ID: " + ID, exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 return null;
             }
