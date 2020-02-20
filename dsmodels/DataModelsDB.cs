@@ -890,9 +890,14 @@ namespace dsmodels
         {
             try
             {
-                var listing = this.Listings.SingleOrDefault(r => r.ID == listingID);
+                // strange - if you use AsNoTracking here, listings works but then click into listing, chrome console shows internal server error
+                // server or client does not give me an error message.
+                //var listing = this.Listings.SingleOrDefault(r => r.ID == listingID);
+
                 //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ID == listingID);
-                //var listing = this.Listings.AsNoTracking().Include(p => p.SellerListing).AsNoTracking().SingleOrDefault(r => r.ID == listingID);
+                var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).Where(r => r.ID == listingID).SingleOrDefault();
+                this.Entry(listing).Reload();
+                //var listing = this.Listings.Include(o => o.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ID == listingID);
                 //this.Entry(listing).Reference(s => s.SupplierItem).Load();
                 if (listing == null)
                 {
