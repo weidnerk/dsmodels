@@ -844,10 +844,17 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-        public List<ListingView> GetListings(int storeID)
+        public List<ListingView> GetListings(int storeID, bool listedOnly)
         {
-            //var found = this.ListingsView.Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
-            var found = this.ListingsView.Where(p => p.StoreID == storeID).ToList();
+            List<ListingView> found = new List<ListingView>();
+            if (!listedOnly)
+            {
+                found = this.ListingsView.Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
+            }
+            else
+            {
+                found = this.ListingsView.Where(p => p.StoreID == storeID && p.Listed != null).ToList();
+            }
             return found;
         }
 
