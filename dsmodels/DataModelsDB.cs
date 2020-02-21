@@ -765,7 +765,6 @@ namespace dsmodels
                     }
                 }
                 await this.SaveChangesAsync();
-              
                 if (updateSupplierPrice)
                 {
                     var supplierItem = new SupplierItem();
@@ -849,11 +848,11 @@ namespace dsmodels
             List<ListingView> found = new List<ListingView>();
             if (!listedOnly)
             {
-                found = this.ListingsView.Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
+                found = this.ListingsView.AsNoTracking().Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
             }
             else
             {
-                found = this.ListingsView.Where(p => p.StoreID == storeID && p.Listed != null).ToList();
+                found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed != null).ToList();
             }
             return found;
         }
@@ -888,17 +887,17 @@ namespace dsmodels
         }
         public Listing ListingGet(int listingID)
         {
+            // can't detach, otherwise, returns all undefined
+            // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                // strange - if you use AsNoTracking here, listings works but then click into listing, chrome console shows internal server error
-                // server or client does not give me an error message.
-                //var listing = this.Listings.SingleOrDefault(r => r.ID == listingID);
+                var listing = this.Listings.Where(r => r.ID == listingID).SingleOrDefault();
 
-                //var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ID == listingID);
-                var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).Where(r => r.ID == listingID).SingleOrDefault();
+                // 02.20.2020
+                // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 
+                // Still trying to see why needed.
                 this.Entry(listing).Reload();
-                //var listing = this.Listings.Include(o => o.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ID == listingID);
-                //this.Entry(listing).Reference(s => s.SupplierItem).Load();
+
                 if (listing == null)
                 {
                     return null;
