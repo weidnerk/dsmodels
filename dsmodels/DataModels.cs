@@ -527,6 +527,7 @@ namespace dsmodels
         public int SourceID { get; set; }
         [NotMapped]
         public List<string> VariationPicURL { get; set; }
+        public bool? IsFreightShipping { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
