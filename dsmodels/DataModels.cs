@@ -459,6 +459,7 @@ namespace dsmodels
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public decimal? PriceDelta { get; set; } // not part of db, just calculate for report.
         public int SourceID { get; set; }
+        public bool? IsFreightShipping { get; set; }
     }
 
     public class UserProfileVM
