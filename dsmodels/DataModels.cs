@@ -529,6 +529,11 @@ namespace dsmodels
         [NotMapped]
         public List<string> VariationPicURL { get; set; }
         public bool? IsFreightShipping { get; set; }
+
+        [NotMapped]
+        public string VariationName { get; set; }
+        [NotMapped]
+        public List<string> Variation { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
