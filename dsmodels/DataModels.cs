@@ -534,6 +534,10 @@ namespace dsmodels
         public string VariationName { get; set; }
         [NotMapped]
         public List<string> Variation { get; set; }
+        [NotMapped]
+        public List<string> usItemId { get; set; }
+        [NotMapped]
+        public List<SupplierVariation> SupplierVariation { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
@@ -593,5 +597,11 @@ namespace dsmodels
         public decimal BreakEven { get; set; }
         [JsonProperty(PropertyName = "proposePrice")]
         public decimal ProposePrice { get; set; }
+    }
+    public class SupplierVariation
+    {
+        public string ItemID { get; set; }
+        public string URL { get; set; }
+        public decimal? Price { get; set; }
     }
 }
