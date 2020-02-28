@@ -175,7 +175,7 @@ namespace dsmodels
         public int? Qty { get; set; }
         public DateTime Updated { get; set; }
         [NotMapped]
-        public List<Variation> Variations { get; set; }
+        public List<SellerVariation> Variations { get; set; }
     }
 
     [Table("Listing")]
@@ -531,9 +531,7 @@ namespace dsmodels
         public bool? IsFreightShipping { get; set; }
 
         [NotMapped]
-        public string VariationName { get; set; }
-        [NotMapped]
-        public List<string> Variation { get; set; }
+        public string VariationName { get; set; }   // variation descriptor, like 'Color'
         [NotMapped]
         public List<string> usItemId { get; set; }
         [NotMapped]
@@ -602,6 +600,7 @@ namespace dsmodels
     {
         public string ItemID { get; set; }
         public string URL { get; set; }
+        public string Variation { get; set; }   // actual variation like 'Red' or 'Black'
         public decimal? Price { get; set; }
     }
 }

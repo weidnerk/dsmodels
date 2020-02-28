@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
-    public class Variation
+    public class SellerVariation
     {
         public string StartPrice { get; set; }
         public string Quantity { get; set; }
-        public VariationSpecifics VariationSpecifics { get; set; }
+        public SellerVariationSpecifics VariationSpecifics { get; set; }
         public SellingStatus SellingStatus { get; set; }
     }
-    public class VariationSpecifics
+    public class SellerVariationSpecifics
     {
         public NameValueList NameValueList { get; set; }
     }
