@@ -163,8 +163,10 @@ namespace dsmodels
 
         public string ListingStatus { get; set; }
         public bool Variation { get; set; }
-        public string VariationDescription { get; set; }
-        //public virtual List<OrderHistory> Orders { get; set; }  // item may have sold multiple times
+
+        // This value can also be found in Variation.VariationSpecifics.NameValueList.Name for each variation since that is how it arrives from eBay
+        public string VariationName { get; set; }    
+
         public virtual List<SellerListingItemSpecific> ItemSpecifics { get; set; }
         [ForeignKey("ItemID")]
         public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores
