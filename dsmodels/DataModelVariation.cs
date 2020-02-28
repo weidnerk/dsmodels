@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
-    public class SellerVariation
+    /*
+     * IMPORTANT -  these names can't change since the have to match incoming xml from GetSingleItem
+     * 
+     */
+
+    /// <summary>
+    /// has to be called 'Variation' to match incoming xml from GetSingleItem
+    /// </summary>
+    public class Variation
     {
         public string StartPrice { get; set; }
         public string Quantity { get; set; }

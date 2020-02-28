@@ -175,7 +175,7 @@ namespace dsmodels
         public int? Qty { get; set; }
         public DateTime Updated { get; set; }
         [NotMapped]
-        public List<SellerVariation> Variations { get; set; }
+        public List<Variation> Variations { get; set; }
     }
 
     [Table("Listing")]
