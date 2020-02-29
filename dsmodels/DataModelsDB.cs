@@ -970,7 +970,7 @@ namespace dsmodels
             try
             {
                 // find item by looking up seller's listing id
-                var rec = await this.Listings.FirstOrDefaultAsync(r => r.ItemID == listing.ItemID);
+                var rec = await this.Listings.SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (rec != null)
                 {
                     ret = true;
@@ -1517,12 +1517,12 @@ namespace dsmodels
         /// </summary>
         /// <param name="storeID"></param>
         /// <returns></returns>
-        public string GetToken(int storeID)
+        public string GetToken(UserSettingsView settings, int storeID)
         {
             // UserToken contains a user as a PK but not sure why I did it this way.
             // So just get first matching store.
             string token = null;
-            var result = UserTokens.Where(p => p.StoreID == storeID).FirstOrDefault();
+            var result = UserTokens.Where(p => p.StoreID == storeID && p.UserID == settings.UserID).FirstOrDefault();
             if (result != null)
             {
                 token = result.Token;
