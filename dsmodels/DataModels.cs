@@ -142,6 +142,7 @@ namespace dsmodels
         public DateTime? Created { get; set; }
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string UpdatedByName { get; set; }
+        public string  SupplierPicURL { get; set; }
     }
 
     /// <summary>
