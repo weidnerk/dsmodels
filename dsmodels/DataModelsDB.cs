@@ -104,25 +104,6 @@ namespace dsmodels
             return sourceId;
         }
 
-        //public async Task<Listing> GetPostedListing(int sourceID, string supplierItemID)
-        //{
-        //    var found = await this.Listings.FirstOrDefaultAsync(r => r.SourceID == sourceID && r.SupplierItemID == supplierItemID);
-        //    return found;
-        //}
-
-        public async Task<Listing> GetPostedListing(string itemId)
-        {
-            var found = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == itemId);
-            return found;
-        }
-
-        // listedItemId is my id
-        public async Task<Listing> GetPostedListingFromListId(string listedItemId)
-        {
-            var found = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemId);
-            return found;
-        }
-
         public async Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice)
         {
             bool ret = false;
@@ -736,7 +717,7 @@ namespace dsmodels
             {
                 bool updateSupplierPrice = false;
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-                var found = await this.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ItemID == listing.ItemID && r.StoreID == listing.StoreID);
+                var found = await this.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
@@ -1013,24 +994,6 @@ namespace dsmodels
             }
             return ret;
         }
-
-        //public async Task<bool> OOSUpdate(string listedItemID, bool OOS)
-        //{
-        //    bool ret = false;
-        //    // find item by looking up seller's listing id
-        //    var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listedItemID);
-        //    if (rec != null)
-        //    {
-        //        ret = true;
-        //        rec.OOS = OOS;
-
-        //        // Pass the entity to Entity Framework and mark it as modified
-        //        this.Entry(rec).State = EntityState.Modified;
-        //        this.SaveChanges();
-        //    }
-        //    return ret;
-        //}
-
 
         /// <summary>
         /// Users get to have their own sellers.
