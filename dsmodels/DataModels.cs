@@ -604,5 +604,6 @@ namespace dsmodels
         public string URL { get; set; }
         public string Variation { get; set; }   // actual variation like 'Red' or 'Black'
         public decimal? Price { get; set; }
+        public List<string> Images { get; set; }
     }
 }
