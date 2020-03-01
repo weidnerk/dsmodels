@@ -540,7 +540,7 @@ namespace dsmodels
         [NotMapped]
         public List<SupplierVariation> SupplierVariation { get; set; }
         [NotMapped]
-        public byte CanList { get; set; }
+        public string CanList { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
