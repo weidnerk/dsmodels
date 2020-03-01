@@ -539,6 +539,8 @@ namespace dsmodels
         public List<string> usItemId { get; set; }
         [NotMapped]
         public List<SupplierVariation> SupplierVariation { get; set; }
+        [NotMapped]
+        public byte CanList { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
