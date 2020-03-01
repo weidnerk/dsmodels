@@ -1480,12 +1480,12 @@ namespace dsmodels
         /// </summary>
         /// <param name="storeID"></param>
         /// <returns></returns>
-        public string GetToken(UserSettingsView settings, int storeID)
+        public string GetToken(UserSettingsView settings)
         {
             // UserToken contains a user as a PK but not sure why I did it this way.
             // So just get first matching store.
             string token = null;
-            var result = UserTokens.Where(p => p.StoreID == storeID && p.UserID == settings.UserID).FirstOrDefault();
+            var result = UserTokens.Where(p => p.StoreID == settings.StoreID && p.UserID == settings.UserID).FirstOrDefault();
             if (result != null)
             {
                 token = result.Token;
