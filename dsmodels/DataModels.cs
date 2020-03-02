@@ -541,6 +541,8 @@ namespace dsmodels
         public List<SupplierVariation> SupplierVariation { get; set; }
         [NotMapped]
         public string CanList { get; set; }
+        [NotMapped]
+        public string Warning { get; set; }
     }
     [Table("UpdateToListing")]
     public class UpdateToListing

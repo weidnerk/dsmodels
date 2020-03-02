@@ -1598,5 +1598,10 @@ namespace dsmodels
             var settingValue = AppSettings.Where(p => p.SettingName == settingName).Select(s => s.SettingValue).Single();
             return settingValue;
         }
+        public StoreProfile GetStoreProfile(int storeID)
+        {
+            var r = this.StoreProfiles.Where(p => p.ID == storeID).First();
+            return r;
+        }
     }
 }
