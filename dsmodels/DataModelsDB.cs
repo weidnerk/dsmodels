@@ -824,16 +824,16 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-        public List<ListingView> GetListings(int storeID, bool listedOnly)
+        public List<ListingView> GetListings(int storeID, bool unlisted)
         {
             List<ListingView> found = new List<ListingView>();
-            if (!listedOnly)
+            if (!unlisted)
             {
                 found = this.ListingsView.AsNoTracking().Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
             }
             else
             {
-                found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed != null).ToList();
+                found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed == null).ToList();
             }
             return found;
         }
