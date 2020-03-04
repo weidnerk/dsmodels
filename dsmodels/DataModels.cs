@@ -233,6 +233,7 @@ namespace dsmodels
         public virtual SupplierItem SupplierItem { get; set; }
         public DateTime? Ended { get; set; }
         public string EndedBy { get; set; }
+        public List<string> Warning { get; set; }
     }
 
     // SellerItemID here can either point to SellerListing or OrderHistory.
