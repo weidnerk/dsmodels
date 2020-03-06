@@ -824,16 +824,28 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-        public List<ListingView> GetListings(int storeID, bool unlisted)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="storeID"></param>
+        /// <param name="unlisted">only respect True value</param>
+        /// <param name="listed">only respect True value</param>
+        /// <returns></returns>
+        public List<ListingView> GetListings(int storeID, bool unlisted, bool listed)
         {
             List<ListingView> found = new List<ListingView>();
-            if (!unlisted)
-            {
-                found = this.ListingsView.AsNoTracking().Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
-            }
-            else
+            if (unlisted)
             {
                 found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed == null).ToList();
+            }
+            if (listed)
+            {
+                found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed != null).ToList();
+            }
+            if (!unlisted && !listed)
+            {
+                found = this.ListingsView.AsNoTracking().Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
             }
             return found;
         }

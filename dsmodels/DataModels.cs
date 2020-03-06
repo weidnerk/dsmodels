@@ -297,6 +297,8 @@ namespace dsmodels
     /// </summary>
     public class Dashboard
     {
+        [JsonProperty(PropertyName = "listed")]
+        public int Listed { get; set; }
         [JsonProperty(PropertyName = "oos")]
         public int OOS { get; set; }
         [JsonProperty(PropertyName = "notListed")]
