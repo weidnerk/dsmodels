@@ -432,9 +432,9 @@ namespace dsmodels
         public string Src { get; set; }
         public string Seller { get; set; }
         public string EbaySellerTitle { get; set; }
-        public int SoldQty { get; set; }
+        public int? SoldQty { get; set; }
         public string EbayURL { get; set; }
-        public int RptNumber { get; set; }
+        public int? RptNumber { get; set; }
         //public string ImageUrl { get; set; }
         public decimal Price { get; set; }  // last sold price
         public decimal EbaySellerPrice { get; set; }
@@ -464,8 +464,9 @@ namespace dsmodels
         public DateTime? ListingRecCreated { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public decimal? PriceDelta { get; set; } // not part of db, just calculate for report.
-        public int SourceID { get; set; }
+        public int? SourceID { get; set; }
         public bool? IsFreightShipping { get; set; }
+        public string Description { get; set; }
     }
 
     public class UserProfileVM
@@ -486,9 +487,9 @@ namespace dsmodels
     public class WalmartSearchProdIDResponse
     {
         [JsonProperty(PropertyName = "count")]
-        public byte Count { get; set; }
+        public byte Count { get; set; } // how many results after searching given term on supplier site
         [JsonProperty(PropertyName = "url")]
-        public string URL { get; set; }
+        public string URL { get; set; } // supplier URL
     }
 
     [Table("VEROBrands")]
