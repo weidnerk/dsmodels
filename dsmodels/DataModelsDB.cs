@@ -1148,6 +1148,14 @@ namespace dsmodels
                 ).AsQueryable().AsNoTracking();
             return data;
         }
+        public IQueryable<ListingView> GetListings(int storeID)
+        {
+            var data = Database.SqlQuery<ListingView>(
+                "exec sp_Listings @storeID",
+                new SqlParameter("storeID", storeID)
+                ).AsQueryable().AsNoTracking();
+            return data;
+        }
         /// <summary>
         /// Used to fetch a particular scan.
         /// </summary>
