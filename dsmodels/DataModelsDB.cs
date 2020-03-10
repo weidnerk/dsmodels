@@ -832,7 +832,7 @@ namespace dsmodels
         /// <param name="unlisted">only respect True value</param>
         /// <param name="listed">only respect True value</param>
         /// <returns></returns>
-        public List<ListingView> GetListings(int storeID, bool unlisted, bool listed)
+        public List<ListingView> GetListings_replaced(int storeID, bool unlisted, bool listed)
         {
             List<ListingView> found = new List<ListingView>();
             if (unlisted)
@@ -1148,13 +1148,27 @@ namespace dsmodels
                 ).AsQueryable().AsNoTracking();
             return data;
         }
-        public IQueryable<ListingView> GetListings(int storeID)
+        public IQueryable<ListingView> GetListings(int storeID, bool unlisted, bool listed)
         {
             var data = Database.SqlQuery<ListingView>(
                 "exec sp_Listings @storeID",
                 new SqlParameter("storeID", storeID)
                 ).AsQueryable().AsNoTracking();
-            return data;
+
+            IQueryable<ListingView> found = null;
+            if (unlisted)
+            {
+                found = data.Where(p => p.StoreID == storeID && p.Listed == null);
+            }
+            if (listed)
+            {
+                found = data.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed != null);
+            }
+            if (!unlisted && !listed)
+            {
+                found = data.AsNoTracking().Include("SellerListing").Where(p => p.StoreID == storeID);
+            }
+            return found;
         }
         /// <summary>
         /// Used to fetch a particular scan.
