@@ -451,6 +451,7 @@ namespace dsmodels
         public string SellerUPC { get; set; }
         public string SellerMPN { get; set; }
         public byte? MatchCount { get; set; }
+        public byte? MatchType { get; set; }
         public string ItemURL { get; set; }
         public bool? SoldAndShippedBySupplier { get; set; }
         public string SupplierBrand { get; set; }

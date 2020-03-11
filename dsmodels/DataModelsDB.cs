@@ -1205,6 +1205,9 @@ namespace dsmodels
         /// Of course, it's possible the item is already captured in SuppliterItem by a another scrape so we have to take into account
         /// the item might exist.
         /// So when saving SupplierItem during a scan, use this method.
+        /// 
+        /// Only difference between this and SupplierItemUpdate, is we look up by UPC or MPN as opposed to ID.
+        /// 
         /// </summary>
         /// <param name="UPC"></param>
         /// <param name="MPN"></param>
@@ -1294,7 +1297,25 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
-
+        protected bool SupplierItemExists(SupplierItem item)
+        {
+            var found = this.SupplierItems.AsNoTracking().Where(p => p.ItemID == item.ItemID).FirstOrDefault();
+            if (found != null)
+            {
+                return true;
+            }
+            found = this.SupplierItems.AsNoTracking().Where(p => p.UPC == item.UPC).FirstOrDefault();
+            if (found != null)
+            {
+                return true;
+            }
+            found = this.SupplierItems.AsNoTracking().Where(p => p.MPN == item.MPN).FirstOrDefault();
+            if (found != null)
+            {
+                return true;
+            }
+            return false;
+        }
         public void SupplierItemUpdate(SupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
@@ -1303,6 +1324,16 @@ namespace dsmodels
                 var found = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.ID == item.ID);
                 if (found == null)
                 {
+                    // Probably should also be a validation trigger in the database.
+                    if (string.IsNullOrEmpty(item.ItemID) && string.IsNullOrEmpty(item.UPC) && string.IsNullOrEmpty(item.MPN))
+                    {
+                        var msg = "Cannot add supplier item - itemID, UPC and MPN have invalid values. ";
+                        if (!string.IsNullOrEmpty(item.ItemURL))
+                        {
+                            msg += item.ItemURL;
+                        }
+                         throw new Exception(msg);
+                    }
                     this.SupplierItems.Add(item);
                     this.SaveChanges();
                 }
@@ -1378,6 +1409,12 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
                 return null;
             }
+        }
+
+        public SupplierItem GetSupplierItem(int id)
+        {
+            var item = this.SupplierItems.AsNoTracking().Where(p => p.ID == id).First();
+            return item;
         }
 
         /// <summary>
