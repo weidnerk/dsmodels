@@ -711,7 +711,7 @@ namespace dsmodels
             return output;
         }
 
-        public async Task ListingSaveAsync(Listing listing, string userID, params string[] changedPropertyNames)
+        public async Task ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
         {
             try
             {
@@ -721,13 +721,15 @@ namespace dsmodels
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
-                    listing.CreatedBy = userID;
+                    listing.CreatedBy = settings.UserID;
+                    listing.SupplierItem.Updated = DateTime.Now;
+                    listing.StoreID = settings.StoreID;
                     Listings.Add(listing);
                 }
                 else
                 {
                     listing.Updated = DateTime.Now;
-                    listing.UpdatedBy = userID;
+                    listing.UpdatedBy = settings.UserID;
                     this.Listings.Attach(listing);
                     var changedProperties = changedPropertyNames.ToList();
                     changedProperties.Add("Updated");
@@ -761,7 +763,7 @@ namespace dsmodels
                     {
                         Entry(listing.SupplierItem).State = EntityState.Detached;
                     }
-                    SupplierItemUpdate(supplierItem, "SupplierPrice");
+                    SupplierItemUpdateByID(supplierItem, "SupplierPrice");
                 }
                 if (listing.SupplierItem != null)
                 {
@@ -1213,7 +1215,7 @@ namespace dsmodels
         /// <param name="MPN"></param>
         /// <param name="item"></param>
         /// <param name="changedPropertyNames"></param>
-        public void SupplierItemUpdateScrape(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames)
+        public void SupplierItemUpdateByProdID(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
             try
@@ -1316,7 +1318,7 @@ namespace dsmodels
             }
             return false;
         }
-        public void SupplierItemUpdate(SupplierItem item, params string[] changedPropertyNames)
+        public void SupplierItemUpdateByID(SupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
             try

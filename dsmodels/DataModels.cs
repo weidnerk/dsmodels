@@ -533,7 +533,7 @@ namespace dsmodels
         public DateTime? Arrives { get; set; }
         [NotMapped]
         public bool? IsVERO { get; set; }
-        public DateTime? Updated { get; set; }
+        public DateTime Updated { get; set; }
         public int SourceID { get; set; }
         [NotMapped]
         public List<string> VariationPicURL { get; set; }
