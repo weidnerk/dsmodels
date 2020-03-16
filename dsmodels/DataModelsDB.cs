@@ -335,26 +335,27 @@ namespace dsmodels
         /// <param name="sellerItemID"></param>
         /// <param name="storeID"></param>
         /// <returns></returns>
-        public async Task<string> DeleteListingRecordAsync(string sellerItemID, int storeID)
+        public async Task<string> DeleteListingRecordAsync(int listingID)
         {
             string ret = null;
             try
             {
-                var listings = Listings.Where(p => p.ItemID == sellerItemID).ToList();
-                var multStores = (listings.Count > 1) ? true : false;
+                var listing = Listings.FirstOrDefault(p => p.ID == listingID);
 
-                var listing = Listings.FirstOrDefault(p => p.ItemID == sellerItemID && p.StoreID == storeID);
                 if (listing != null)
                 {
+                    var listings = Listings.Where(p => p.ItemID == listing.ItemID).ToList();
+                    var multStores = (listings.Count > 1) ? true : false;
+            
                     this.Listings.Attach(listing);
                     this.Listings.Remove(listing);
 
                     if (!multStores)
                     {
                         // first remove item specifics
-                        this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerItemID));
+                        this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == listing.ItemID));
 
-                        var sl = new SellerListing() { ItemID = sellerItemID };
+                        var sl = new SellerListing() { ItemID = listing.ItemID };
                         this.SellerListings.Attach(sl);
                         this.SellerListings.Remove(sl);
                     }
