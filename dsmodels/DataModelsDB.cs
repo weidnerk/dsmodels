@@ -341,24 +341,30 @@ namespace dsmodels
             try
             {
                 var listing = Listings.FirstOrDefault(p => p.ID == listingID);
-
+                if (listing.Listed.HasValue)
+                {
+                    return "item listed - cannot remove";
+                }
                 if (listing != null)
                 {
-                    var listings = Listings.Where(p => p.ItemID == listing.ItemID).ToList();
-                    var multStores = (listings.Count > 1) ? true : false;
-            
+                    if (!string.IsNullOrEmpty(listing.ItemID))
+                    {
+                        var listings = Listings.Where(p => p.ItemID == listing.ItemID && p.ID != listingID).ToList();
+                        var multStores = (listings.Count > 0) ? true : false;
+
+                        if (!multStores)
+                        {
+                            // first remove item specifics
+                            this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == listing.ItemID));
+
+                            var sl = new SellerListing() { ItemID = listing.ItemID };
+                            this.SellerListings.Attach(sl);
+                            this.SellerListings.Remove(sl);
+                        }
+                    }
                     this.Listings.Attach(listing);
                     this.Listings.Remove(listing);
 
-                    if (!multStores)
-                    {
-                        // first remove item specifics
-                        this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == listing.ItemID));
-
-                        var sl = new SellerListing() { ItemID = listing.ItemID };
-                        this.SellerListings.Attach(sl);
-                        this.SellerListings.Remove(sl);
-                    }
                     await this.SaveChangesAsync();
                 }
             }
