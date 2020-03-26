@@ -716,7 +716,7 @@ namespace dsmodels
             return output;
         }
 
-        public async Task<string> ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
+        public async Task<int> ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
         {
             string msg = null;
             try
@@ -785,8 +785,9 @@ namespace dsmodels
             {
                 msg = dsutil.DSUtil.ErrMsg("ERROR ListingSaveAsync itemid: " + listing.ItemID, exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                throw;
             }
-            return msg;
+            return listing.ID;
         }
         public async Task NoteSave(ListingNote note)
         {
