@@ -9,8 +9,6 @@ using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace dsmodels
@@ -718,8 +716,9 @@ namespace dsmodels
             return output;
         }
 
-        public async Task ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
+        public async Task<string> ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
         {
+            string msg = null;
             try
             {
                 bool updateSupplierPrice = false;
@@ -729,7 +728,7 @@ namespace dsmodels
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
-                    listing.SupplierItem.Updated = DateTime.Now;
+                    //listing.SupplierItem.Updated = DateTime.Now;  should be done wherever supplieritem is created
                     listing.StoreID = settings.StoreID;
                     Listings.Add(listing);
                 }
@@ -784,9 +783,10 @@ namespace dsmodels
             }
             catch (Exception exc)
             {
-                string msg = dsutil.DSUtil.ErrMsg("ERROR ListingSaveAsync itemid: " + listing.ItemID, exc);
+                msg = dsutil.DSUtil.ErrMsg("ERROR ListingSaveAsync itemid: " + listing.ItemID, exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
+            return msg;
         }
         public async Task NoteSave(ListingNote note)
         {
@@ -1418,6 +1418,12 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
                 return null;
             }
+        }
+
+        public SupplierItem GetSupplierItemByURL(string URL)
+        {
+            var item = this.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
+            return item;
         }
 
         public SupplierItem GetSupplierItem(int id)
