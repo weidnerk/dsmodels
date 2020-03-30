@@ -1690,5 +1690,6 @@ namespace dsmodels
             var r = this.StoreProfiles.Where(p => p.ID == storeID).First();
             return r;
         }
+
     }
 }
