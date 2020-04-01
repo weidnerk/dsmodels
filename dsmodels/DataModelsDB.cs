@@ -105,16 +105,24 @@ namespace dsmodels
         public async Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice)
         {
             bool ret = false;
-            var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
-            if (rec != null)
+            try
             {
-                ret = true;
-                rec.ListingPrice = price;
-                rec.SupplierItem.SupplierPrice = supplierPrice;
-                rec.Updated = DateTime.Now;
+                var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
+                if (rec != null)
+                {
+                    ret = true;
+                    rec.ListingPrice = price;
+                    rec.SupplierItem.SupplierPrice = supplierPrice;
+                    rec.Updated = DateTime.Now;
 
-                this.Entry(rec).State = EntityState.Modified;
-                this.SaveChanges();
+                    this.Entry(rec).State = EntityState.Modified;
+                    this.SaveChanges();
+                }
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("UpdatePrice", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
             return ret;
         }
@@ -771,6 +779,7 @@ namespace dsmodels
                     }
                     SupplierItemUpdateByID(supplierItem, "SupplierPrice");
                 }
+                /*
                 if (listing.SupplierItem != null)
                 {
                     Entry(listing.SupplierItem).State = EntityState.Detached;
@@ -780,6 +789,7 @@ namespace dsmodels
                     Entry(listing.SellerListing).State = EntityState.Detached;
                 }
                 Entry(listing).State = EntityState.Detached;
+                */
             }
             catch (Exception exc)
             {
