@@ -522,6 +522,9 @@ namespace dsmodels
         public string MPN { get; set; }
         public string Description { get; set; }
         public string ItemID { get; set; }  // this is supplier item number, not to be confused with ebay seller itemID
+
+        // Item may say "Delivery not available", then it may or may not show "out of stock" depending on the zip code
+        // which makes sens since you have to go to the store.
         public bool OutOfStock { get; set; }
         public bool ShippingNotAvailable { get; set; }
         //[ForeignKey("ID")]

@@ -1108,6 +1108,7 @@ namespace dsmodels
                         r.FirstName = reader["FirstName"].ToString();
                         r.StoreName = reader["StoreName"].ToString();
                         r.StoreID = Convert.ToInt32(reader["StoreID"].ToString());
+                        r.PctProfit = Convert.ToDouble(reader["PctProfit"].ToString());
                     }
                 }
                 return r;

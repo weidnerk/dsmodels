@@ -122,6 +122,7 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "firstName")]
         public string FirstName { get; set; }
+        public double PctProfit { get; set; }
     }
 
     [Table("StoreProfile")]
