@@ -1109,6 +1109,8 @@ namespace dsmodels
                         r.StoreName = reader["StoreName"].ToString();
                         r.StoreID = Convert.ToInt32(reader["StoreID"].ToString());
                         r.PctProfit = Convert.ToDouble(reader["PctProfit"].ToString());
+                        r.HandlingTime = Convert.ToByte(reader["HandlingTime"].ToString());
+                        r.MaxShippingDays = Convert.ToByte(reader["MaxShippingDays"].ToString());
                     }
                 }
                 return r;
