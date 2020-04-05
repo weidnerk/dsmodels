@@ -898,13 +898,13 @@ namespace dsmodels
                 return null;
             }
         }
-        public Listing ListingGet(int listingID)
+        public Listing ListingGet(int listingID, int storeID)
         {
             // can't detach, otherwise, returns all undefined
             // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                var listing = this.Listings.Where(r => r.ID == listingID).SingleOrDefault();
+                var listing = this.Listings.Where(r => r.ID == listingID && r.StoreID == storeID).SingleOrDefault();
 
                 // 02.20.2020
                 // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 
