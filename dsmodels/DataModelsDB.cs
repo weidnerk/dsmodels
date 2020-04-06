@@ -338,16 +338,16 @@ namespace dsmodels
         /// <summary>
         /// https://www.entityframeworktutorial.net/entityframework6/transaction-in-entity-framework.aspx
         /// </summary>
-        /// <param name="sellerItemID"></param>
-        /// <param name="storeID"></param>
+        /// <param name="listingID"></param>
+        /// <param name="force">delete even if listed</param>
         /// <returns></returns>
-        public async Task<string> DeleteListingRecordAsync(int listingID)
+        public async Task<string> DeleteListingRecordAsync(int listingID, bool force)
         {
             string ret = null;
             try
             {
                 var listing = Listings.FirstOrDefault(p => p.ID == listingID);
-                if (listing.Listed.HasValue)
+                if (listing.Listed.HasValue && !force)
                 {
                     return "item listed - cannot remove";
                 }
@@ -356,8 +356,7 @@ namespace dsmodels
                     if (!string.IsNullOrEmpty(listing.ItemID))
                     {
                         var listings = Listings.Where(p => p.ItemID == listing.ItemID && p.ID != listingID).ToList();
-                        var multStores = (listings.Count > 0) ? true : false;
-
+                        var multStores = (listings.Count > 1) ? true : false;
                         if (!multStores)
                         {
                             // first remove item specifics
