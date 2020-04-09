@@ -186,10 +186,11 @@ namespace dsmodels
     public class Listing
     {
         [Key]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         public string ItemID { get; set; }
-        [ForeignKey("ItemID")]                                      // works with or w/out
-        public virtual SellerListing SellerListing { get; set; }    // listing will typically be based on some seller's listing
+        //[ForeignKey("ItemID")]                                      works with or w/out
+        //public virtual SellerListing SellerListing { get; set; }    listing will typically be based on some seller's listing
         public string ListingTitle { get; set; }
         public string Description { get; set; }
         public string PictureURL { get; set; }                      // store picture urls as a semi-colon delimited string
@@ -234,6 +235,7 @@ namespace dsmodels
         public DateTime? Ended { get; set; }
         public string EndedBy { get; set; }
         public List<string> Warning { get; set; }
+        public virtual List<ListingItemSpecific> ItemSpecifics { get; set; }    // lazy load
     }
 
     // SellerItemID here can either point to SellerListing or OrderHistory.
@@ -281,10 +283,33 @@ namespace dsmodels
         [JsonProperty(PropertyName = "itemValue")]
         public string ItemValue { get; set; }
 
-        [ForeignKey("SellerItemID")]
+        // reads "SellerItemID in this class is the FK to the PK in OrderHistory"
+        [ForeignKey("SellerItemID")]    
         [JsonProperty(PropertyName = "orderHistory")]
         public OrderHistory OrderHistory { get; set; }
         public bool? Flags { get; set; }
+    }
+    [Table("ListingItemSpecific")]
+    public class ListingItemSpecific
+    {
+        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }
+
+        [JsonProperty(PropertyName = "listingID")]
+        public int ListingID { get; set; }
+
+        [JsonProperty(PropertyName = "itemName")]
+        public string ItemName { get; set; }
+
+        [JsonProperty(PropertyName = "itemValue")]
+        public string ItemValue { get; set; }
+
+        [ForeignKey("ListingID")]
+        [JsonProperty(PropertyName = "listing")]
+        public Listing Listing { get; set; }
+        public bool? Flags { get; set; }
+        public DateTime? Updated { get; set; }
     }
     public class ShippingCostSummary
     {

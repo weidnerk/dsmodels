@@ -53,6 +53,7 @@ namespace dsmodels
         public DbSet<UpdateToListing> UpdateToListing { get; set; }
         public DbSet<SalesOrder> SalesOrders { get; set; }
         public DbSet<AppSettings> AppSettings { get; set; }
+        public DbSet<ListingItemSpecific> ListingItemSpecifics { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -353,20 +354,17 @@ namespace dsmodels
                 }
                 if (listing != null)
                 {
-                    if (!string.IsNullOrEmpty(listing.ItemID))
-                    {
-                        var listings = Listings.Where(p => p.ItemID == listing.ItemID && p.ID != listingID).ToList();
-                        var multStores = (listings.Count > 1) ? true : false;
-                        if (!multStores)
-                        {
+                    //if (!string.IsNullOrEmpty(listing.ItemID))
+                    //{
+                    //    var listings = Listings.Where(p => p.ItemID == listing.ItemID && p.ID != listingID).ToList();
+                    //    var multStores = (listings.Count > 1) ? true : false;
+                    //    if (!multStores)
+                    //    {
                             // first remove item specifics
-                            this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == listing.ItemID));
+                            this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(x => x.ListingID == listing.ID));
 
-                            var sl = new SellerListing() { ItemID = listing.ItemID };
-                            this.SellerListings.Attach(sl);
-                            this.SellerListings.Remove(sl);
-                        }
-                    }
+                        //}
+                    //}
                     this.Listings.Attach(listing);
                     this.Listings.Remove(listing);
 
@@ -696,6 +694,26 @@ namespace dsmodels
             }
             return target;
         }
+        public static List<ListingItemSpecific> CopyItemSpecificFromSellerListing(Listing listing, List<SellerListingItemSpecific> specifics)
+        {
+            var target = new List<ListingItemSpecific>();
+            foreach (var i in specifics)
+            {
+                var specific = new ListingItemSpecific();
+                //specific.Listing = listing;
+                if (listing.ID > 0)
+                {
+                    specific.Listing = listing;
+                    specific.ListingID = listing.ID;
+                }
+                specific.ItemName = i.ItemName;
+                specific.ItemValue = i.ItemValue;
+                specific.Flags = i.Flags;
+
+                target.Add(specific);
+            }
+            return target;
+        }
         public static string DumpSellerListingItemSpecifics(List<SellerListingItemSpecific> specifics)
         {
             string output = null;
@@ -723,27 +741,51 @@ namespace dsmodels
             return output;
         }
 
-        public async Task<int> ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
+        public async Task<Listing> ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
         {
             string msg = null;
             try
             {
-                bool updateSupplierPrice = false;
                 // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
+                //var found = await this.Listings.AsNoTracking().Include("ItemSpecifics").AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
                 var found = await this.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
                     //listing.SupplierItem.Updated = DateTime.Now;  should be done wherever supplieritem is created
-                    listing.StoreID = settings.StoreID;
+                    //listing.StoreID = settings.StoreID;
                     Listings.Add(listing);
+                    await this.SaveChangesAsync();
                 }
                 else
                 {
                     listing.Updated = DateTime.Now;
                     listing.UpdatedBy = settings.UserID;
+
+                    // ItemSpecifics only populated if ebay item id changed
+                    if (listing.ItemSpecifics != null)
+                    {
+                        foreach (var item in listing.ItemSpecifics)
+                        {
+                            Entry(item).State = EntityState.Added;
+                        }
+                    }
+                  
+                    if (listing.SupplierID == 0)
+                    {
+                            // exists in db?
+                        var r = GetSupplierItemByURL(listing.SupplierItem.ItemURL);
+                        if (r != null)
+                        {
+                            listing.SupplierID = r.ID;
+                            listing.SupplierItem.ID = r.ID;
+                        }
+                    }
                     this.Listings.Attach(listing);
+
+                    Entry(listing).State = EntityState.Modified;                // yes, needed
+                    Entry(listing.SupplierItem).State = EntityState.Modified;   // yes, needed
                     var changedProperties = changedPropertyNames.ToList();
                     changedProperties.Add("Updated");
                     changedProperties.Add("UpdatedBy");
@@ -751,44 +793,25 @@ namespace dsmodels
                     {
                         if (propertyName == "SupplierItem.SupplierPrice")
                         {
-                            //this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
-                            updateSupplierPrice = true;
+                            this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
+                        }
+                        else if (propertyName == "SupplierItem.ItemURL")
+                        {
+                            this.Entry(listing.SupplierItem).Property("ItemURL").IsModified = true;
+                        }
+                        else if (propertyName == "SupplierItem.SupplierPrice")
+                        {
+                            this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
                         }
                         else
                         {
                             this.Entry(listing).Property(propertyName).IsModified = true;
                         }
                     }
+                    await this.SaveChangesAsync();
                 }
-                await this.SaveChangesAsync();
-                if (updateSupplierPrice)
-                {
-                    var supplierItem = new SupplierItem();
-                    supplierItem.ID = listing.SupplierID;
-                    //if (listing.SupplierItem == null)
-                    //{
-                    //    this.Entry(listing).Reference(s => s.SupplierItem).Load();
-                    //}
-                    supplierItem.SupplierPrice = listing.SupplierItem.SupplierPrice;
-
-                    // need this or SupplierItemUpdate() will complain about existing PK
-                    if (listing.SupplierItem != null)
-                    {
-                        Entry(listing.SupplierItem).State = EntityState.Detached;
-                    }
-                    SupplierItemUpdateByID(supplierItem, "SupplierPrice");
-                }
-                /*
-                if (listing.SupplierItem != null)
-                {
-                    Entry(listing.SupplierItem).State = EntityState.Detached;
-                }
-                if (listing.SellerListing != null)
-                {
-                    Entry(listing.SellerListing).State = EntityState.Detached;
-                }
-                Entry(listing).State = EntityState.Detached;
-                */
+               
+                //Entry(listing).State = EntityState.Detached;
             }
             catch (Exception exc)
             {
@@ -796,7 +819,19 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 throw;
             }
-            return listing.ID;
+            return listing;
+        }
+        public void DetachAll()
+        {
+            int i = 0;
+            foreach (var dbEntityEntry in this.ChangeTracker.Entries().ToArray())
+            {
+                if (dbEntityEntry.Entity != null)
+                {
+                    ++i;
+                    dbEntityEntry.State = EntityState.Detached;
+                }
+            }
         }
         public async Task NoteSave(ListingNote note)
         {
@@ -883,7 +918,7 @@ namespace dsmodels
         {
             try
             {
-                var listing = this.Listings.Include(p => p.SupplierItem).Include(p => p.SellerListing).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
+                var listing = this.Listings.Include(p => p.SupplierItem).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
                 if (listing == null)
                 {
                     return null;
@@ -903,12 +938,12 @@ namespace dsmodels
             // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                var listing = this.Listings.Where(r => r.ID == listingID && r.StoreID == storeID).SingleOrDefault();
+                var listing = this.Listings.AsNoTracking().Where(r => r.ID == listingID && r.StoreID == storeID).SingleOrDefault();
 
                 // 02.20.2020
                 // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 
                 // Still trying to see why needed.
-                this.Entry(listing).Reload();
+                //this.Entry(listing).Reload();
 
                 if (listing == null)
                 {
@@ -945,7 +980,7 @@ namespace dsmodels
         {
             try
             {
-                var listing = this.Listings.AsNoTracking().Include(p => p.SupplierItem).AsNoTracking().Include(p => p.SellerListing).SingleOrDefault(r => r.ListedItemID == listedItemID);
+                var listing = this.Listings.AsNoTracking().Include(p => p.SupplierItem).AsNoTracking().SingleOrDefault(r => r.ListedItemID == listedItemID);
                 if (listing == null)
                 {
                     return null;
@@ -1508,22 +1543,24 @@ namespace dsmodels
         {
             //var x = SellerListings.Where(p => p.Listings.sto)
             var listings = Listings.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
-            foreach (var listing in listings)
-            {
-                var foundUPC = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "UPC" && p.ItemValue == UPC).SingleOrDefault();
-                if (foundUPC == null)
-                {
-                    var foundMPN = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "MPN" && p.ItemValue == MPN).SingleOrDefault();
-                    if (foundMPN != null)
-                    {
-                        return "MPN exists in SellerListing (not copied): " + MPN;
-                    }
-                }
-                else
-                {
-                    return "UPC exists in SellerListing (not copied): " + UPC;
-                }
-            }
+
+            // 04.08.2020 come back to this - don't need it right now
+            //foreach (var listing in listings)
+            //{
+            //    var foundUPC = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "UPC" && p.ItemValue == UPC).SingleOrDefault();
+            //    if (foundUPC == null)
+            //    {
+            //        var foundMPN = listing.SellerListing.ItemSpecifics.Where(p => p.ItemName == "MPN" && p.ItemValue == MPN).SingleOrDefault();
+            //        if (foundMPN != null)
+            //        {
+            //            return "MPN exists in SellerListing (not copied): " + MPN;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return "UPC exists in SellerListing (not copied): " + UPC;
+            //    }
+            //}
             return null;
         }
         public async Task<string> UserSettingsSave(UserSettings settings, params string[] changedPropertyNames)
