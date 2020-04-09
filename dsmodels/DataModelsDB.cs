@@ -746,15 +746,12 @@ namespace dsmodels
             string msg = null;
             try
             {
-                // var found = await this.Listings.Include(x => x.ItemSpecifics.Select(y => y.Listing)).FirstOrDefaultAsync(r => r.ItemId == listing.ItemId);
-                //var found = await this.Listings.AsNoTracking().Include("ItemSpecifics").AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
                 var found = await this.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
                     //listing.SupplierItem.Updated = DateTime.Now;  should be done wherever supplieritem is created
-                    //listing.StoreID = settings.StoreID;
                     Listings.Add(listing);
                     await this.SaveChangesAsync();
                 }

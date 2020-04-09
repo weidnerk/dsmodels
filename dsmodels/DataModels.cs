@@ -292,7 +292,6 @@ namespace dsmodels
     [Table("ListingItemSpecific")]
     public class ListingItemSpecific
     {
-        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
 
@@ -342,8 +341,6 @@ namespace dsmodels
     [Table("OrderHistory")]
     public class OrderHistory
     {
-        //[Key]
-        //public int ID { get; set; }
         public string Title { get; set; }
         public int RptNumber { get; set; }
         [ForeignKey("RptNumber")]
