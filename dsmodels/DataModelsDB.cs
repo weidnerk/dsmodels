@@ -876,41 +876,6 @@ namespace dsmodels
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="storeID"></param>
-        /// <param name="unlisted">only respect True value</param>
-        /// <param name="listed">only respect True value</param>
-        /// <returns></returns>
-        public List<ListingView> GetListings_replaced(int storeID, bool unlisted, bool listed)
-        {
-            List<ListingView> found = new List<ListingView>();
-            if (unlisted)
-            {
-                found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed == null).ToList();
-            }
-            if (listed)
-            {
-                found = this.ListingsView.AsNoTracking().Where(p => p.StoreID == storeID && p.Listed != null).ToList();
-            }
-            if (!unlisted && !listed)
-            {
-                found = this.ListingsView.AsNoTracking().Include("SellerListing").Where(p => p.StoreID == storeID).ToList();
-            }
-            return found;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="itemId"></param>
-        /// <returns></returns>
-        public async Task<Listing> GetListing_notused(int ID)
-        {
-            var found = await this.Listings.AsQueryable().SingleOrDefaultAsync(r => r.ID == ID);
-            return found;
-        }
         public Listing ListingGet(string itemID, int storeID)
         {
             try
