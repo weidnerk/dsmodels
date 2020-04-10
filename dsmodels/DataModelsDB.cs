@@ -1142,6 +1142,7 @@ namespace dsmodels
                         r.PctProfit = Convert.ToDouble(reader["PctProfit"].ToString());
                         r.HandlingTime = Convert.ToByte(reader["HandlingTime"].ToString());
                         r.MaxShippingDays = Convert.ToByte(reader["MaxShippingDays"].ToString());
+                        r.UserName = reader["UserName"].ToString();
                     }
                 }
                 return r;
