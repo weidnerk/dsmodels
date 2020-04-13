@@ -29,7 +29,7 @@ namespace dsmodels
         public string Firstname { get; set; }
         [JsonProperty(PropertyName = "lastname")]
         public string Lastname { get; set; }
-
+        public DateTime Created { get; set; }
         //[ForeignKey("UserID")]
         //public AspNetUser AspNetUser { get; set; }
     }
@@ -82,6 +82,7 @@ namespace dsmodels
         public int KeysID { get; set; }     // User can use different key sets
         [ForeignKey("UserID")]
         public AspNetUser AspNetUser { get; set; }
+        public double PctProfit { get; set; }
     }
     /// <summary>
     /// </summary>
@@ -125,6 +126,7 @@ namespace dsmodels
         public double PctProfit { get; set; }
         public byte HandlingTime { get; set; }
         public byte MaxShippingDays { get; set; }
+
     }
 
     [Table("StoreProfile")]

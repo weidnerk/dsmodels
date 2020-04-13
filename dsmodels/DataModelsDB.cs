@@ -93,6 +93,19 @@ namespace dsmodels
             var profile = this.UserProfiles.Where(r => r.UserID == userid).First();
             return profile;
         }
+        public async Task UserProfileSaveAsync(UserProfile profile)
+        {
+            try
+            {
+                UserProfiles.Add(profile);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("SaveUserProfileAsync", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+            }
+        }
 
         public int SourceIDFromCategory(int categoryId)
         {
@@ -362,7 +375,7 @@ namespace dsmodels
 
                     await this.SaveChangesAsync();
 
-                    string delSupplierItem = await DeleteSupplierItem(settings, listing.SupplierID);
+                    string delSupplierItem = await SupplierItemDelete(settings, listing.SupplierID);
                 }
             }
             catch (Exception exc)
@@ -380,7 +393,7 @@ namespace dsmodels
         /// <param name="ID"></param>
         /// <param name="storeID"></param>
         /// <returns></returns>
-        public async Task<string> DeleteSupplierItem(UserSettingsView settings, int ID)
+        public async Task<string> SupplierItemDelete(UserSettingsView settings, int ID)
         {
             string msg = null;
             try
@@ -402,6 +415,28 @@ namespace dsmodels
             {
                 msg = dsutil.DSUtil.ErrMsg("DeleteSupplierItem", exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, settings.UserName);
+            }
+            return msg;
+        }
+
+        public async Task<string> UserProfileDeleteAsync(UserProfile profile)
+        {
+            string msg = null;
+            try
+            {
+                var item = await UserProfiles.SingleOrDefaultAsync(p => p.UserID == profile.UserID);
+                if (item != null)
+                {
+                    this.UserProfiles.Attach(item);
+                    this.UserProfiles.Remove(item);
+                    await this.SaveChangesAsync();
+                    Entry(item).State = EntityState.Detached;
+                }
+            }
+            catch (Exception exc)
+            {
+                msg = dsutil.DSUtil.ErrMsg("UserProfileDelete", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
             return msg;
         }
