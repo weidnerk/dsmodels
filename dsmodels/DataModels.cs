@@ -189,8 +189,10 @@ namespace dsmodels
         //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         public string ItemID { get; set; }
-        //[ForeignKey("ItemID")]                                      works with or w/out
-        //public virtual SellerListing SellerListing { get; set; }    listing will typically be based on some seller's listing
+
+        [NotMapped]
+        [ForeignKey("ItemID")]
+        public virtual SellerListing SellerListing { get; set; }
         public string ListingTitle { get; set; }
         public string Description { get; set; }
         public string PictureURL { get; set; }                      // store picture urls as a semi-colon delimited string
