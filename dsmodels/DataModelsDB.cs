@@ -342,7 +342,7 @@ namespace dsmodels
         /// <param name="listingID"></param>
         /// <param name="force">delete even if listed</param>
         /// <returns></returns>
-        public async Task<string> DeleteListingRecordAsync(int listingID, bool force)
+        public async Task<string> DeleteListingRecordAsync(UserSettingsView settings, int listingID, bool force)
         {
             string ret = null;
             try
@@ -354,29 +354,56 @@ namespace dsmodels
                 }
                 if (listing != null)
                 {
-                    //if (!string.IsNullOrEmpty(listing.ItemID))
-                    //{
-                    //    var listings = Listings.Where(p => p.ItemID == listing.ItemID && p.ID != listingID).ToList();
-                    //    var multStores = (listings.Count > 1) ? true : false;
-                    //    if (!multStores)
-                    //    {
-                            // first remove item specifics
-                            this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(x => x.ListingID == listing.ID));
+                    // first remove item specifics
+                    this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(x => x.ListingID == listing.ID));
 
-                        //}
-                    //}
                     this.Listings.Attach(listing);
                     this.Listings.Remove(listing);
 
                     await this.SaveChangesAsync();
+
+                    string delSupplierItem = await DeleteSupplierItem(settings, listing.SupplierID);
                 }
             }
             catch (Exception exc)
             {
                 ret = dsutil.DSUtil.ErrMsg("DeleteListingRecord", exc);
-                dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, ret, settings.UserName);
             }
             return ret;
+        }
+
+        /// <summary>
+        /// If can delete a listing (not listed yet), can delete the supplier item if not used in another store.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="ID"></param>
+        /// <param name="storeID"></param>
+        /// <returns></returns>
+        public async Task<string> DeleteSupplierItem(UserSettingsView settings, int ID)
+        {
+            string msg = null;
+            try
+            {
+                var listing = await Listings.FirstOrDefaultAsync(p => p.SupplierID == ID && p.StoreID != settings.StoreID);
+                if (listing == null)
+                {
+                    var item = await SupplierItems.FirstOrDefaultAsync(p => p.ID == ID);
+                    if (item != null)
+                    {
+                        this.SupplierItems.Attach(item);
+                        this.SupplierItems.Remove(item);
+                        await this.SaveChangesAsync();
+                        Entry(item).State = EntityState.Detached;
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                msg = dsutil.DSUtil.ErrMsg("DeleteSupplierItem", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, settings.UserName);
+            }
+            return msg;
         }
 
         /// <summary>
