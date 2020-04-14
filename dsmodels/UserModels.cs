@@ -84,6 +84,7 @@ namespace dsmodels
         public int KeysID { get; set; }     // User can use different key sets
         [ForeignKey("UserID")]
         public AspNetUser AspNetUser { get; set; }
+        [JsonProperty(PropertyName = "pctProfit")]
         public double PctProfit { get; set; }
     }
     /// <summary>
@@ -125,6 +126,7 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "firstName")]
         public string FirstName { get; set; }
+        [JsonProperty(PropertyName = "pctProfit")] 
         public double PctProfit { get; set; }
         public byte HandlingTime { get; set; }
         public byte MaxShippingDays { get; set; }
