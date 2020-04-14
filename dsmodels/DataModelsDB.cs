@@ -90,19 +90,33 @@ namespace dsmodels
 
         public UserProfile GetUserProfile(string userid)
         {
-            var profile = this.UserProfiles.Where(r => r.UserID == userid).First();
+            var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).First();
             return profile;
         }
-        public async Task UserProfileSaveAsync(UserProfile profile)
+        public async Task UserProfileSaveAsync(UserProfile profile, params string[] changedPropertyNames)
         {
             try
             {
-                UserProfiles.Add(profile);
-                await this.SaveChangesAsync();
+                var found = GetUserProfile(profile.UserID);
+                if (found == null)
+                {
+                    UserProfiles.Add(profile);
+                    await this.SaveChangesAsync();
+                }
+                else
+                {
+                    this.UserProfiles.Attach(profile);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(profile).Property(propertyName).IsModified = true;
+                    }
+                    await SaveChangesAsync();
+                    Entry(profile).State = EntityState.Detached;
+                }
             }
             catch (Exception exc)
             {
-                string msg = dsutil.DSUtil.ErrMsg("SaveUserProfileAsync", exc);
+                string msg = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }

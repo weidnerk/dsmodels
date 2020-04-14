@@ -32,6 +32,8 @@ namespace dsmodels
         public DateTime Created { get; set; }
         //[ForeignKey("UserID")]
         //public AspNetUser AspNetUser { get; set; }
+        [JsonProperty(PropertyName = "selectedStore")]
+        public int SelectedStore { get; set; }
     }
 
     // ds109 user may use multiple ebay keysets
