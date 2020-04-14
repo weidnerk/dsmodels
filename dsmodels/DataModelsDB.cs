@@ -93,7 +93,7 @@ namespace dsmodels
             var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).First();
             return profile;
         }
-        public async Task UserProfileSaveAsync(UserProfile profile, params string[] changedPropertyNames)
+        public async Task UserProfileSaveAsync(UserSettingsView setting, UserProfile profile, params string[] changedPropertyNames)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
-                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                dsutil.DSUtil.WriteFile(_logfile, msg, setting.UserName);
             }
         }
 
