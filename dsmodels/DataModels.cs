@@ -644,4 +644,11 @@ namespace dsmodels
         public decimal? Price { get; set; }
         public List<string> Images { get; set; }
     }
+    [Table("ListingLog")]
+    public class ListingLog
+    {
+        public int ID { get; set; }
+        public int ListingID { get; set; }
+        public string Note { get; set; }
+    }
 }

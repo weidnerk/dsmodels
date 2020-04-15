@@ -90,7 +90,7 @@ namespace dsmodels
 
         public UserProfile GetUserProfile(string userid)
         {
-            var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).First();
+            var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
             return profile;
         }
         public async Task UserProfileSaveAsync(UserSettingsView setting, UserProfile profile, params string[] changedPropertyNames)
@@ -1741,7 +1741,7 @@ namespace dsmodels
             }
             return ret;
         }
-        public async Task SalesOrderSaveAsync(SalesOrder salesOrder, params string[] changedPropertyNames)
+        public async Task SalesOrderSaveAsync(UserSettingsView settings, SalesOrder salesOrder, params string[] changedPropertyNames)
         {
             try
             {
@@ -1768,7 +1768,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-        public string GetAppSetting(string settingName)
+        public string GetAppSetting(UserSettingsView settings, string settingName)
         {
             var settingValue = AppSettings.Where(p => p.SettingName == settingName).Select(s => s.SettingValue).Single();
             return settingValue;
