@@ -649,6 +649,7 @@ namespace dsmodels
     {
         public int ID { get; set; }
         public int ListingID { get; set; }
+        public int MsgID { get; set; }
         public string Note { get; set; }
     }
 }

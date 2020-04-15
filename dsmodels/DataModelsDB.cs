@@ -54,6 +54,7 @@ namespace dsmodels
         public DbSet<SalesOrder> SalesOrders { get; set; }
         public DbSet<AppSettings> AppSettings { get; set; }
         public DbSet<ListingItemSpecific> ListingItemSpecifics { get; set; }
+        public DbSet<ListingLog> ListingLogs { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -1778,6 +1779,18 @@ namespace dsmodels
             var r = this.StoreProfiles.Where(p => p.ID == storeID).First();
             return r;
         }
-
+        public async Task ListingLogAdd(ListingLog log)
+        {
+            try
+            {
+                ListingLogs.Add(log);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ListingLogAdd", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "admin");
+            }
+        }
     }
 }
