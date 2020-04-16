@@ -1186,6 +1186,10 @@ namespace dsmodels
                         r.MaxShippingDays = Convert.ToByte(reader["MaxShippingDays"].ToString());
                         r.UserName = reader["UserName"].ToString();
                     }
+                    else
+                    {
+                        r = null;
+                    }
                 }
                 return r;
             }
