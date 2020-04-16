@@ -1185,6 +1185,9 @@ namespace dsmodels
                         r.HandlingTime = Convert.ToByte(reader["HandlingTime"].ToString());
                         r.MaxShippingDays = Convert.ToByte(reader["MaxShippingDays"].ToString());
                         r.UserName = reader["UserName"].ToString();
+                        r.PaymentProfile = reader["PaymentProfile"].ToString();
+                        r.ReturnProfile = reader["ReturnProfile"].ToString();
+                        r.ShippingProfile = reader["ShippingProfile"].ToString();
                     }
                     else
                     {
