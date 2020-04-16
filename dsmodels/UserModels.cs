@@ -130,7 +130,9 @@ namespace dsmodels
         public double PctProfit { get; set; }
         public byte HandlingTime { get; set; }
         public byte MaxShippingDays { get; set; }
-
+        public string PaymentProfile { get; set; }
+        public string ShippingProfile { get; set; }
+        public string ReturnProfile { get; set; }
     }
 
     [Table("StoreProfile")]
