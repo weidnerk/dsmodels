@@ -76,7 +76,25 @@ namespace dsmodels
         {
             try
             {
-                var setting = GetUserSettingView(connStr, userID, 1);
+                var ret = GetUserProfile(userID);
+                var setting = GetUserSettingView(connStr, userID, 1, ret.SelectedStore);
+                if (setting != null)
+                {
+                    return setting;
+                }
+                return null;
+            }
+            catch (Exception exc)
+            {
+                return null;
+            }
+        }
+
+        public UserSettingsView GetUserSettingsView(string connStr, string userID, int storeID)
+        {
+            try
+            {
+                var setting = GetUserSettingView(connStr, userID, 1, storeID);
                 if (setting != null)
                 {
                     return setting;
@@ -856,10 +874,10 @@ namespace dsmodels
                             listing.SupplierItem.ID = r.ID;
                         }
                     }
+                    
                     this.Listings.Attach(listing);
+                    this.SupplierItems.Attach(listing.SupplierItem);
 
-                    Entry(listing).State = EntityState.Modified;                // yes, needed
-                    Entry(listing.SupplierItem).State = EntityState.Modified;   // yes, needed
                     var changedProperties = changedPropertyNames.ToList();
                     changedProperties.Add("Updated");
                     changedProperties.Add("UpdatedBy");
@@ -873,10 +891,6 @@ namespace dsmodels
                         {
                             this.Entry(listing.SupplierItem).Property("ItemURL").IsModified = true;
                         }
-                        else if (propertyName == "SupplierItem.SupplierPrice")
-                        {
-                            this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
-                        }
                         else
                         {
                             this.Entry(listing).Property(propertyName).IsModified = true;
@@ -884,8 +898,19 @@ namespace dsmodels
                     }
                     await this.SaveChangesAsync();
                 }
-               
-                //Entry(listing).State = EntityState.Detached;
+            }
+            catch (DbEntityValidationException e)
+            {
+                string errStr = null;
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    errStr = string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:\n", eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        errStr += string.Format("- Property: \"{0}\", Error: \"{1}\"\n", ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                dsutil.DSUtil.WriteFile(_logfile, errStr, "admin");
             }
             catch (Exception exc)
             {
@@ -1061,22 +1086,29 @@ namespace dsmodels
                 {
                     ret = true;
                     rec.ListedItemID = listedItemID;
+                    this.Entry(rec).Property(x => x.ListedItemID).IsModified = true;
                     if (updated.HasValue)
                     {
                         rec.ListedUpdatedBy = userId;
+                        this.Entry(rec).Property(x => x.ListedUpdatedBy).IsModified = true;
                         rec.ListedUpdated = DateTime.Now;
+                        this.Entry(rec).Property(x => x.ListedUpdated).IsModified = true;
                     }
                     else
                     {
                         rec.ListedBy = userId;
+                        this.Entry(rec).Property(x => x.ListedBy).IsModified = true;
                         rec.Listed = listing.Listed;
+                        this.Entry(rec).Property(x => x.Listed).IsModified = true;
                     }
 
                     rec.ListedWithAPI = listedWithAPI;
+                    this.Entry(rec).Property(x => x.ListedWithAPI).IsModified = true;
                     rec.ListedResponse = listedResponse;
+                    this.Entry(rec).Property(x => x.ListedResponse).IsModified = true;
 
                     // Pass the entity to Entity Framework and mark it as modified
-                    this.Entry(rec).State = EntityState.Modified;
+                    //this.Entry(rec).State = EntityState.Modified;
                     this.SaveChanges();
                 }
             }
@@ -1157,7 +1189,7 @@ namespace dsmodels
         /// <param name="userId"></param>
         /// <param name="applicationId"></param>
         /// <returns></returns>
-        public static UserSettingsView GetUserSettingView(string connStr, string userId, int applicationId)
+        public static UserSettingsView GetUserSettingView(string connStr, string userId, int applicationId, int storeID)
         {
             try
             {
@@ -1168,6 +1200,7 @@ namespace dsmodels
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@userID", userId);
                     cmd.Parameters.AddWithValue("@applicationID", applicationId);
+                    cmd.Parameters.AddWithValue("@storeID", storeID);
                     connection.Open();
 
                     SqlDataReader reader = cmd.ExecuteReader();
