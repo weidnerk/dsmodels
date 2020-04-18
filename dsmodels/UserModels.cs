@@ -86,6 +86,8 @@ namespace dsmodels
         public AspNetUser AspNetUser { get; set; }
         [JsonProperty(PropertyName = "pctProfit")]
         public double PctProfit { get; set; }
+        [JsonProperty(PropertyName = "handlingTime")]
+        public byte HandlingTime { get; set; }
     }
     /// <summary>
     /// </summary>
@@ -128,6 +130,7 @@ namespace dsmodels
         public string FirstName { get; set; }
         [JsonProperty(PropertyName = "pctProfit")] 
         public double PctProfit { get; set; }
+        [JsonProperty(PropertyName = "handlingTime")]
         public byte HandlingTime { get; set; }
         public byte MaxShippingDays { get; set; }
         public string PaymentProfile { get; set; }
