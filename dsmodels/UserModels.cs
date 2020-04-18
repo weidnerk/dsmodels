@@ -74,10 +74,10 @@ namespace dsmodels
         [Column(Order = 1)]
         [JsonProperty(PropertyName = "userID")]
         public string UserID { get; set; }
-        [Key]
-        [Column(Order = 2)]
         [JsonProperty(PropertyName = "applicationID")]
         public int ApplicationID { get; set; }
+        [Key]
+        [Column(Order = 2)]
         [JsonProperty(PropertyName = "storeID")]
         public int StoreID { get; set; }    // What store is user currently working on?
         [JsonProperty(PropertyName = "keysID")]
@@ -95,10 +95,10 @@ namespace dsmodels
         [Column(Order = 1)]
         [JsonProperty(PropertyName = "userID")]
         public string UserID { get; set; }
-        [Key]
-        [Column(Order = 2)]
         [JsonProperty(PropertyName = "applicationID")]
         public int ApplicationID { get; set; }
+        [Key]
+        [Column(Order = 2)]
         [JsonProperty(PropertyName = "storeID")]
         public int StoreID { get; set; }    // What store is user currently working on?
         [JsonProperty(PropertyName = "keysID")]
