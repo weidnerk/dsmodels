@@ -1650,7 +1650,7 @@ namespace dsmodels
             {
                 // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
                 // by I will get an error trying to save the same itemId/rptNumber so remove 
-                var itemExists = UserSettings.AsNoTracking().SingleOrDefault(r => r.UserID == settings.UserID);
+                var itemExists = UserSettings.AsNoTracking().SingleOrDefault(r => r.UserID == settings.UserID && r.StoreID == settings.StoreID);
                 if (itemExists == null)
                 {
                     UserSettings.Add(settings);
