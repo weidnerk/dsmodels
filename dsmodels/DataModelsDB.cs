@@ -852,10 +852,9 @@ namespace dsmodels
                 }
                 else
                 {
-                    listing.Updated = DateTime.Now;
-                    listing.UpdatedBy = settings.UserID;
-
-                    // ItemSpecifics only populated if ebay item id changed
+                    // 04.18.2020 once new listing is stored, currently not allowing sourcr URL to change so then
+                    // don't need to drop; and re add item specifics but leaving code anyway for futures support.
+                    this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(p => p.ListingID == listing.ID));
                     if (listing.ItemSpecifics != null)
                     {
                         foreach (var item in listing.ItemSpecifics)
@@ -863,7 +862,8 @@ namespace dsmodels
                             Entry(item).State = EntityState.Added;
                         }
                     }
-                  
+                    listing.Updated = DateTime.Now;
+                    listing.UpdatedBy = settings.UserID;
                     if (listing.SupplierID == 0)
                     {
                             // exists in db?
