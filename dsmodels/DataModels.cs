@@ -644,16 +644,16 @@ namespace dsmodels
         public decimal? Price { get; set; }
         public List<string> Images { get; set; }
     }
-    [Table("ListingLog")]
+    [Table("vwListingLog")]
     public class ListingLog
     {
         public int ID { get; set; }
         public int ListingID { get; set; }
-        [JsonProperty(PropertyName = "msgID")]
-        public int MsgID { get; set; }
         [JsonProperty(PropertyName = "note")]
         public string Note { get; set; }
         [JsonProperty(PropertyName = "created")]
         public DateTime Created { get; set; }
+        [JsonProperty(PropertyName = "message")]
+        public string Message { get; set; }
     }
 }
