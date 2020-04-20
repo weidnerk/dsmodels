@@ -1832,5 +1832,19 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "admin");
             }
         }
+        public List<ListingLog> ListingLogGet(int listingID)
+        {
+            try
+            {
+                var log = this.ListingLogs.Where(p => p.ListingID == listingID).ToList();
+                return log;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ListingLogGet", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "admin");
+                throw;
+            }
+        }
     }
 }

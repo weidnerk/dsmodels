@@ -649,7 +649,11 @@ namespace dsmodels
     {
         public int ID { get; set; }
         public int ListingID { get; set; }
+        [JsonProperty(PropertyName = "msgID")]
         public int MsgID { get; set; }
+        [JsonProperty(PropertyName = "note")]
         public string Note { get; set; }
+        [JsonProperty(PropertyName = "created")]
+        public DateTime Created { get; set; }
     }
 }
