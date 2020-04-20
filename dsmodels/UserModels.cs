@@ -88,6 +88,8 @@ namespace dsmodels
         public double PctProfit { get; set; }
         [JsonProperty(PropertyName = "handlingTime")]
         public byte HandlingTime { get; set; }
+        [JsonProperty(PropertyName = "payPalEmail")]
+        public string PayPalEmail { get; set; }
     }
     /// <summary>
     /// </summary>
@@ -133,6 +135,8 @@ namespace dsmodels
         [JsonProperty(PropertyName = "handlingTime")]
         public byte HandlingTime { get; set; }
         public byte MaxShippingDays { get; set; }
+        [JsonProperty(PropertyName = "payPalEmail")]
+        public string PayPalEmail { get; set; }
         public string PaymentProfile { get; set; }
         public string ShippingProfile { get; set; }
         public string ReturnProfile { get; set; }

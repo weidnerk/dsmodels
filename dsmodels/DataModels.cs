@@ -656,4 +656,13 @@ namespace dsmodels
         [JsonProperty(PropertyName = "message")]
         public string Message { get; set; }
     }
+    public class eBayBusinessPolicies
+    {
+        [JsonProperty(PropertyName = "shippingPolicies")]
+        public List<string> ShippingPolicies { get; set; }
+        [JsonProperty(PropertyName = "returnPolicies")]
+        public List<string> ReturnPolicies { get; set; }
+        [JsonProperty(PropertyName = "paymentPolicies")]
+        public List<string> PaymentPolicies { get; set; }
+    }
 }
