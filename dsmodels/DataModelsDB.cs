@@ -54,6 +54,7 @@ namespace dsmodels
         public DbSet<SalesOrder> SalesOrders { get; set; }
         public DbSet<AppSettings> AppSettings { get; set; }
         public DbSet<ListingItemSpecific> ListingItemSpecifics { get; set; }
+        public DbSet<ListingLogView> ListingLogViews { get; set; }
         public DbSet<ListingLog> ListingLogs { get; set; }
         public string GetUserIDFromName(string username)
         {
@@ -1830,13 +1831,14 @@ namespace dsmodels
             {
                 string msg = dsutil.DSUtil.ErrMsg("ListingLogAdd", exc);
                 dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "admin");
+                throw;
             }
         }
-        public List<ListingLog> ListingLogGet(int listingID)
+        public List<ListingLogView> ListingLogGet(int listingID)
         {
             try
             {
-                var log = this.ListingLogs.Where(p => p.ListingID == listingID).OrderByDescending(o => o.Created).ToList();
+                var log = this.ListingLogViews.Where(p => p.ListingID == listingID).OrderByDescending(o => o.Created).ToList();
                 return log;
             }
             catch (Exception exc)

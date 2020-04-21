@@ -645,7 +645,7 @@ namespace dsmodels
         public List<string> Images { get; set; }
     }
     [Table("vwListingLog")]
-    public class ListingLog
+    public class ListingLogView
     {
         public int ID { get; set; }
         public int ListingID { get; set; }
@@ -655,6 +655,21 @@ namespace dsmodels
         public DateTime Created { get; set; }
         [JsonProperty(PropertyName = "message")]
         public string Message { get; set; }
+    }
+    [Table("ListingLog")]
+    public class ListingLog
+    {
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }
+        [JsonProperty(PropertyName = "listingID")]
+        public int ListingID { get; set; }
+        [JsonProperty(PropertyName = "note")]
+        public string Note { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [JsonProperty(PropertyName = "created")]
+        public DateTime Created { get; set; }
+        [JsonProperty(PropertyName = "msgID")]
+        public int MsgID { get; set; }
     }
     public class eBayBusinessPolicies
     {
