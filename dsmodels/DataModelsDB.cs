@@ -1836,7 +1836,7 @@ namespace dsmodels
         {
             try
             {
-                var log = this.ListingLogs.Where(p => p.ListingID == listingID).ToList();
+                var log = this.ListingLogs.Where(p => p.ListingID == listingID).OrderByDescending(o => o.Created).ToList();
                 return log;
             }
             catch (Exception exc)
