@@ -401,6 +401,7 @@ namespace dsmodels
                 }
                 if (listing != null)
                 {
+                    this.ListingLogs.RemoveRange(this.ListingLogs.Where(x => x.ListingID == listing.ID));
                     // first remove item specifics
                     this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(x => x.ListingID == listing.ID));
 
