@@ -140,6 +140,7 @@ namespace dsmodels
         public string PaymentProfile { get; set; }
         public string ShippingProfile { get; set; }
         public string ReturnProfile { get; set; }
+
     }
 
     [Table("StoreProfile")]
@@ -147,6 +148,9 @@ namespace dsmodels
     {
         public int ID { get; set; }
         public string StoreName { get; set; }
+        [JsonProperty(PropertyName = "listingLimit")]
+        public int ListingLimit { get; set; }
+
     }
 
     /// <summary>

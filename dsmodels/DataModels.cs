@@ -339,6 +339,8 @@ namespace dsmodels
     {
         [JsonProperty(PropertyName = "dbIsMissingItems")]
         public List<string> DBIsMissingItems { get; set; }
+        [JsonProperty(PropertyName = "qtyMismatch")]
+        public List<string> QtyMismatch { get; set; }
     }
 
     [Table("OrderHistory")]
