@@ -672,6 +672,7 @@ namespace dsmodels
         public DateTime Created { get; set; }
         [JsonProperty(PropertyName = "msgID")]
         public int MsgID { get; set; }
+        public string UserID { get; set; }
     }
     public class eBayBusinessPolicies
     {

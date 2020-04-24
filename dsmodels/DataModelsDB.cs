@@ -1224,6 +1224,7 @@ namespace dsmodels
                         r.PaymentProfile = reader["PaymentProfile"].ToString();
                         r.ReturnProfile = reader["ReturnProfile"].ToString();
                         r.ShippingProfile = reader["ShippingProfile"].ToString();
+                        r.PayPalEmail = reader["PayPalEmail"].ToString();
                     }
                     else
                     {
