@@ -657,6 +657,8 @@ namespace dsmodels
         public DateTime Created { get; set; }
         [JsonProperty(PropertyName = "message")]
         public string Message { get; set; }
+        [JsonProperty(PropertyName = "userName")]
+        public string UserName { get; set; }
     }
     [Table("ListingLog")]
     public class ListingLog
