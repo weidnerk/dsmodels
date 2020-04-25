@@ -56,6 +56,7 @@ namespace dsmodels
         public DbSet<ListingItemSpecific> ListingItemSpecifics { get; set; }
         public DbSet<ListingLogView> ListingLogViews { get; set; }
         public DbSet<ListingLog> ListingLogs { get; set; }
+        public DbSet<UserProfileKeys> UserProfileKeys { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -1848,6 +1849,29 @@ namespace dsmodels
             {
                 string msg = dsutil.DSUtil.ErrMsg("ListingLogGet", exc);
                 dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "admin");
+                throw;
+            }
+        }
+        public async Task UserProfileKeysUpdate(UserProfileKeys keys, params string[] changedPropertyNames)
+        {
+            try
+            {
+                var found = this.UserProfileKeys.AsNoTracking().SingleOrDefault(p => p.AppID == keys.AppID);
+                if (found != null)
+                {
+                    keys.ID = found.ID;
+                    this.UserProfileKeys.Attach(keys);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(keys).Property(propertyName).IsModified = true;
+                    }
+                    await this.SaveChangesAsync();
+                }
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("UserProfileKeysUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "noname");
                 throw;
             }
         }

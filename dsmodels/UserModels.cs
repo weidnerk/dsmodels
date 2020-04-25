@@ -40,9 +40,13 @@ namespace dsmodels
     [Table("eBayKeys")]
     public class UserProfileKeys
     {
+        [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
+        [JsonProperty(PropertyName = "appID")]
         public string AppID { get; set; }
+        [JsonProperty(PropertyName = "devID")]
         public string DevID { get; set; }
+        [JsonProperty(PropertyName = "certID")]
         public string CertID { get; set; }
     }
 

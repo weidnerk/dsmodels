@@ -30,6 +30,10 @@ namespace dsmodels
     {
         public SalesOrder SalesOrder { get; set; }
     }
+    public class eBayKeysDTO : DTO
+    {
+        public UserProfileKeys eBayKeys { get; set; }
+    }
     /// <summary>
     /// Used for scan history page.
     /// </summary>
