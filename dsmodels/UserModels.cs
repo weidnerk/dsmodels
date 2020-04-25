@@ -147,6 +147,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "shippingProfile")]
         public string ShippingProfile { get; set; }
         public string ReturnProfile { get; set; }
+        public int ebayKeyID { get; set; }
 
     }
 

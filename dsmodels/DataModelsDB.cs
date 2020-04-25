@@ -1226,6 +1226,7 @@ namespace dsmodels
                         r.ReturnProfile = reader["ReturnProfile"].ToString();
                         r.ShippingProfile = reader["ShippingProfile"].ToString();
                         r.PayPalEmail = reader["PayPalEmail"].ToString();
+                        r.ebayKeyID = Convert.ToInt32(reader["ebayKeyID"].ToString());
                     }
                     else
                     {
@@ -1856,10 +1857,9 @@ namespace dsmodels
         {
             try
             {
-                var found = this.UserProfileKeys.AsNoTracking().SingleOrDefault(p => p.AppID == keys.AppID);
+                var found = this.UserProfileKeys.AsNoTracking().SingleOrDefault(p => p.ID == keys.ID);
                 if (found != null)
                 {
-                    keys.ID = found.ID;
                     this.UserProfileKeys.Attach(keys);
                     foreach (var propertyName in changedPropertyNames)
                     {
