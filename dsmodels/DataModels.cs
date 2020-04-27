@@ -566,6 +566,8 @@ namespace dsmodels
         [NotMapped]
         public DateTime? Arrives { get; set; }
         [NotMapped]
+        public int? BusinessDaysArrives { get; set; }
+        [NotMapped]
         public bool? IsVERO { get; set; }
         public DateTime Updated { get; set; }
         public int SourceID { get; set; }

@@ -39,6 +39,7 @@ namespace dsmodels
         public DbSet<UserSettingsView> UserSettingsView { get; set; }
         public DbSet<UserStoreView> UserStoreView { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<UserProfileView> UserProfileViews { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
         public DbSet<SellerProfile> SellerProfiles { get; set; }
         public DbSet<StoreProfile> StoreProfiles { get; set; }
@@ -79,12 +80,19 @@ namespace dsmodels
             try
             {
                 var ret = GetUserProfile(userID);
-                var setting = GetUserSettingView(connStr, userID, 1, ret.SelectedStore);
-                if (setting != null)
+                if (ret.SelectedStore.HasValue)
                 {
-                    return setting;
+                    var setting = GetUserSettingView(connStr, userID, 1, ret.SelectedStore.Value);
+                    if (setting != null)
+                    {
+                        return setting;
+                    }
+                    return null;
                 }
-                return null;
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception exc)
             {
@@ -112,6 +120,11 @@ namespace dsmodels
         public UserProfile GetUserProfile(string userid)
         {
             var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
+            return profile;
+        }
+        public UserProfileView GetUserProfileView(string userid)
+        {
+            var profile = this.UserProfileViews.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
             return profile;
         }
         public async Task UserProfileSaveAsync(UserSettingsView setting, UserProfile profile, params string[] changedPropertyNames)
@@ -1203,7 +1216,6 @@ namespace dsmodels
                     SqlCommand cmd = new SqlCommand("sp_UserSetting", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@userID", userId);
-                    cmd.Parameters.AddWithValue("@applicationID", applicationId);
                     cmd.Parameters.AddWithValue("@storeID", storeID);
                     connection.Open();
 

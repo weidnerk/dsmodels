@@ -16,6 +16,25 @@ namespace dsmodels
         public string UserName { get; set; }
     }
 
+    [Table("vwUserProfile")]
+    public class UserProfileView
+    {
+        [Key]
+        [JsonProperty(PropertyName = "userID")]
+        public string UserID { get; set; }
+        [JsonProperty(PropertyName = "firstname")]
+        public string Firstname { get; set; }
+        [JsonProperty(PropertyName = "lastname")]
+        public string Lastname { get; set; }
+        public DateTime Created { get; set; }
+        //[ForeignKey("UserID")]
+        //public AspNetUser AspNetUser { get; set; }
+        [JsonProperty(PropertyName = "selectedStore")]
+        public int? SelectedStore { get; set; }
+        [JsonProperty(PropertyName = "username")]
+        public string UserName { get; set; }
+    }
+
     /// <summary>
     /// Augment AspNetUsers - one to one
     /// </summary>
@@ -33,7 +52,7 @@ namespace dsmodels
         //[ForeignKey("UserID")]
         //public AspNetUser AspNetUser { get; set; }
         [JsonProperty(PropertyName = "selectedStore")]
-        public int SelectedStore { get; set; }
+        public int? SelectedStore { get; set; }
     }
 
     // ds109 user may use multiple ebay keysets
