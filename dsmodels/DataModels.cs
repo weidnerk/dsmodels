@@ -243,6 +243,7 @@ namespace dsmodels
         public List<string> Warning { get; set; }
         public virtual List<ListingItemSpecific> ItemSpecifics { get; set; }    // lazy load
         public string eBaySellerURL { get; set; }
+        public double PctProfit { get; set; }
     }
 
     // SellerItemID here can either point to SellerListing or OrderHistory.
