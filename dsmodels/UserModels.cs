@@ -173,11 +173,12 @@ namespace dsmodels
     [Table("StoreProfile")]
     public class StoreProfile
     {
+        [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
+        [JsonProperty(PropertyName = "storeName")]
         public string StoreName { get; set; }
         [JsonProperty(PropertyName = "listingLimit")]
         public int ListingLimit { get; set; }
-
     }
 
     /// <summary>

@@ -38,6 +38,7 @@ namespace dsmodels
         public DbSet<UserSettings> UserSettings { get; set; }   // user's current selection
         public DbSet<UserSettingsView> UserSettingsView { get; set; }
         public DbSet<UserStoreView> UserStoreView { get; set; }
+        public DbSet<UserStore> UserStores { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserProfileView> UserProfileViews { get; set; }
         public DbSet<AspNetUser> AspNetUsers { get; set; }
@@ -1726,6 +1727,18 @@ namespace dsmodels
             }
             return token;
         }
+        public string GetToken(int storeID, string userID)
+        {
+            // UserToken contains a user as a PK but not sure why I did it this way.
+            // So just get first matching store.
+            string token = null;
+            var result = UserTokens.Where(p => p.StoreID == storeID && p.UserID == userID).SingleOrDefault();
+            if (result != null)
+            {
+                token = result.Token;
+            }
+            return token;
+        }
         public async Task<string> UpdateToListingSave(UpdateToListing updateToList, params string[] changedPropertyNames)
         {
             string ret = string.Empty;
@@ -1884,6 +1897,54 @@ namespace dsmodels
             {
                 string msg = dsutil.DSUtil.ErrMsg("UserProfileKeysUpdate", exc);
                 dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "noname");
+                throw;
+            }
+        }
+        protected async Task StoreProfileAddAsync(StoreProfile profile)
+        {
+            try
+            {
+                this.StoreProfiles.Add(profile);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ERROR StoreProfileAddAsync: " + profile.StoreName, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                throw;
+            }
+        }
+
+        protected async Task UserStoreAddAsync(UserStore userStore)
+        {
+            try
+            {
+                this.UserStores.Add(userStore);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ERROR UserStoreAddAsync", exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                throw;
+            }
+        }
+        public async Task StoreAddAsync(string userID, StoreProfile profile)
+        {
+            try
+            {
+                this.StoreProfiles.Add(profile);
+                await this.SaveChangesAsync();
+
+                var userStore = new UserStore { StoreID = profile.ID, UserID = userID };
+
+                this.UserStores.Add(userStore);
+                await this.SaveChangesAsync();
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ERROR StoreAddAsync: " + profile.StoreName, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 throw;
             }
         }
