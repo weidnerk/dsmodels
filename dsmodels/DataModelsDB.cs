@@ -1240,6 +1240,7 @@ namespace dsmodels
                         r.ShippingProfile = reader["ShippingProfile"].ToString();
                         r.PayPalEmail = reader["PayPalEmail"].ToString();
                         r.ebayKeyID = Convert.ToInt32(reader["ebayKeyID"].ToString());
+                        r.APIEmail = reader["APIEmail"].ToString();
                     }
                     else
                     {

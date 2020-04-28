@@ -167,6 +167,8 @@ namespace dsmodels
         public string ShippingProfile { get; set; }
         public string ReturnProfile { get; set; }
         public int ebayKeyID { get; set; }
+        [JsonProperty(PropertyName = "APIEmail")]
+        public string APIEmail { get; set; }
 
     }
 
