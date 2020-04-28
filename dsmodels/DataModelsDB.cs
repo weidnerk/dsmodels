@@ -1701,9 +1701,9 @@ namespace dsmodels
             }
             return ret;
         }
-        public List<UserStoreView> GetUserStores(UserSettingsView settings)
+        public List<UserStoreView> GetUserStores(string userID)
         {
-            var ret = UserStoreView.Where(p => p.UserID == settings.UserID).ToList();
+            var ret = UserStoreView.Where(p => p.UserID == userID).ToList();
             return ret;
         }
         public SellerListing GetSellerListing(string itemID)
