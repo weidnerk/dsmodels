@@ -219,7 +219,9 @@ namespace dsmodels
     }
     public class eBayStore
     {
+        [JsonProperty(PropertyName = "storeName")]
         public string StoreName { get; set; }
+        [JsonProperty(PropertyName = "subscription")]
         public string Subscription { get; set; }
     }
     public class eBayUser
