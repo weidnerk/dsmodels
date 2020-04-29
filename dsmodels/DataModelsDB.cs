@@ -59,6 +59,7 @@ namespace dsmodels
         public DbSet<ListingLogView> ListingLogViews { get; set; }
         public DbSet<ListingLog> ListingLogs { get; set; }
         public DbSet<UserProfileKeys> UserProfileKeys { get; set; }
+        public DbSet<UserProfileKeysView> UserProfileKeysView { get; set; }
         public string GetUserIDFromName(string username)
         {
             var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
@@ -121,6 +122,16 @@ namespace dsmodels
         public UserProfile GetUserProfile(string userid)
         {
             var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
+            return profile;
+        }
+        public UserProfileKeys GetUserProfileKeys(int id)
+        {
+            var profile = this.UserProfileKeys.AsNoTracking().Where(r => r.ID == id).SingleOrDefault();
+            return profile;
+        }
+        public UserProfileKeysView GetUserProfileKeysView(int storeID, string userID)
+        {
+            var profile = this.UserProfileKeysView.AsNoTracking().Where(r => r.StoreID == storeID && r.UserID == userID).SingleOrDefault();
             return profile;
         }
         public UserProfileView GetUserProfileView(string userid)
@@ -1663,7 +1674,7 @@ namespace dsmodels
             //}
             return null;
         }
-        public async Task<string> UserSettingsSave(UserSettings settings, params string[] changedPropertyNames)
+        public async Task<string> UserSettingsSaveAsync(UserSettings settings, params string[] changedPropertyNames)
         {
             string ret = string.Empty;
             try
@@ -1692,12 +1703,14 @@ namespace dsmodels
             {
                 ret = GetValidationErr(e);
                 dsutil.DSUtil.WriteFile(_logfile, "UserSettingsSave: " + settings.UserID + " " + ret, "admin");
+                throw;
             }
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("UserSettingsSave", exc);
                 dsutil.DSUtil.WriteFile(_logfile, "UserSettingsSave: " + settings.UserID + " " + msg, "admin");
                 ret += exc.Message;
+                throw;
             }
             return ret;
         }
@@ -1881,7 +1894,27 @@ namespace dsmodels
                 throw;
             }
         }
-        public async Task UserProfileKeysUpdate(UserProfileKeys keys, params string[] changedPropertyNames)
+
+        //public async Task APIKeysUpdate(string userID, int storeID, string token, UserProfileKeys keys, params string[] changedPropertyNames)
+        //{
+        //    try
+        //    {
+        //        await UserProfileKeysUpdate(keys, changedPropertyNames);
+        //        var ut = new UserToken();
+        //        ut.UserID = userID;
+        //        ut.StoreID = storeID;
+        //        ut.Token = token;
+        //        await UserTokenUpdate(ut, "Token");
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        string msg = dsutil.DSUtil.ErrMsg("APIKeysUpdate", exc);
+        //        dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "noname");
+        //        throw;
+        //    }
+        //}
+
+        public async Task<UserProfileKeys> UserProfileKeysUpdate(UserProfileKeys keys, params string[] changedPropertyNames)
         {
             try
             {
@@ -1895,6 +1928,12 @@ namespace dsmodels
                     }
                     await this.SaveChangesAsync();
                 }
+                else
+                {
+                    UserProfileKeys.Add(keys);
+                    await this.SaveChangesAsync();
+                }
+                return keys;
             }
             catch (Exception exc)
             {
@@ -1903,7 +1942,34 @@ namespace dsmodels
                 throw;
             }
         }
-        protected async Task StoreProfileAddAsync(StoreProfile profile)
+        public async Task UserTokenUpdate(UserToken userToken, params string[] changedPropertyNames)
+        {
+            try
+            {
+                var found = this.UserTokens.AsNoTracking().SingleOrDefault(p => p.UserID == userToken.UserID && p.StoreID == userToken.StoreID);
+                if (found != null)
+                {
+                    this.UserTokens.Attach(userToken);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(userToken).Property(propertyName).IsModified = true;
+                    }
+                    await this.SaveChangesAsync();
+                }
+                else
+                {
+                    UserTokens.Add(userToken);
+                    await this.SaveChangesAsync();
+                }
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("UserTokenUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "noname");
+                throw;
+            }
+        }
+        public async Task StoreProfileAddAsync(StoreProfile profile)
         {
             try
             {
@@ -1918,7 +1984,7 @@ namespace dsmodels
             }
         }
     
-        protected async Task UserStoreAddAsync(UserStore userStore)
+        public async Task UserStoreAddAsync(UserStore userStore)
         {
             try
             {
@@ -1932,6 +1998,12 @@ namespace dsmodels
                 throw;
             }
         }
+        /// <summary>
+        /// this might be obsolete
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="profile"></param>
+        /// <returns></returns>
         public async Task StoreAddAsync(string userID, StoreProfile profile)
         {
             try

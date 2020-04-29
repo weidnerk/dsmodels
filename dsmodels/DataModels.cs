@@ -33,6 +33,8 @@ namespace dsmodels
     public class eBayKeysDTO : DTO
     {
         public UserProfileKeys eBayKeys { get; set; }
+        public string Token { get; set; }
+        public int StoreID { get; set; }
     }
     /// <summary>
     /// Used for scan history page.

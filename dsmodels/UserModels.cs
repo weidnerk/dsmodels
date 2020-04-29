@@ -67,6 +67,32 @@ namespace dsmodels
         public string DevID { get; set; }
         [JsonProperty(PropertyName = "certID")]
         public string CertID { get; set; }
+        [JsonProperty(PropertyName = "APIEmail")]
+        public string EmailAddress { get; set; }
+    }
+    /// <summary>
+    /// Created to get a store when no settings have been created - just have keys
+    /// </summary>
+    [Table("vwUserProfileKeys")]
+    public class UserProfileKeysView
+    {
+        [Key]
+        [Column(Order = 1)]
+
+        [JsonProperty(PropertyName = "userID")]
+        public string UserID { get; set; }
+        [Key]
+        [Column(Order = 2)]
+        [JsonProperty(PropertyName = "storeID")]
+        public int StoreID { get; set; }
+        [JsonProperty(PropertyName = "appID")]
+        public string AppID { get; set; }
+        [JsonProperty(PropertyName = "devID")]
+        public string DevID { get; set; }
+        [JsonProperty(PropertyName = "certID")]
+        public string CertID { get; set; }
+        [JsonProperty(PropertyName = "token")]
+        public string Token { get; set; }
     }
 
     /// <summary>
@@ -85,6 +111,7 @@ namespace dsmodels
         [Column(Order = 2)]
         public int StoreID { get; set; }
         public string Token { get; set; }
+        public int KeysID { get; set; }
     }
 
     /// <summary>
@@ -172,6 +199,12 @@ namespace dsmodels
 
     }
 
+    /// <summary>
+    /// eBay user might not have paid for a store and technically does not have an eBay subscription.
+    /// So you might even refer to StoreProfile instead as AccountProfile but it's very easy to think of everything as a "store".
+    /// In the database, eBayUserID is non-nullable but StoreName allows nulls.  If user does not have a subscription then he does not have a "store".
+    /// 
+    /// </summary>
     [Table("StoreProfile")]
     public class StoreProfile
     {
@@ -182,6 +215,15 @@ namespace dsmodels
         [JsonProperty(PropertyName = "listingLimit")]
         public int ListingLimit { get; set; }
         [JsonProperty(PropertyName = "eBayUserID")]
+        public string eBayUserID { get; set; }
+    }
+    public class eBayStore
+    {
+        public string StoreName { get; set; }
+        public string Subscription { get; set; }
+    }
+    public class eBayUser
+    {
         public string eBayUserID { get; set; }
 
     }
