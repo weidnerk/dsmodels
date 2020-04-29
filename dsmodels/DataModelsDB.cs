@@ -1706,6 +1706,7 @@ namespace dsmodels
             var ret = UserStoreView.Where(p => p.UserID == userID).ToList();
             return ret;
         }
+      
         public SellerListing GetSellerListing(string itemID)
         {
             var found = SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
@@ -1851,6 +1852,7 @@ namespace dsmodels
             var r = this.StoreProfiles.Where(p => p.ID == storeID).First();
             return r;
         }
+    
         public async Task ListingLogAdd(ListingLog log)
         {
             try
@@ -1915,7 +1917,7 @@ namespace dsmodels
                 throw;
             }
         }
-
+    
         protected async Task UserStoreAddAsync(UserStore userStore)
         {
             try

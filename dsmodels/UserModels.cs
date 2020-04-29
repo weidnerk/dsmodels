@@ -181,6 +181,9 @@ namespace dsmodels
         public string StoreName { get; set; }
         [JsonProperty(PropertyName = "listingLimit")]
         public int ListingLimit { get; set; }
+        [JsonProperty(PropertyName = "eBayUserID")]
+        public string eBayUserID { get; set; }
+
     }
 
     /// <summary>
@@ -237,6 +240,8 @@ namespace dsmodels
         public int StoreID { get; set; }
         [JsonProperty(PropertyName = "storeName")]
         public string StoreName { get; set; }
+        [JsonProperty(PropertyName = "eBayUserID")]
+        public string eBayUserID { get; set; }
     }
 
 }
