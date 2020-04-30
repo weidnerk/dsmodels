@@ -690,9 +690,9 @@ namespace dsmodels
         [JsonProperty(PropertyName = "shippingPolicies")]
         public List<ShippingPolicy> ShippingPolicies { get; set; }
         [JsonProperty(PropertyName = "returnPolicies")]
-        public List<string> ReturnPolicies { get; set; }
+        public List<ReturnPolicy> ReturnPolicies { get; set; }
         [JsonProperty(PropertyName = "paymentPolicies")]
-        public List<string> PaymentPolicies { get; set; }
+        public List<PaymentPolicy> PaymentPolicies { get; set; }
     }
     public class ShippingPolicy
     {
@@ -700,5 +700,21 @@ namespace dsmodels
         public string Name { get; set; }
         [JsonProperty(PropertyName = "handlingTime")]
         public int HandlingTime { get; set; }
+        [JsonProperty(PropertyName = "shippingService")]
+        public string ShippingService { get; set; }
+    }
+    public class PaymentPolicy
+    {
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+        [JsonProperty(PropertyName = "paypalEmailAddress")]
+        public string PaypalEmailAddress { get; set; }
+    }
+    public class ReturnPolicy
+    {
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+        [JsonProperty(PropertyName = "shippingCostPaidByOption")]
+        public string ShippingCostPaidByOption { get; set; }
     }
 }

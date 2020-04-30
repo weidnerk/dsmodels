@@ -226,8 +226,10 @@ namespace dsmodels
     }
     public class eBayUser
     {
+        [JsonProperty(PropertyName = "eBayUserID")]
         public string eBayUserID { get; set; }
-
+        [JsonProperty(PropertyName = "payPalEmail")]
+        public string PayPalEmail { get; set; } // specifies the default email address the seller uses for receiving PayPal payments.
     }
 
     /// <summary>
