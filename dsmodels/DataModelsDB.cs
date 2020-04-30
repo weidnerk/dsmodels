@@ -1747,7 +1747,7 @@ namespace dsmodels
             // UserToken contains a user as a PK but not sure why I did it this way.
             // So just get first matching store.
             string token = null;
-            var result = UserTokens.Where(p => p.StoreID == storeID && p.UserID == userID).SingleOrDefault();
+            var result = UserTokens.AsNoTracking().Where(p => p.StoreID == storeID && p.UserID == userID).SingleOrDefault();
             if (result != null)
             {
                 token = result.Token;
