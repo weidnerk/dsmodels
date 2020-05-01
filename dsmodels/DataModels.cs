@@ -702,6 +702,8 @@ namespace dsmodels
         public int HandlingTime { get; set; }
         [JsonProperty(PropertyName = "shippingService")]
         public string ShippingService { get; set; }
+        [JsonProperty(PropertyName = "globalShipping")]
+        public bool GlobalShipping { get; set; }
     }
     public class PaymentPolicy
     {
