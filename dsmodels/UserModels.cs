@@ -142,6 +142,13 @@ namespace dsmodels
         public string PayPalEmail { get; set; }
         [JsonProperty(PropertyName = "shippingProfile")]
         public string ShippingProfile { get; set; }
+        [JsonProperty(PropertyName = "paymentProfile")]
+        public string PaymentProfile { get; set; }
+        [JsonProperty(PropertyName = "returnProfile")]
+        public string ReturnProfile { get; set; }
+        [JsonProperty(PropertyName = "maxShippingDays")]
+        public byte MaxShippingDays { get; set; }
+
     }
     /// <summary>
     /// </summary>
@@ -186,13 +193,20 @@ namespace dsmodels
         public double PctProfit { get; set; }
         [JsonProperty(PropertyName = "handlingTime")]
         public byte HandlingTime { get; set; }
+        [JsonProperty(PropertyName = "maxShippingDays")]
         public byte MaxShippingDays { get; set; }
         [JsonProperty(PropertyName = "payPalEmail")]
         public string PayPalEmail { get; set; }
+
+        [JsonProperty(PropertyName = "paymentProfile")]
         public string PaymentProfile { get; set; }
+       
         [JsonProperty(PropertyName = "shippingProfile")]
         public string ShippingProfile { get; set; }
+        
+        [JsonProperty(PropertyName = "returnProfile")]
         public string ReturnProfile { get; set; }
+        
         public int ebayKeyID { get; set; }
         [JsonProperty(PropertyName = "APIEmail")]
         public string APIEmail { get; set; }

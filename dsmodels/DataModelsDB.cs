@@ -836,6 +836,11 @@ namespace dsmodels
 
                 target.Add(specific);
             }
+            //target.Add(new ListingItemSpecific { ItemName = "Brand", ItemValue = "Mr. Coffee" });
+            //target.Add(new ListingItemSpecific { ItemName = "Manufacturer Part Number", ItemValue = "BVMC-ECM270R" });
+            //target.Add(new ListingItemSpecific { ItemName = "Model", ItemValue = "BVMC-ECM270R" });
+            //target.Add(new ListingItemSpecific { ItemName = "Assembled Product Weight", ItemValue = "5.8 lbs" });
+            //target.Add(new ListingItemSpecific { ItemName = "Assembled Product Dimensions (L x W x H)", ItemValue = "10.30 x 9.80 x 12.50 Inches" });
             return target;
         }
         public static string DumpSellerListingItemSpecifics(List<SellerListingItemSpecific> specifics)
