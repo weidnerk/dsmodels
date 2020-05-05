@@ -600,20 +600,31 @@ namespace dsmodels
     [Table("SalesOrder")]
     public class SalesOrder
     {
+        [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
+        [JsonProperty(PropertyName = "listedItemID")]
         public string ListedItemID { get; set; }
+        [JsonProperty(PropertyName = "datePurchased")]
         public DateTime DatePurchased { get; set; }
+        [JsonProperty(PropertyName = "qty")]
         public int Qty { get; set; }
 
         // you can argue that this fields s/b the PK but what if same order number used between different suppliers?
         // or even same supplier re-uses order number?
         // for now, I have place a unique constraint on it - see what happens
+        [JsonProperty(PropertyName = "supplierOrderNumber")]
         public string SupplierOrderNumber { get; set; }
+        [JsonProperty(PropertyName = "ebayOrderNumber")]
         public string eBayOrderNumber { get; set; }
+        [JsonProperty(PropertyName = "buyer")]
         public string Buyer { get; set; }
+        [JsonProperty(PropertyName = "buyerHandle")]
         public string BuyerHandle { get; set; }
+        [JsonProperty(PropertyName = "buyerPaid")]
         public decimal BuyerPaid { get; set; }
+        [JsonProperty(PropertyName = "i_paid")]
         public decimal I_Paid { get; set; }
+        [JsonProperty(PropertyName = "buyerState")]
         public string BuyerState { get; set; }
     }
 
@@ -627,6 +638,7 @@ namespace dsmodels
         public DateTime DatePurchased { get; set; }
         public decimal BuyerPaid { get; set; }
         public string BuyerState { get; set; }
+        public string ItemID { get; set; }
     }
 
     [Table("AppSettings")]
