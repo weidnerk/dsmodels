@@ -626,6 +626,14 @@ namespace dsmodels
         public decimal I_Paid { get; set; }
         [JsonProperty(PropertyName = "buyerState")]
         public string BuyerState { get; set; }
+        [JsonProperty(PropertyName = "total")]
+        public decimal Total { get; set; }
+        [JsonProperty(PropertyName = "subTotal")]
+        public decimal SubTotal { get; set; }
+        [JsonProperty(PropertyName = "salesTax")]
+        public decimal SalesTax { get;  set; }
+        [JsonProperty(PropertyName = "shippingCost")]
+        public decimal ShippingCost { get; set; }
     }
 
     /// <summary>
