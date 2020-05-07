@@ -621,7 +621,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "buyerHandle")]
         public string BuyerHandle { get; set; }
         [JsonProperty(PropertyName = "buyerPaid")]
-        public decimal BuyerPaid { get; set; }
+        public decimal BuyerPaid { get; set; }  // I think in my case BuyerPaid and Total are same thing since my terms are "fixed price, buy now"
         [JsonProperty(PropertyName = "i_paid")]
         public decimal I_Paid { get; set; }
         [JsonProperty(PropertyName = "buyerState")]
@@ -634,6 +634,10 @@ namespace dsmodels
         public decimal SalesTax { get;  set; }
         [JsonProperty(PropertyName = "shippingCost")]
         public decimal ShippingCost { get; set; }
+        [JsonProperty(PropertyName = "finalValueFee")]
+        public decimal FinalValueFee { get; set; }
+        [JsonProperty(PropertyName = "payPalFee")]
+        public decimal PayPalFee { get; set; }
     }
 
     /// <summary>
