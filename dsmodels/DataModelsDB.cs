@@ -1030,13 +1030,13 @@ namespace dsmodels
                 return null;
             }
         }
-        public Listing ListingGet(int listingID, int storeID)
+        public Listing ListingGet(int listingID)
         {
             // can't detach, otherwise, returns all undefined
             // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                var listing = this.Listings.AsNoTracking().Where(r => r.ID == listingID && r.StoreID == storeID).SingleOrDefault();
+                var listing = this.Listings.AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
 
                 // 02.20.2020
                 // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 
@@ -2024,6 +2024,20 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("ERROR StoreAddAsync: " + profile.StoreName, exc);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
+                throw;
+            }
+        }
+        public async Task<SalesOrder> SalesOrderAddAsync(SalesOrder salesOrder)
+        {
+            try { 
+                this.SalesOrders.Add(salesOrder);
+                await this.SaveChangesAsync();
+                return salesOrder;
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("ERROR SalesOrderAddAsync", exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 throw;
             }

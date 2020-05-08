@@ -602,6 +602,8 @@ namespace dsmodels
     {
         [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
+        [JsonProperty(PropertyName = "listingID")]
+        public int ListingID { get; set; }
         [JsonProperty(PropertyName = "listedItemID")]
         public string ListedItemID { get; set; }
         [JsonProperty(PropertyName = "datePurchased")]
@@ -609,11 +611,12 @@ namespace dsmodels
         [JsonProperty(PropertyName = "qty")]
         public int Qty { get; set; }
 
-        // you can argue that this fields s/b the PK but what if same order number used between different suppliers?
-        // or even same supplier re-uses order number?
-        // for now, I have place a unique constraint on it - see what happens
+        // Had a UC on this field since supplier should not have duplicate order numbers but we might get same order number
+        // by different suppliers.  This constraint has been implemented as a trigger, TR_SalesOrder_Add.
         [JsonProperty(PropertyName = "supplierOrderNumber")]
         public string SupplierOrderNumber { get; set; }
+
+        // API gives you OrderID which is not same as order number - not sure, I don't use it, don't require it
         [JsonProperty(PropertyName = "ebayOrderNumber")]
         public string eBayOrderNumber { get; set; }
         [JsonProperty(PropertyName = "buyer")]
@@ -643,6 +646,8 @@ namespace dsmodels
         public string OrderStatus { get; set; }
         [JsonProperty(PropertyName = "trackingNumber")]
         public string TrackingNumber { get; set; }
+        [JsonProperty(PropertyName = "createdBy")]
+        public string CreatedBy { get; set; }
     }
 
     /// <summary>
