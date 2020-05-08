@@ -641,7 +641,10 @@ namespace dsmodels
         public decimal FinalValueFee { get; set; }
         [JsonProperty(PropertyName = "payPalFee")]
         public decimal PayPalFee { get; set; }
+        [JsonProperty(PropertyName = "profit")]
         public decimal Profit { get; set; }
+        [JsonProperty(PropertyName = "profitMargin")]
+        public double ProfitMargin { get; set; }
         [JsonProperty(PropertyName = "orderStatus")]
         public string OrderStatus { get; set; }
         [JsonProperty(PropertyName = "trackingNumber")]
