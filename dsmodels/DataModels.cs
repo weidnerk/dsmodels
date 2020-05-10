@@ -632,7 +632,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "total")]
         public decimal Total { get; set; }
         [JsonProperty(PropertyName = "subTotal")]
-        public decimal SubTotal { get; set; }
+        public decimal SubTotal { get; set; }           // looks to be what the item actually sold for (my list price)
         [JsonProperty(PropertyName = "salesTax")]
         public decimal SalesTax { get;  set; }
         [JsonProperty(PropertyName = "shippingCost")]
