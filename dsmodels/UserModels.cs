@@ -148,6 +148,9 @@ namespace dsmodels
         public string ReturnProfile { get; set; }
         [JsonProperty(PropertyName = "maxShippingDays")]
         public byte MaxShippingDays { get; set; }
+        [JsonProperty(PropertyName = "finalValueFeePct")]
+        public double FinalValueFeePct { get; set; }
+
 
     }
     /// <summary>
@@ -210,6 +213,8 @@ namespace dsmodels
         public int ebayKeyID { get; set; }
         [JsonProperty(PropertyName = "APIEmail")]
         public string APIEmail { get; set; }
+        [JsonProperty(PropertyName = "finalValueFeePct")]
+        public double FinalValueFeePct { get; set; }
 
     }
 
