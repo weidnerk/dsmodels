@@ -588,6 +588,8 @@ namespace dsmodels
         public List<string> CanList { get; set; }
         [NotMapped]
         public List<string> Warning { get; set; }
+        [NotMapped]
+        public int ArrivalDateFlag { get; set; }    // Indicates if Selenium was started.
     }
     [Table("UpdateToListing")]
     public class UpdateToListing
