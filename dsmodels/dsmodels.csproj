@@ -57,6 +57,7 @@
     <Compile Include="DataModels.cs" />
     <Compile Include="DataModelsDB.cs" />
     <Compile Include="DataModelVariation.cs" />
+    <Compile Include="Interfaces.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserModels.cs" />
   </ItemGroup>

@@ -870,7 +870,7 @@ namespace dsmodels
             return output;
         }
 
-        public async Task<Listing> ListingSaveAsync(UserSettingsView settings, Listing listing, params string[] changedPropertyNames)
+        public async Task<Listing> ListingSaveAsync(UserSettingsView settings, Listing listing, bool updateItemSpecifics, params string[] changedPropertyNames)
         {
             string msg = null;
             try
@@ -880,20 +880,22 @@ namespace dsmodels
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
-                    //listing.SupplierItem.Updated = DateTime.Now;  should be done wherever supplieritem is created
                     Listings.Add(listing);
                     await this.SaveChangesAsync();
                 }
                 else
                 {
-                    // 04.18.2020 once new listing is stored, currently not allowing sourcr URL to change so then
-                    // don't need to drop; and re add item specifics but leaving code anyway for futures support.
-                    this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(p => p.ListingID == listing.ID));
-                    if (listing.ItemSpecifics != null)
+                    if (updateItemSpecifics)
                     {
-                        foreach (var item in listing.ItemSpecifics)
+                        // 04.18.2020 once new listing is stored, currently not allowing sourcr URL to change so then
+                        // don't need to drop; and re add item specifics but leaving code anyway for futures support.
+                        this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(p => p.ListingID == listing.ID));
+                        if (listing.ItemSpecifics != null)
                         {
-                            Entry(item).State = EntityState.Added;
+                            foreach (var item in listing.ItemSpecifics)
+                            {
+                                Entry(item).State = EntityState.Added;
+                            }
                         }
                     }
                     listing.Updated = DateTime.Now;
