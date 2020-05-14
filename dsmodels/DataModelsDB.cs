@@ -1262,6 +1262,7 @@ namespace dsmodels
                         r.PayPalEmail = reader["PayPalEmail"].ToString();
                         r.ebayKeyID = Convert.ToInt32(reader["ebayKeyID"].ToString());
                         r.APIEmail = reader["APIEmail"].ToString();
+                        r.FinalValueFeePct = Convert.ToDouble(reader["FinalValueFeePct"].ToString());
                     }
                     else
                     {
