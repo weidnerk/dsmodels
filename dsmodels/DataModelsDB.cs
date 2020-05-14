@@ -1116,12 +1116,17 @@ namespace dsmodels
             bool ret = false;
             try
             {
-                // find item by looking up seller's listing id
                 var rec = await this.Listings.SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (rec != null)
                 {
                     ret = true;
                     rec.ListedItemID = listedItemID;
+
+                    // If the item had been Ended on eBay, then clear Ended fields
+                    // (Any Ended event is recorded in the log.)
+                    rec.Ended = null;
+                    rec.EndedBy = null;
+
                     this.Entry(rec).Property(x => x.ListedItemID).IsModified = true;
                     if (updated.HasValue)
                     {
@@ -1143,8 +1148,6 @@ namespace dsmodels
                     rec.ListedResponse = listedResponse;
                     this.Entry(rec).Property(x => x.ListedResponse).IsModified = true;
 
-                    // Pass the entity to Entity Framework and mark it as modified
-                    //this.Entry(rec).State = EntityState.Modified;
                     this.SaveChanges();
                 }
             }
