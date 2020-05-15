@@ -947,6 +947,7 @@ namespace dsmodels
                     }
                 }
                 dsutil.DSUtil.WriteFile(_logfile, errStr, "admin");
+                throw;
             }
             catch (Exception exc)
             {
@@ -1091,7 +1092,7 @@ namespace dsmodels
             {
                 string msg = dsutil.DSUtil.ErrMsg("ListingGet, ListedItemID: " + listedItemID, exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
-                return null;
+                throw;
             }
         }
 
