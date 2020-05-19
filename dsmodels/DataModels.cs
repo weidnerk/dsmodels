@@ -201,6 +201,9 @@ namespace dsmodels
         public virtual SellerListing SellerListing { get; set; }
         public string ListingTitle { get; set; }
         public string Description { get; set; }
+
+        // Might wonder if this is redundant since already have similar field in SupplierItem but what if you want to use 
+        // images from other sources?  so this field makes sense.
         public string PictureURL { get; set; }                      // store picture urls as a semi-colon delimited string
         public decimal ListingPrice { get; set; }
         public string PrimaryCategoryID { get; set; }
