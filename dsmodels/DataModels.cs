@@ -150,6 +150,7 @@ namespace dsmodels
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string UpdatedByName { get; set; }
         public string  SupplierPicURL { get; set; }
+        public bool InActive { get; set; }
     }
 
     /// <summary>
@@ -352,6 +353,8 @@ namespace dsmodels
         public List<string> DBIsMissingItems { get; set; }
         [JsonProperty(PropertyName = "qtyMismatch")]
         public List<string> QtyMismatch { get; set; }
+        [JsonProperty(PropertyName = "inactive")]
+        public int InActive { get; set; }
     }
 
     [Table("OrderHistory")]
