@@ -1590,10 +1590,14 @@ namespace dsmodels
                 return null;
             }
         }
-
         public SupplierItem GetSupplierItemByURL(string URL)
         {
             var item = this.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
+            return item;
+        }
+        public ListingView GetListingBySupplierURL(int storeID, string URL)
+        {
+            var item = this.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).SingleOrDefault();
             return item;
         }
 

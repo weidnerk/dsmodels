@@ -151,6 +151,7 @@ namespace dsmodels
         public string UpdatedByName { get; set; }
         public string  SupplierPicURL { get; set; }
         public bool InActive { get; set; }
+        public string ItemURL { get; set; }
     }
 
     /// <summary>
