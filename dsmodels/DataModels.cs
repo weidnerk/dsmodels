@@ -661,6 +661,10 @@ namespace dsmodels
         public string TrackingNumber { get; set; }
         [JsonProperty(PropertyName = "createdBy")]
         public string CreatedBy { get; set; }
+        public DateTime? CancelOpen { get; set; }
+        public DateTime? CancelClose { get; set; }  // When did money arrive back on credit card
+        public DateTime? ReturnOpen { get; set; }
+        public DateTime? ReturnClose { get; set; }  // When did money arrive back on credit card
     }
 
     /// <summary>
