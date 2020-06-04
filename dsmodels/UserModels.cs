@@ -76,6 +76,8 @@ namespace dsmodels
     [Table("vwUserProfileKeys")]
     public class UserProfileKeysView
     {
+        [JsonProperty(PropertyName = "id")]
+        public int ID { get; set; }
         [Key]
         [Column(Order = 1)]
 
@@ -230,7 +232,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
         [JsonProperty(PropertyName = "storeName")]
-        public string StoreName { get; set; }
+        public string StoreName { get; set; }   // User may not have a store subscription (no store name) in which case use user handle 
         [JsonProperty(PropertyName = "listingLimit")]
         public int ListingLimit { get; set; }
         [JsonProperty(PropertyName = "eBayUserID")]

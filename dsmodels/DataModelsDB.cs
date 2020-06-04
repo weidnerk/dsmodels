@@ -139,7 +139,7 @@ namespace dsmodels
             var profile = this.UserProfileViews.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
             return profile;
         }
-        public async Task UserProfileSaveAsync(UserSettingsView setting, UserProfile profile, params string[] changedPropertyNames)
+        public async Task UserProfileSaveAsync(UserProfile profile, params string[] changedPropertyNames)
         {
             try
             {
@@ -163,7 +163,8 @@ namespace dsmodels
             catch (Exception exc)
             {
                 string msg = dsutil.DSUtil.ErrMsg("UserProfileSaveAsync", exc);
-                dsutil.DSUtil.WriteFile(_logfile, msg, setting.UserName);
+                dsutil.DSUtil.WriteFile(_logfile, msg, "noname");
+                throw;
             }
         }
 
@@ -1690,8 +1691,9 @@ namespace dsmodels
             //}
             return null;
         }
-        public async Task<string> UserSettingsSaveAsync(UserSettings settings, params string[] changedPropertyNames)
+        public async Task<UserSettingsView> UserSettingsSaveAsync(string connStr, UserSettings settings, params string[] changedPropertyNames)
         {
+            UserSettingsView view = null;
             string ret = string.Empty;
             try
             {
@@ -1700,6 +1702,15 @@ namespace dsmodels
                 var itemExists = UserSettings.AsNoTracking().SingleOrDefault(r => r.UserID == settings.UserID && r.StoreID == settings.StoreID);
                 if (itemExists == null)
                 {
+                    if (settings.KeysID == 0)   // particularly true when first setting up
+                    {
+                        var x = GetUserProfileKeysView(settings.StoreID, settings.UserID);
+                        if (x is null)
+                        {
+                            throw new Exception("No API Keys found.");
+                        }
+                        settings.KeysID = x.ID;
+                    }
                     UserSettings.Add(settings);
                     await this.SaveChangesAsync();
                 }
@@ -1712,8 +1723,9 @@ namespace dsmodels
                     }
                     await SaveChangesAsync();
                     Entry(settings).State = EntityState.Detached;
-                    return null;
                 }
+                view = GetUserSettingsView(connStr, settings.UserID, settings.StoreID);
+                return view;
             }
             catch (DbEntityValidationException e)
             {
@@ -1728,7 +1740,6 @@ namespace dsmodels
                 ret += exc.Message;
                 throw;
             }
-            return ret;
         }
         public List<UserStoreView> GetUserStores(string userID)
         {
