@@ -881,6 +881,7 @@ namespace dsmodels
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
+                    SellerListings.Add(listing.SellerListing);
                     Listings.Add(listing);
                     await this.SaveChangesAsync();
                 }
@@ -1040,7 +1041,7 @@ namespace dsmodels
             // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                var listing = this.Listings.AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
+                var listing = this.Listings.Include(p => p.SellerListing).AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
 
                 // 02.20.2020
                 // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 

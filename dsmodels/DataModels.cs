@@ -178,8 +178,8 @@ namespace dsmodels
         public string VariationName { get; set; }    
 
         public virtual List<SellerListingItemSpecific> ItemSpecifics { get; set; }
-        [ForeignKey("ItemID")]
-        public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores
+        //[ForeignKey("ItemID")]
+        // public virtual List<Listing> Listings { get; set; }     // seller listing could be in multiple stores
         public string PictureURL { get; set; }
         public string Description { get; set; }
         public string PrimaryCategoryID { get; set; }
@@ -198,7 +198,7 @@ namespace dsmodels
         public int ID { get; set; }
         public string ItemID { get; set; }
 
-        [NotMapped]
+        //[NotMapped]
         [ForeignKey("ItemID")]
         public virtual SellerListing SellerListing { get; set; }
         public string ListingTitle { get; set; }
