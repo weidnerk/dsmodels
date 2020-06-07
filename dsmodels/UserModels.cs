@@ -53,6 +53,8 @@ namespace dsmodels
         //public AspNetUser AspNetUser { get; set; }
         [JsonProperty(PropertyName = "selectedStore")]
         public int? SelectedStore { get; set; }
+        [JsonProperty(PropertyName = "isVA")]
+        public bool IsVA { get; set; }
     }
 
     // ds109 user may use multiple ebay keysets
