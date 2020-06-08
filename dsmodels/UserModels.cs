@@ -221,7 +221,8 @@ namespace dsmodels
         public string APIEmail { get; set; }
         [JsonProperty(PropertyName = "finalValueFeePct")]
         public double FinalValueFeePct { get; set; }
-
+        [JsonProperty(PropertyName = "isVA")]
+        public bool IsVA { get; set; }
     }
 
     /// <summary>
