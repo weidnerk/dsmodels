@@ -33,6 +33,8 @@ namespace dsmodels
         public int? SelectedStore { get; set; }
         [JsonProperty(PropertyName = "username")]
         public string UserName { get; set; }
+        [JsonProperty(PropertyName = "isVA")]
+        public bool IsVA { get; set; }
     }
 
     /// <summary>
