@@ -881,7 +881,17 @@ namespace dsmodels
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
-                    SellerListings.Add(listing.SellerListing);
+
+                    var sellerListingfound = await this.SellerListings.AsNoTracking().SingleOrDefaultAsync(r => r.ItemID == listing.SellerListing.ItemID);
+                    if (sellerListingfound is null)
+                    {
+                        SellerListings.Add(listing.SellerListing);
+                    }
+                    else
+                    {
+                        Entry(listing.SellerListing).State = EntityState.Unchanged;
+                        //this.Entry(listing).Property("SellerListing").IsModified = false;
+                    }
                     Listings.Add(listing);
                     await this.SaveChangesAsync();
                 }
