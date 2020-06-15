@@ -547,7 +547,7 @@ namespace dsmodels
     /// When do you delete from this table?  Nothing really in place - can delete when the itemID is no longer used in the Listing table.
     /// </summary>
     [Table("SupplierItem")]
-    public class SupplierItem
+    public class SupplierItem : ISupplierItem
     {
         // Listing has a FK in SupplierItem and SellerListing but I used different data annotations to get it working.
         // Need to research the reasoning.
@@ -665,6 +665,8 @@ namespace dsmodels
         public DateTime? CancelClose { get; set; }  // When did money arrive back on credit card
         public DateTime? ReturnOpen { get; set; }
         public DateTime? ReturnClose { get; set; }  // When did money arrive back on credit card
+        [JsonProperty(PropertyName = "orderID")]
+        public string OrderID { get; set; }
     }
 
     /// <summary>
