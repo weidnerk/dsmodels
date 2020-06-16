@@ -1490,7 +1490,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, ret, "admin");
             }
         }
-        protected bool SupplierItemExists(SupplierItem item)
+        protected bool SupplierItemExists(ISupplierItem item)
         {
             var found = this.SupplierItems.AsNoTracking().Where(p => p.ItemID == item.ItemID).FirstOrDefault();
             if (found != null)
