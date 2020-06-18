@@ -1071,7 +1071,7 @@ namespace dsmodels
                 return null;
             }
         }
-        public SupplierItem SupplierItemGet(int ID)
+        public ISupplierItem SupplierItemGet(int ID)
         {
             try
             {
@@ -1415,7 +1415,7 @@ namespace dsmodels
                 {
                     int stop = 99;
                 }
-                SupplierItem found = null;
+                ISupplierItem found = null;
                 if (!string.IsNullOrEmpty(UPC))
                 {
                     found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == UPC);
@@ -1603,7 +1603,7 @@ namespace dsmodels
                 return null;
             }
         }
-        public SupplierItem GetSupplierItemByURL(string URL)
+        public ISupplierItem GetSupplierItemByURL(string URL)
         {
             var item = this.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
             return item;
@@ -1614,7 +1614,7 @@ namespace dsmodels
             return item;
         }
 
-        public SupplierItem GetSupplierItem(int id)
+        public ISupplierItem GetSupplierItem(int id)
         {
             var item = this.SupplierItems.AsNoTracking().Where(p => p.ID == id).First();
             return item;
@@ -1625,9 +1625,9 @@ namespace dsmodels
         /// </summary>
         /// <param name="itemID"></param>
         /// <returns></returns>
-        public SupplierItem GetSupplierItem(string itemID)
+        public ISupplierItem GetSupplierItem(string itemID)
         {
-            SupplierItem supplierItem = null;
+            ISupplierItem supplierItem = null;
             bool isUPC = false;
             var spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
             if (spec == null)
