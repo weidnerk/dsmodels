@@ -1572,9 +1572,9 @@ namespace dsmodels
             var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.SupplierOrderNumber == supplierOrderNumber);
             return (exists != null);
         }
-        public bool SalesExists(string listedItemID)
+        public bool SalesExists(int listingID)
         {
-            var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.ListedItemID == listedItemID);
+            var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.ListingID == listingID);
             return (exists != null);
         }
 
