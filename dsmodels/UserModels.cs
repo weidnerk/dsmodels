@@ -242,6 +242,7 @@ namespace dsmodels
         public int ListingLimit { get; set; }
         [JsonProperty(PropertyName = "eBayUserID")]
         public string eBayUserID { get; set; }
+        public double PctProfit { get; set; }
     }
     public class eBayStore
     {
