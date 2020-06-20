@@ -57,6 +57,7 @@ namespace dsmodels
         public int? SelectedStore { get; set; }
         [JsonProperty(PropertyName = "isVA")]
         public bool IsVA { get; set; }
+        public bool? RepricerEmail { get; set; }
     }
 
     // ds109 user may use multiple ebay keysets
