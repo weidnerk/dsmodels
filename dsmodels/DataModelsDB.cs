@@ -2022,7 +2022,33 @@ namespace dsmodels
                 throw;
             }
         }
-    
+        public async Task StoreProfileUpdate(StoreProfile storeProfile, params string[] changedPropertyNames)
+        {
+            try
+            {
+                var found = this.StoreProfiles.AsNoTracking().SingleOrDefault(p => p.ID == storeProfile.ID);
+                if (found != null)
+                {
+                    this.StoreProfiles.Attach(storeProfile);
+                    foreach (var propertyName in changedPropertyNames)
+                    {
+                        this.Entry(storeProfile).Property(propertyName).IsModified = true;
+                    }
+                    await this.SaveChangesAsync();
+                }
+                else
+                {
+                    StoreProfiles.Add(storeProfile);
+                    await this.SaveChangesAsync();
+                }
+            }
+            catch (Exception exc)
+            {
+                string msg = dsutil.DSUtil.ErrMsg("UserTokenUpdate", exc);
+                dsutil.DSUtil.WriteFile(_logfile, "ERROR: " + msg, "noname");
+                throw;
+            }
+        }
         public async Task UserStoreAddAsync(UserStore userStore)
         {
             try
