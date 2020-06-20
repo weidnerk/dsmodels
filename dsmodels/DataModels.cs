@@ -96,7 +96,6 @@ namespace dsmodels
     [Table("vwListing")]
     public class ListingView
     {
-
         // Returned by view as read/only
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string ListedByName { get; set;}
@@ -152,6 +151,7 @@ namespace dsmodels
         public string  SupplierPicURL { get; set; }
         public bool InActive { get; set; }
         public string ItemURL { get; set; }
+        public int QtySold { get; set; }
     }
 
     /// <summary>
