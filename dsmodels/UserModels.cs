@@ -35,6 +35,8 @@ namespace dsmodels
         public string UserName { get; set; }
         [JsonProperty(PropertyName = "isVA")]
         public bool IsVA { get; set; }
+        public bool RepricerEmail { get; set; }
+
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ namespace dsmodels
         public int? SelectedStore { get; set; }
         [JsonProperty(PropertyName = "isVA")]
         public bool IsVA { get; set; }
-        public bool? RepricerEmail { get; set; }
+        public bool RepricerEmail { get; set; }
     }
 
     // ds109 user may use multiple ebay keysets
@@ -162,6 +164,7 @@ namespace dsmodels
     }
     /// <summary>
     /// </summary>
+    [Table("vwUserSettings")]
     public class UserSettingsView
     {
         [Key]
@@ -175,7 +178,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "storeID")]
         public int StoreID { get; set; }    // What store is user currently working on?
         [JsonProperty(PropertyName = "keysID")]
-        public int KeysID { get; set; }     // User can use different key sets
+        public int eBayKeyID { get; set; }     // User can use different key sets
         [ForeignKey("UserID")]
         public AspNetUser AspNetUser { get; set; }
 
@@ -224,6 +227,8 @@ namespace dsmodels
         public double FinalValueFeePct { get; set; }
         [JsonProperty(PropertyName = "isVA")]
         public bool IsVA { get; set; }
+        public bool RepricerEmail { get; set; }
+
     }
 
     /// <summary>
