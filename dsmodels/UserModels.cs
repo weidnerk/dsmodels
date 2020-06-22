@@ -228,7 +228,8 @@ namespace dsmodels
         [JsonProperty(PropertyName = "isVA")]
         public bool IsVA { get; set; }
         public bool RepricerEmail { get; set; }
-
+        [JsonProperty(PropertyName = "salesPermission")]
+        public bool SalesPermission { get; set; }
     }
 
     /// <summary>
@@ -249,6 +250,8 @@ namespace dsmodels
         [JsonProperty(PropertyName = "eBayUserID")]
         public string eBayUserID { get; set; }
         public DateTime? RepricerLastRan { get; set; }
+        public double? ElapsedTime { get; set; }
+        public bool SalesPermission { get; set; }
     }
     public class eBayStore
     {

@@ -1277,6 +1277,7 @@ namespace dsmodels
                         r.APIEmail = reader["APIEmail"].ToString();
                         r.FinalValueFeePct = Convert.ToDouble(reader["FinalValueFeePct"].ToString());
                         r.IsVA = Convert.ToBoolean(reader["IsVA"].ToString());
+                        r.SalesPermission = Convert.ToBoolean(reader["SalesPermission"].ToString());
                     }
                     else
                     {
