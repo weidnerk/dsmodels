@@ -343,6 +343,8 @@ namespace dsmodels
         public int OOS { get; set; }
         [JsonProperty(PropertyName = "notListed")]
         public int NotListed { get; set; }
+        [JsonProperty(PropertyName = "repricerLastRan")]
+        public DateTime? RepricerLastRan { get; set; }
     }
 
     /// <summary>
