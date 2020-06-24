@@ -345,6 +345,8 @@ namespace dsmodels
         public int NotListed { get; set; }
         [JsonProperty(PropertyName = "repricerLastRan")]
         public DateTime? RepricerLastRan { get; set; }
+        [JsonProperty(PropertyName = "repricerElapsedTime")]
+        public double? RepricerElapsedTime { get; set; }
     }
 
     /// <summary>
