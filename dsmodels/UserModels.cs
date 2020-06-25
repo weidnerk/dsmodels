@@ -324,6 +324,8 @@ namespace dsmodels
         public string StoreName { get; set; }
         [JsonProperty(PropertyName = "eBayUserID")]
         public string eBayUserID { get; set; }
+        [JsonProperty(PropertyName = "salesPermission")]
+        public bool SalesPermission { get; set; }
     }
 
 }
