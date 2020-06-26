@@ -671,6 +671,12 @@ namespace dsmodels
         public DateTime? ReturnClose { get; set; }  // When did money arrive back on credit card
         [JsonProperty(PropertyName = "orderID")]
         public string OrderID { get; set; }
+        [NotMapped]
+        [JsonProperty(PropertyName = "returnStatus")]
+        public string ReturnStatus { get; set; }
+        [NotMapped]
+        [JsonProperty(PropertyName = "cancelStatus")]
+        public string CancelStatus { get; set; }
     }
 
     /// <summary>
