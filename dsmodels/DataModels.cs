@@ -252,6 +252,8 @@ namespace dsmodels
         public string eBaySellerURL { get; set; }
         public double PctProfit { get; set; }
         public bool InActive { get; set; }
+        [NotMapped]
+        public List<string> ItemSpecificWarning { get; set; }
     }
 
     // SellerItemID here can either point to SellerListing or OrderHistory.
