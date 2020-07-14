@@ -152,6 +152,7 @@ namespace dsmodels
         public bool InActive { get; set; }
         public string ItemURL { get; set; }
         public int QtySold { get; set; }
+        public DateTime? Ended { get; set; }
     }
 
     /// <summary>
@@ -232,7 +233,7 @@ namespace dsmodels
         public byte? CheckMainCompetitor { get; set; }
         public string ListedResponse { get; set; }
         public DateTime? ListedUpdated { get; set; }
-        
+
         public bool? CheckSupplierPics { get; set; }
         public int StoreID { get; set; }
         public bool? CheckIsVariation { get; set; }
@@ -254,6 +255,8 @@ namespace dsmodels
         public bool InActive { get; set; }
         [NotMapped]
         public List<string> ItemSpecificWarning { get; set; }
+        public DateTime? LastPriceCheck { get; set; }
+        public int? Batch { get; set; }
     }
 
     // SellerItemID here can either point to SellerListing or OrderHistory.

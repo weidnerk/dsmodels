@@ -1609,9 +1609,9 @@ namespace dsmodels
             var item = this.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
             return item;
         }
-        public ListingView GetListingBySupplierURL(int storeID, string URL)
+        public IQueryable<ListingView> GetListingBySupplierURL(int storeID, string URL)
         {
-            var item = this.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).SingleOrDefault();
+            var item = this.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).AsQueryable();
             return item;
         }
 
