@@ -77,7 +77,7 @@ namespace dsmodels
         /// </summary>
         /// <param name="userID"></param>
         /// <returns></returns>
-        public UserSettingsView GetUserSettingsView(string connStr, string userID)
+        public IUserSettingsView GetUserSettingsView(string connStr, string userID)
         {
             try
             {
@@ -416,7 +416,7 @@ namespace dsmodels
         /// <param name="listingID"></param>
         /// <param name="force">delete even if listed</param>
         /// <returns></returns>
-        public async Task<string> DeleteListingRecordAsync(UserSettingsView settings, int listingID, bool force)
+        public async Task<string> DeleteListingRecordAsync(IUserSettingsView settings, int listingID, bool force)
         {
             string ret = null;
             try
@@ -456,7 +456,7 @@ namespace dsmodels
         /// <param name="ID"></param>
         /// <param name="storeID"></param>
         /// <returns></returns>
-        public async Task<string> SupplierItemDelete(UserSettingsView settings, int ID)
+        public async Task<string> SupplierItemDelete(IUserSettingsView settings, int ID)
         {
             string msg = null;
             try
@@ -871,7 +871,7 @@ namespace dsmodels
             return output;
         }
 
-        public async Task<Listing> ListingSaveAsync(UserSettingsView settings, Listing listing, bool updateItemSpecifics, params string[] changedPropertyNames)
+        public async Task<Listing> ListingSaveAsync(IUserSettingsView settings, Listing listing, bool updateItemSpecifics, params string[] changedPropertyNames)
         {
             string msg = null;
             try
@@ -1770,7 +1770,7 @@ namespace dsmodels
         /// </summary>
         /// <param name="storeID"></param>
         /// <returns></returns>
-        public string GetToken(UserSettingsView settings)
+        public string GetToken(IUserSettingsView settings)
         {
             // UserToken contains a user as a PK but not sure why I did it this way.
             // So just get first matching store.
@@ -1868,7 +1868,7 @@ namespace dsmodels
             }
             return ret;
         }
-        public async Task SalesOrderSaveAsync(UserSettingsView settings, SalesOrder salesOrder, params string[] changedPropertyNames)
+        public async Task SalesOrderSaveAsync(IUserSettingsView settings, SalesOrder salesOrder, params string[] changedPropertyNames)
         {
             try
             {
@@ -1895,7 +1895,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
             }
         }
-        public string GetAppSetting(UserSettingsView settings, string settingName)
+        public string GetAppSetting(IUserSettingsView settings, string settingName)
         {
             var settingValue = AppSettings.Where(p => p.SettingName == settingName).Select(s => s.SettingValue).Single();
             return settingValue;

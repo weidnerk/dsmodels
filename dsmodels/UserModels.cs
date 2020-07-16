@@ -165,7 +165,7 @@ namespace dsmodels
     /// <summary>
     /// </summary>
     [Table("vwUserSettings")]
-    public class UserSettingsView
+    public class UserSettingsView : IUserSettingsView
     {
         [Key]
         [Column(Order = 1)]
@@ -202,7 +202,7 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "firstName")]
         public string FirstName { get; set; }
-        [JsonProperty(PropertyName = "pctProfit")] 
+        [JsonProperty(PropertyName = "pctProfit")]
         public double PctProfit { get; set; }
         [JsonProperty(PropertyName = "handlingTime")]
         public byte HandlingTime { get; set; }
@@ -213,13 +213,13 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "paymentProfile")]
         public string PaymentProfile { get; set; }
-       
+
         [JsonProperty(PropertyName = "shippingProfile")]
         public string ShippingProfile { get; set; }
-        
+
         [JsonProperty(PropertyName = "returnProfile")]
         public string ReturnProfile { get; set; }
-        
+
         public int ebayKeyID { get; set; }
         [JsonProperty(PropertyName = "APIEmail")]
         public string APIEmail { get; set; }

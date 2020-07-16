@@ -617,7 +617,7 @@ namespace dsmodels
         public int StoreID { get; set; }
     }
     [Table("SalesOrder")]
-    public class SalesOrder
+    public class SalesOrder : ISalesOrder
     {
         [JsonProperty(PropertyName = "id")]
         public int ID { get; set; }
@@ -653,7 +653,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "subTotal")]
         public decimal SubTotal { get; set; }           // looks to be what the item actually sold for (my list price)
         [JsonProperty(PropertyName = "salesTax")]
-        public decimal SalesTax { get;  set; }
+        public decimal SalesTax { get; set; }
         [JsonProperty(PropertyName = "shippingCost")]
         public decimal ShippingCost { get; set; }
         [JsonProperty(PropertyName = "finalValueFee")]
