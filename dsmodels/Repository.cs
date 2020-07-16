@@ -13,16 +13,16 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
-    public class DataModelsDB : DbContext
+    public class Repository : DbContext, IRepository
     {
         readonly static string _logfile = "log.txt";
-        static DataModelsDB()
+        static Repository()
         {
             //do not try to create a database 
-            Database.SetInitializer<DataModelsDB>(null);
+            Database.SetInitializer<Repository>(null);
         }
 
-        public DataModelsDB()
+        public Repository()
             : base("name=OPWContext")
         {
         }
@@ -631,7 +631,7 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, "ItemSpecificUpdate: " + specific.SellerItemID + " " + msg, "admin");
             }
         }
-       
+
         public void OrderHistoryUpdate(OrderHistory orderHistory, params string[] changedPropertyNames)
         {
             string output = null;
@@ -655,7 +655,7 @@ namespace dsmodels
                 {
                     Entry(found).CurrentValues.SetValues(orderHistory);
                     var r = Entry(found).CurrentValues.PropertyNames;
-                    foreach(string field in r)
+                    foreach (string field in r)
                     {
                         if (!changedPropertyNames.Contains(field))
                         {
@@ -914,7 +914,7 @@ namespace dsmodels
                     listing.UpdatedBy = settings.UserID;
                     if (listing.SupplierID == 0)
                     {
-                            // exists in db?
+                        // exists in db?
                         var r = GetSupplierItemByURL(listing.SupplierItem.ItemURL);
                         if (r != null)
                         {
@@ -922,7 +922,7 @@ namespace dsmodels
                             listing.SupplierItem.ID = r.ID;
                         }
                     }
-                    
+
                     this.Listings.Attach(listing);
                     this.SupplierItems.Attach(listing.SupplierItem);
 
@@ -1000,7 +1000,7 @@ namespace dsmodels
             var notes = await this.ListingNotesView.Where(p => p.ItemID == itemID && p.StoreID == storeID).OrderBy(o => o.Updated).ToListAsync();
             return notes;
         }
-       
+
         public async Task SellerProfileSave(SellerProfile sellerProfile, params string[] changedPropertyNames)
         {
             try
@@ -1526,7 +1526,7 @@ namespace dsmodels
                         {
                             msg += item.ItemURL;
                         }
-                         throw new Exception(msg);
+                        throw new Exception(msg);
                     }
                     this.SupplierItems.Add(item);
                     this.SaveChanges();
@@ -1759,7 +1759,7 @@ namespace dsmodels
             var ret = UserStoreView.Where(p => p.UserID == userID).ToList();
             return ret;
         }
-      
+
         public SellerListing GetSellerListing(string itemID)
         {
             var found = SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
@@ -1905,7 +1905,7 @@ namespace dsmodels
             var r = this.StoreProfiles.Where(p => p.ID == storeID).First();
             return r;
         }
-    
+
         public async Task ListingLogAdd(ListingLog log)
         {
             try
@@ -2091,7 +2091,8 @@ namespace dsmodels
         }
         public async Task<SalesOrder> SalesOrderAddAsync(SalesOrder salesOrder)
         {
-            try { 
+            try
+            {
                 this.SalesOrders.Add(salesOrder);
                 await this.SaveChangesAsync();
                 return salesOrder;

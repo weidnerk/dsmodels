@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace dsmodels
 {
@@ -105,5 +108,115 @@ namespace dsmodels
         List<string> DBIsMissingItems { get; set; }
         int InActive { get; set; }
         List<string> QtyMismatch { get; set; }
+    }
+    public interface IRepository
+    {
+        DbSet<AppSettings> AppSettings { get; set; }
+        DbSet<AspNetUser> AspNetUsers { get; set; }
+        DbSet<ListingItemSpecific> ListingItemSpecifics { get; set; }
+        DbSet<ListingLog> ListingLogs { get; set; }
+        DbSet<ListingLogView> ListingLogViews { get; set; }
+        DbSet<ListingNote> ListingNotes { get; set; }
+        DbSet<ListingNoteView> ListingNotesView { get; set; }
+        DbSet<Listing> Listings { get; set; }
+        DbSet<ListingView> ListingsView { get; set; }
+        DbSet<OrderHistory> OrderHistory { get; set; }
+        DbSet<OrderHistoryDetail> OrderHistoryDetails { get; set; }
+        DbSet<OrderHistoryItemSpecific> OrderHistoryItemSpecifics { get; set; }
+        DbSet<SalesOrder> SalesOrders { get; set; }
+        DbSet<SearchHistory> SearchHistory { get; set; }
+        DbSet<SearchHistoryView> SearchHistoryView { get; set; }
+        DbSet<SellerListingItemSpecific> SellerListingItemSpecifics { get; set; }
+        DbSet<SellerListing> SellerListings { get; set; }
+        DbSet<SellerOrderHistory> SellerOrderHistory { get; set; }
+        DbSet<SellerProfile> SellerProfiles { get; set; }
+        DbSet<SourceCategories> SourceCategories { get; set; }
+        DbSet<StoreProfile> StoreProfiles { get; set; }
+        DbSet<SupplierItem> SupplierItems { get; set; }
+        DbSet<UpdateToListing> UpdateToListing { get; set; }
+        DbSet<UserProfileKeys> UserProfileKeys { get; set; }
+        DbSet<UserProfileKeysView> UserProfileKeysView { get; set; }
+        DbSet<UserProfile> UserProfiles { get; set; }
+        DbSet<UserProfileView> UserProfileViews { get; set; }
+        DbSet<UserSettings> UserSettings { get; set; }
+        DbSet<UserSettingsView> UserSettingsView { get; set; }
+        DbSet<UserStore> UserStores { get; set; }
+        DbSet<UserStoreView> UserStoreView { get; set; }
+        DbSet<UserToken> UserTokens { get; set; }
+        DbSet<VEROBrands> VEROBrands { get; set; }
+
+        bool CanRunScan(string userid, string seller);
+        string ClearOrderHistory(int rptNumber);
+        Task<string> DeleteListingRecordAsync(IUserSettingsView settings, int listingID, bool force);
+        void DetachAll();
+        void DetachAllEntities();
+        DateTime? fromDateToScan(int rptNumber);
+        string GetAppSetting(IUserSettingsView settings, string settingName);
+        IQueryable<ListingView> GetListingBySupplierURL(int storeID, string URL);
+        IQueryable<ListingView> GetListings(int storeID, bool unlisted, bool listed);
+        IQueryable<TimesSold> GetSalesData(int rptNumber, DateTime dateFrom, int storeID, string itemID);
+        SellerListing GetSellerListing(string itemID);
+        List<SellerProfile> GetSellers();
+        StoreProfile GetStoreProfile(int storeID);
+        ISupplierItem GetSupplierItem(int id);
+        ISupplierItem GetSupplierItem(string itemID);
+        ISupplierItem GetSupplierItemByURL(string URL);
+        string GetToken(int storeID, string userID);
+        string GetToken(IUserSettingsView settings);
+        string getUrl(int categoryId);
+        string GetUserIDFromName(string username);
+        UserProfile GetUserProfile(string userid);
+        UserProfileKeys GetUserProfileKeys(int id);
+        UserProfileKeysView GetUserProfileKeysView(int storeID, string userID);
+        UserProfileView GetUserProfileView(string userid);
+        IUserSettingsView GetUserSettingsView(string connStr, string userID);
+        UserSettingsView GetUserSettingsView(string connStr, string userID, int storeID);
+        List<UserStoreView> GetUserStores(string userID);
+        Task<bool> HistoryDetailRemove(int rptNumber, DateTime fromDate);
+        Task HistoryRemove(string connStr, int rptNumber);
+        bool IsVERO(string brand);
+        Task<List<ListingNoteView>> ItemNotes(string itemID, int storeID);
+        int? LatestRptNumber(string seller);
+        Task<bool> ListedItemIDUpdate(Listing listing, string listedItemID, string userId, bool listedWithAPI, string listedResponse, DateTime? updated = null);
+        Listing ListingGet(int listingID);
+        Listing ListingGet(string listedItemID);
+        Listing ListingGet(string itemID, int storeID);
+        Task ListingLogAdd(ListingLog log);
+        List<ListingLogView> ListingLogGet(int listingID);
+        Task<Listing> ListingSaveAsync(IUserSettingsView settings, Listing listing, bool updateItemSpecifics, params string[] changedPropertyNames);
+        Task NoteSave(ListingNote note);
+        Task<string> OrderHistoryItemSpecificSave(List<OrderHistoryItemSpecific> specifics);
+        void OrderHistoryItemSpecificUpdate(OrderHistoryItemSpecific specific);
+        string OrderHistorySave(OrderHistory oh, DateTime fromDate);
+        void OrderHistoryUpdate(OrderHistory orderHistory, params string[] changedPropertyNames);
+        string ProdIDExists(string UPC, string MPN, int storeID);
+        bool SalesExists(int listingID);
+        Task<SalesOrder> SalesOrderAddAsync(SalesOrder salesOrder);
+        bool SalesOrderExists(string supplierOrderNumber);
+        Task SalesOrderSaveAsync(IUserSettingsView settings, SalesOrder salesOrder, params string[] changedPropertyNames);
+        Task<SearchHistory> SearchHistoryAdd(SearchHistory sh);
+        SearchHistory SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames);
+        bool SellerExists(string seller);
+        Task<string> SellerListingItemSpecificSave(SellerListing sellerListing);
+        void SellerListingItemSpecificUpdate_notused(SellerListingItemSpecific specific);
+        Task<SellerProfile> SellerProfileGet(string seller);
+        Task SellerProfileSave(SellerProfile sellerProfile, params string[] changedPropertyNames);
+        int SourceIDFromCategory(int categoryId);
+        Task StoreAddAsync(string userID, StoreProfile profile);
+        Task StoreProfileAddAsync(StoreProfile profile);
+        Task StoreProfileUpdate(StoreProfile storeProfile, params string[] changedPropertyNames);
+        Task<string> SupplierItemDelete(IUserSettingsView settings, int ID);
+        ISupplierItem SupplierItemGet(int ID);
+        void SupplierItemUpdateByID(SupplierItem item, params string[] changedPropertyNames);
+        void SupplierItemUpdateByProdID(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames);
+        Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice);
+        Task UpdateToListingRemove(UpdateToListing obj);
+        Task<string> UpdateToListingSave(UpdateToListing updateToList, params string[] changedPropertyNames);
+        Task<string> UserProfileDeleteAsync(UserProfile profile);
+        Task<UserProfileKeys> UserProfileKeysUpdate(UserProfileKeys keys, params string[] changedPropertyNames);
+        Task UserProfileSaveAsync(UserProfile profile, params string[] changedPropertyNames);
+        Task<UserSettingsView> UserSettingsSaveAsync(string connStr, UserSettings settings, params string[] changedPropertyNames);
+        Task UserStoreAddAsync(UserStore userStore);
+        Task UserTokenUpdate(UserToken userToken, params string[] changedPropertyNames);
     }
 }
