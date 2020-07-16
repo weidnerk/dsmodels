@@ -13,19 +13,19 @@ using System.Threading.Tasks;
 
 namespace dsmodels
 {
-    public class Repository : DbContext, IRepository
+    public class DataContext : DbContext
     {
-        readonly static string _logfile = "log.txt";
-        static Repository()
+        static DataContext()
         {
             //do not try to create a database 
-            Database.SetInitializer<Repository>(null);
+            Database.SetInitializer<DataContext>(null);
         }
 
-        public Repository()
+        public DataContext()
             : base("name=OPWContext")
         {
         }
+
         public DbSet<Listing> Listings { get; set; }
         public DbSet<ListingView> ListingsView { get; set; }
         public DbSet<SellerListingItemSpecific> SellerListingItemSpecifics { get; set; }
@@ -60,17 +60,19 @@ namespace dsmodels
         public DbSet<ListingLog> ListingLogs { get; set; }
         public DbSet<UserProfileKeys> UserProfileKeys { get; set; }
         public DbSet<UserProfileKeysView> UserProfileKeysView { get; set; }
+    }
+    public class Repository : IRepository, IDisposable
+    {
+        private DataContext context = new DataContext();
+        readonly static string _logfile = "log.txt";
+
+        public DataContext Context { get => context; set => context = value; }
+
         public string GetUserIDFromName(string username)
         {
-            var id = this.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
+            var id = Context.AspNetUsers.Where(r => r.UserName == username).Select(s => s.Id).First();
             return id;
         }
-
-        //public UserSettings GetUserSetting(string userid)
-        //{
-        //    var setting = this.UserSettings.Find(userid, 1);
-        //    return setting;
-        //}
 
         /// <summary>
         /// Return user profile based in his appID setting in UserSetting
@@ -121,22 +123,22 @@ namespace dsmodels
 
         public UserProfile GetUserProfile(string userid)
         {
-            var profile = this.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
+            var profile = Context.UserProfiles.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
             return profile;
         }
         public UserProfileKeys GetUserProfileKeys(int id)
         {
-            var profile = this.UserProfileKeys.AsNoTracking().Where(r => r.ID == id).SingleOrDefault();
+            var profile = Context.UserProfileKeys.AsNoTracking().Where(r => r.ID == id).SingleOrDefault();
             return profile;
         }
         public UserProfileKeysView GetUserProfileKeysView(int storeID, string userID)
         {
-            var profile = this.UserProfileKeysView.AsNoTracking().Where(r => r.StoreID == storeID && r.UserID == userID).SingleOrDefault();
+            var profile = Context.UserProfileKeysView.AsNoTracking().Where(r => r.StoreID == storeID && r.UserID == userID).SingleOrDefault();
             return profile;
         }
         public UserProfileView GetUserProfileView(string userid)
         {
-            var profile = this.UserProfileViews.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
+            var profile = Context.UserProfileViews.AsNoTracking().Where(r => r.UserID == userid).SingleOrDefault();
             return profile;
         }
         public async Task UserProfileSaveAsync(UserProfile profile, params string[] changedPropertyNames)
@@ -146,18 +148,18 @@ namespace dsmodels
                 var found = GetUserProfile(profile.UserID);
                 if (found == null)
                 {
-                    UserProfiles.Add(profile);
-                    await this.SaveChangesAsync();
+                    Context.UserProfiles.Add(profile);
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
-                    this.UserProfiles.Attach(profile);
+                    Context.UserProfiles.Attach(profile);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(profile).Property(propertyName).IsModified = true;
+                        Context.Entry(profile).Property(propertyName).IsModified = true;
                     }
-                    await SaveChangesAsync();
-                    Entry(profile).State = EntityState.Detached;
+                    await Context.SaveChangesAsync();
+                    Context.Entry(profile).State = EntityState.Detached;
                 }
             }
             catch (Exception exc)
@@ -171,7 +173,7 @@ namespace dsmodels
         public int SourceIDFromCategory(int categoryId)
         {
             int sourceId = 0;
-            var category = this.SourceCategories.Where(r => r.ID == categoryId).FirstOrDefault();
+            var category = Context.SourceCategories.Where(r => r.ID == categoryId).FirstOrDefault();
             if (category != null)
                 sourceId = category.SourceID;
             return sourceId;
@@ -182,7 +184,7 @@ namespace dsmodels
             bool ret = false;
             try
             {
-                var rec = await this.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
+                var rec = await Context.Listings.FirstOrDefaultAsync(r => r.ListedItemID == listing.ListedItemID);
                 if (rec != null)
                 {
                     ret = true;
@@ -190,8 +192,8 @@ namespace dsmodels
                     rec.SupplierItem.SupplierPrice = supplierPrice;
                     rec.Updated = DateTime.Now;
 
-                    this.Entry(rec).State = EntityState.Modified;
-                    this.SaveChanges();
+                    Context.Entry(rec).State = EntityState.Modified;
+                    Context.SaveChanges();
                 }
             }
             catch (Exception exc)
@@ -205,7 +207,7 @@ namespace dsmodels
         public string getUrl(int categoryId)
         {
             string url = null;
-            var r = this.SourceCategories.Find(categoryId);
+            var r = Context.SourceCategories.Find(categoryId);
             if (r != null)
                 url = r.URL;
             return url;
@@ -215,8 +217,8 @@ namespace dsmodels
         {
             try
             {
-                this.SearchHistory.Add(sh);
-                await this.SaveChangesAsync();
+                Context.SearchHistory.Add(sh);
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -230,13 +232,13 @@ namespace dsmodels
             string ret = null;
             try
             {
-                this.SearchHistory.Attach(sh);
+                Context.SearchHistory.Attach(sh);
                 foreach (var propertyName in changedPropertyNames)
                 {
-                    this.Entry(sh).Property(propertyName).IsModified = true;
+                    Context.Entry(sh).Property(propertyName).IsModified = true;
                 }
-                SaveChanges();
-                Entry(sh).State = EntityState.Detached;
+                Context.SaveChanges();
+                Context.Entry(sh).State = EntityState.Detached;
                 return sh;
             }
             catch (DbEntityValidationException e)
@@ -273,14 +275,14 @@ namespace dsmodels
                 var fromDate = new DateTime(2000, 1, 1);
                 await HistoryDetailRemove(rptNumber, fromDate);
 
-                this.OrderHistory.RemoveRange(this.OrderHistory.Where(x => x.RptNumber == rptNumber));
-                await this.SaveChangesAsync();
+                Context.OrderHistory.RemoveRange(Context.OrderHistory.Where(x => x.RptNumber == rptNumber));
+                await Context.SaveChangesAsync();
 
                 var sh = new SearchHistory() { ID = rptNumber };
-                this.SearchHistory.Attach(sh);
-                this.SearchHistory.Remove(sh);
-                await this.SaveChangesAsync();
-                Entry(sh).State = EntityState.Detached;
+                Context.SearchHistory.Attach(sh);
+                Context.SearchHistory.Remove(sh);
+                await Context.SaveChangesAsync();
+                Context.Entry(sh).State = EntityState.Detached;
             }
             catch (DbEntityValidationException e)
             {
@@ -307,17 +309,17 @@ namespace dsmodels
             {
                 if (obj.ID == 0)
                 {
-                    var found = UpdateToListing.AsNoTracking().Where(p => p.StoreID == obj.StoreID && p.ItemID == obj.ItemID).SingleOrDefault();
+                    var found = Context.UpdateToListing.AsNoTracking().Where(p => p.StoreID == obj.StoreID && p.ItemID == obj.ItemID).SingleOrDefault();
                     if (found == null)
                     {
                         throw new ArgumentException("ERROR UpdateToListingRemove - could not find StoreID/ItemID");
                     }
                     obj.ID = found.ID;
                 }
-                this.UpdateToListing.Attach(obj);
-                this.UpdateToListing.Remove(obj);
-                await this.SaveChangesAsync();
-                Entry(obj).State = EntityState.Detached;
+                Context.UpdateToListing.Attach(obj);
+                Context.UpdateToListing.Remove(obj);
+                await Context.SaveChangesAsync();
+                Context.Entry(obj).State = EntityState.Detached;
             }
             catch (DbEntityValidationException e)
             {
@@ -351,8 +353,8 @@ namespace dsmodels
             int numToDelete = 0;
             try
             {
-                this.OrderHistoryDetails.RemoveRange(this.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber && p.DateOfPurchase >= fromDate));
-                await this.SaveChangesAsync();
+                Context.OrderHistoryDetails.RemoveRange(Context.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber && p.DateOfPurchase >= fromDate));
+                await Context.SaveChangesAsync();
                 retValue = true;
             }
             catch (DbEntityValidationException e)
@@ -386,7 +388,7 @@ namespace dsmodels
 
             try
             {
-                var its = this.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber).OrderByDescending(o => o.DateOfPurchase).ToList();
+                var its = Context.OrderHistoryDetails.Where(p => p.OrderHistory.RptNumber == rptNumber).OrderByDescending(o => o.DateOfPurchase).ToList();
                 var lastSoldItem = its.FirstOrDefault();
                 if (lastSoldItem != null)
                 {
@@ -421,22 +423,22 @@ namespace dsmodels
             string ret = null;
             try
             {
-                var listing = Listings.FirstOrDefault(p => p.ID == listingID);
+                var listing = Context.Listings.FirstOrDefault(p => p.ID == listingID);
                 if (listing.Listed.HasValue && !force)
                 {
                     return "item listed - cannot remove";
                 }
                 if (listing != null)
                 {
-                    this.ListingLogs.RemoveRange(this.ListingLogs.Where(x => x.ListingID == listing.ID));
-                    await this.SaveChangesAsync();  // if this SaveChanges not here, get an error on nex SaveChanges bcs of FK violation
+                    Context.ListingLogs.RemoveRange(Context.ListingLogs.Where(x => x.ListingID == listing.ID));
+                    await Context.SaveChangesAsync();  // if this SaveChanges not here, get an error on nex SaveChanges bcs of FK violation
                     // first remove item specifics
-                    this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(x => x.ListingID == listing.ID));
+                    Context.ListingItemSpecifics.RemoveRange(Context.ListingItemSpecifics.Where(x => x.ListingID == listing.ID));
 
-                    this.Listings.Attach(listing);
-                    this.Listings.Remove(listing);
+                    Context.Listings.Attach(listing);
+                    Context.Listings.Remove(listing);
 
-                    await this.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
 
                     string delSupplierItem = await SupplierItemDelete(settings, listing.SupplierID);
                 }
@@ -461,16 +463,16 @@ namespace dsmodels
             string msg = null;
             try
             {
-                var listing = await Listings.FirstOrDefaultAsync(p => p.SupplierID == ID && p.StoreID != settings.StoreID);
+                var listing = await Context.Listings.FirstOrDefaultAsync(p => p.SupplierID == ID && p.StoreID != settings.StoreID);
                 if (listing == null)
                 {
-                    var item = await SupplierItems.FirstOrDefaultAsync(p => p.ID == ID);
+                    var item = await Context.SupplierItems.FirstOrDefaultAsync(p => p.ID == ID);
                     if (item != null)
                     {
-                        this.SupplierItems.Attach(item);
-                        this.SupplierItems.Remove(item);
-                        await this.SaveChangesAsync();
-                        Entry(item).State = EntityState.Detached;
+                        Context.SupplierItems.Attach(item);
+                        Context.SupplierItems.Remove(item);
+                        await Context.SaveChangesAsync();
+                        Context.Entry(item).State = EntityState.Detached;
                     }
                 }
             }
@@ -487,13 +489,13 @@ namespace dsmodels
             string msg = null;
             try
             {
-                var item = await UserProfiles.SingleOrDefaultAsync(p => p.UserID == profile.UserID);
+                var item = await Context.UserProfiles.SingleOrDefaultAsync(p => p.UserID == profile.UserID);
                 if (item != null)
                 {
-                    this.UserProfiles.Attach(item);
-                    this.UserProfiles.Remove(item);
-                    await this.SaveChangesAsync();
-                    Entry(item).State = EntityState.Detached;
+                    Context.UserProfiles.Attach(item);
+                    Context.UserProfiles.Remove(item);
+                    await Context.SaveChangesAsync();
+                    Context.Entry(item).State = EntityState.Detached;
                 }
             }
             catch (Exception exc)
@@ -518,20 +520,20 @@ namespace dsmodels
             {
                 // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
                 // by I will get an error trying to save the same itemId/rptNumber so remove 
-                var itemExists = OrderHistory.SingleOrDefault(r => r.ItemID == oh.ItemID && r.RptNumber == oh.RptNumber);
+                var itemExists = Context.OrderHistory.SingleOrDefault(r => r.ItemID == oh.ItemID && r.RptNumber == oh.RptNumber);
                 if (itemExists == null)
                 {
-                    OrderHistory.Add(oh);
-                    this.SaveChanges();
+                    Context.OrderHistory.Add(oh);
+                    Context.SaveChanges();
                 }
                 else
                 {
-                    var found = OrderHistory.FirstOrDefault(p => p.ItemID == oh.ItemID);
+                    var found = Context.OrderHistory.FirstOrDefault(p => p.ItemID == oh.ItemID);
                     if (found != null)
                     {
                         oh.OrderHistoryDetails.ToList().ForEach(c => c.ItemID = found.ItemID);
-                        OrderHistoryDetails.AddRange(oh.OrderHistoryDetails.Where(p => p.DateOfPurchase >= fromDate));
-                        this.SaveChanges();
+                        Context.OrderHistoryDetails.AddRange(oh.OrderHistoryDetails.Where(p => p.DateOfPurchase >= fromDate));
+                        Context.SaveChanges();
                     }
                 }
             }
@@ -572,18 +574,18 @@ namespace dsmodels
             string output = null;
             try
             {
-                var found = this.SellerListingItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
+                var found = Context.SellerListingItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
                 if (found == null)
                 {
-                    this.SellerListingItemSpecifics.Add(specific);
-                    this.SaveChanges();
+                    Context.SellerListingItemSpecifics.Add(specific);
+                    Context.SaveChanges();
                 }
                 else
                 {
                     specific.ID = found.ID;
-                    this.SellerListingItemSpecifics.Attach(specific);
-                    this.Entry(specific).State = EntityState.Modified;
-                    this.SaveChanges();
+                    Context.SellerListingItemSpecifics.Attach(specific);
+                    Context.Entry(specific).State = EntityState.Modified;
+                    Context.SaveChanges();
                 }
             }
             catch (DbEntityValidationException e)
@@ -603,20 +605,20 @@ namespace dsmodels
             string output = null;
             try
             {
-                var found = this.OrderHistoryItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
+                var found = Context.OrderHistoryItemSpecifics.AsNoTracking().SingleOrDefault(p => p.SellerItemID == specific.SellerItemID && p.ItemName == "UPC");
                 if (found == null)
                 {
-                    this.OrderHistoryItemSpecifics.Add(specific);
-                    this.SaveChanges();
-                    Entry(specific).State = EntityState.Detached;
+                    Context.OrderHistoryItemSpecifics.Add(specific);
+                    Context.SaveChanges();
+                    Context.Entry(specific).State = EntityState.Detached;
                 }
                 else
                 {
                     specific.ID = found.ID;
-                    this.OrderHistoryItemSpecifics.Attach(specific);
-                    this.Entry(specific).State = EntityState.Modified;
-                    this.SaveChanges();
-                    Entry(specific).State = EntityState.Detached;
+                    Context.OrderHistoryItemSpecifics.Attach(specific);
+                    Context.Entry(specific).State = EntityState.Modified;
+                    Context.SaveChanges();
+                    Context.Entry(specific).State = EntityState.Detached;
                 }
             }
             catch (DbEntityValidationException e)
@@ -641,28 +643,28 @@ namespace dsmodels
                 {
                     int stop = 99;
                 }
-                var found = this.OrderHistory.SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
+                var found = Context.OrderHistory.SingleOrDefault(p => p.ItemID == orderHistory.ItemID);
                 if (found == null)
                 {
                     if (orderHistory.ProposePrice.HasValue)
                     {
                         orderHistory.ProposePrice = Math.Round(orderHistory.ProposePrice.Value, 2);
                     }
-                    this.OrderHistory.Add(orderHistory);
-                    this.SaveChanges();
+                    Context.OrderHistory.Add(orderHistory);
+                    Context.SaveChanges();
                 }
                 else
                 {
-                    Entry(found).CurrentValues.SetValues(orderHistory);
-                    var r = Entry(found).CurrentValues.PropertyNames;
+                    Context.Entry(found).CurrentValues.SetValues(orderHistory);
+                    var r = Context.Entry(found).CurrentValues.PropertyNames;
                     foreach (string field in r)
                     {
                         if (!changedPropertyNames.Contains(field))
                         {
-                            this.Entry(found).Property(field).IsModified = false;
+                            Context.Entry(found).Property(field).IsModified = false;
                         }
                     }
-                    this.SaveChanges();
+                    Context.SaveChanges();
                     // Entry(orderHistory).State = EntityState.Detached;
                 }
             }
@@ -681,7 +683,7 @@ namespace dsmodels
         }
         public void DetachAllEntities()
         {
-            var changedEntriesCopy = this.ChangeTracker.Entries()
+            var changedEntriesCopy = Context.ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Added ||
                             e.State == EntityState.Modified ||
                             e.State == EntityState.Deleted)
@@ -706,10 +708,10 @@ namespace dsmodels
 
                 // i've also seen seller's use underscores in MPN - is that a valid character in a Walmart MPN?
 
-                var found = await this.SellerListingItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == sellerListing.ItemID);
+                var found = await Context.SellerListingItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == sellerListing.ItemID);
                 if (found != null)
                 {
-                    this.SellerListingItemSpecifics.RemoveRange(this.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerListing.ItemID));
+                    Context.SellerListingItemSpecifics.RemoveRange(Context.SellerListingItemSpecifics.Where(x => x.SellerItemID == sellerListing.ItemID));
                 }
                 foreach (var item in sellerListing.ItemSpecifics)
                 {
@@ -718,9 +720,9 @@ namespace dsmodels
                         dsutil.DSUtil.WriteFile(_logfile, "SellerListingItemSpecificSave: ItemValue truncated: " + item.ItemName + " -> " + item.ItemValue, "admin");
                         item.ItemValue = item.ItemValue.Substring(0, 700);
                     }
-                    this.SellerListingItemSpecifics.Add(item);
+                    Context.SellerListingItemSpecifics.Add(item);
                 }
-                await this.SaveChangesAsync();
+                await Context.SaveChangesAsync();
             }
             catch (DbEntityValidationException e)
             {
@@ -754,10 +756,10 @@ namespace dsmodels
                 // i've also seen seller's use underscores in MPN - is that a valid character in a Walmart MPN?
 
                 itemID = specifics[0].SellerItemID;
-                var found = await this.OrderHistoryItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
+                var found = await Context.OrderHistoryItemSpecifics.FirstOrDefaultAsync(p => p.SellerItemID == itemID);
                 if (found != null)
                 {
-                    this.OrderHistoryItemSpecifics.RemoveRange(this.OrderHistoryItemSpecifics.Where(x => x.SellerItemID == itemID));
+                    Context.OrderHistoryItemSpecifics.RemoveRange(Context.OrderHistoryItemSpecifics.Where(x => x.SellerItemID == itemID));
                 }
                 foreach (var item in specifics)
                 {
@@ -766,9 +768,9 @@ namespace dsmodels
                         dsutil.DSUtil.WriteFile(_logfile, "OrderHistoryItemSpecificSave: ItemValue truncated: " + item.ItemName + " -> " + item.ItemValue, "admin");
                         item.ItemValue = item.ItemValue.Substring(0, 700);
                     }
-                    this.OrderHistoryItemSpecifics.Add(item);
+                    Context.OrderHistoryItemSpecifics.Add(item);
                 }
-                await this.SaveChangesAsync();
+                await Context.SaveChangesAsync();
             }
             catch (DbEntityValidationException e)
             {
@@ -876,24 +878,24 @@ namespace dsmodels
             string msg = null;
             try
             {
-                var found = await this.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
+                var found = await Context.Listings.AsNoTracking().SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (found == null)
                 {
                     listing.Created = DateTime.Now;
                     listing.CreatedBy = settings.UserID;
 
-                    var sellerListingfound = await this.SellerListings.AsNoTracking().SingleOrDefaultAsync(r => r.ItemID == listing.SellerListing.ItemID);
+                    var sellerListingfound = await Context.SellerListings.AsNoTracking().SingleOrDefaultAsync(r => r.ItemID == listing.SellerListing.ItemID);
                     if (sellerListingfound is null)
                     {
-                        SellerListings.Add(listing.SellerListing);
+                        Context.SellerListings.Add(listing.SellerListing);
                     }
                     else
                     {
-                        Entry(listing.SellerListing).State = EntityState.Unchanged;
-                        //this.Entry(listing).Property("SellerListing").IsModified = false;
+                        Context.Entry(listing.SellerListing).State = EntityState.Unchanged;
+                        //db.Entry(listing).Property("SellerListing").IsModified = false;
                     }
-                    Listings.Add(listing);
-                    await this.SaveChangesAsync();
+                    Context.Listings.Add(listing);
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
@@ -901,12 +903,12 @@ namespace dsmodels
                     {
                         // 04.18.2020 once new listing is stored, currently not allowing sourcr URL to change so then
                         // don't need to drop; and re add item specifics but leaving code anyway for futures support.
-                        this.ListingItemSpecifics.RemoveRange(this.ListingItemSpecifics.Where(p => p.ListingID == listing.ID));
+                        Context.ListingItemSpecifics.RemoveRange(Context.ListingItemSpecifics.Where(p => p.ListingID == listing.ID));
                         if (listing.ItemSpecifics != null)
                         {
                             foreach (var item in listing.ItemSpecifics)
                             {
-                                Entry(item).State = EntityState.Added;
+                                Context.Entry(item).State = EntityState.Added;
                             }
                         }
                     }
@@ -923,8 +925,8 @@ namespace dsmodels
                         }
                     }
 
-                    this.Listings.Attach(listing);
-                    this.SupplierItems.Attach(listing.SupplierItem);
+                    Context.Listings.Attach(listing);
+                    Context.SupplierItems.Attach(listing.SupplierItem);
 
                     var changedProperties = changedPropertyNames.ToList();
                     changedProperties.Add("Updated");
@@ -933,18 +935,18 @@ namespace dsmodels
                     {
                         if (propertyName == "SupplierItem.SupplierPrice")
                         {
-                            this.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
+                            Context.Entry(listing.SupplierItem).Property("SupplierPrice").IsModified = true;
                         }
                         else if (propertyName == "SupplierItem.ItemURL")
                         {
-                            this.Entry(listing.SupplierItem).Property("ItemURL").IsModified = true;
+                            Context.Entry(listing.SupplierItem).Property("ItemURL").IsModified = true;
                         }
                         else
                         {
-                            this.Entry(listing).Property(propertyName).IsModified = true;
+                            Context.Entry(listing).Property(propertyName).IsModified = true;
                         }
                     }
-                    await this.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
                 }
             }
             catch (DbEntityValidationException e)
@@ -972,7 +974,7 @@ namespace dsmodels
         public void DetachAll()
         {
             int i = 0;
-            foreach (var dbEntityEntry in this.ChangeTracker.Entries().ToArray())
+            foreach (var dbEntityEntry in Context.ChangeTracker.Entries().ToArray())
             {
                 if (dbEntityEntry.Entity != null)
                 {
@@ -986,8 +988,8 @@ namespace dsmodels
             try
             {
                 note.Updated = DateTime.Now;
-                ListingNotes.Add(note);
-                await this.SaveChangesAsync();
+                Context.ListingNotes.Add(note);
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -997,7 +999,7 @@ namespace dsmodels
         }
         public async Task<List<ListingNoteView>> ItemNotes(string itemID, int storeID)
         {
-            var notes = await this.ListingNotesView.Where(p => p.ItemID == itemID && p.StoreID == storeID).OrderBy(o => o.Updated).ToListAsync();
+            var notes = await Context.ListingNotesView.Where(p => p.ItemID == itemID && p.StoreID == storeID).OrderBy(o => o.Updated).ToListAsync();
             return notes;
         }
 
@@ -1005,20 +1007,20 @@ namespace dsmodels
         {
             try
             {
-                var found = await this.SellerProfiles.AsNoTracking().FirstOrDefaultAsync(r => r.Seller == sellerProfile.Seller);
+                var found = await Context.SellerProfiles.AsNoTracking().FirstOrDefaultAsync(r => r.Seller == sellerProfile.Seller);
                 if (found == null)
                 {
-                    SellerProfiles.Add(sellerProfile);
+                    Context.SellerProfiles.Add(sellerProfile);
                 }
                 else
                 {
-                    this.SellerProfiles.Attach(sellerProfile);
+                    Context.SellerProfiles.Attach(sellerProfile);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(sellerProfile).Property(propertyName).IsModified = true;
+                        Context.Entry(sellerProfile).Property(propertyName).IsModified = true;
                     }
                 }
-                await this.SaveChangesAsync();
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -1031,7 +1033,7 @@ namespace dsmodels
         {
             try
             {
-                var listing = this.Listings.Include(p => p.SupplierItem).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
+                var listing = Context.Listings.Include(p => p.SupplierItem).SingleOrDefault(r => r.ItemID == itemID && r.StoreID == storeID);
                 if (listing == null)
                 {
                     return null;
@@ -1051,12 +1053,12 @@ namespace dsmodels
             // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                var listing = this.Listings.Include(p => p.SellerListing).AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
+                var listing = Context.Listings.Include(p => p.SellerListing).AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
 
                 // 02.20.2020
                 // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 
                 // Still trying to see why needed.
-                //this.Entry(listing).Reload();
+                //db.Entry(listing).Reload();
 
                 if (listing == null)
                 {
@@ -1075,7 +1077,7 @@ namespace dsmodels
         {
             try
             {
-                var supplierItem = this.SupplierItems.SingleOrDefault(r => r.ID == ID);
+                var supplierItem = Context.SupplierItems.SingleOrDefault(r => r.ID == ID);
                 if (supplierItem == null)
                 {
                     return null;
@@ -1093,7 +1095,7 @@ namespace dsmodels
         {
             try
             {
-                var listing = this.Listings.AsNoTracking().Include(p => p.SupplierItem).AsNoTracking().SingleOrDefault(r => r.ListedItemID == listedItemID);
+                var listing = Context.Listings.AsNoTracking().Include(p => p.SupplierItem).AsNoTracking().SingleOrDefault(r => r.ListedItemID == listedItemID);
                 if (listing == null)
                 {
                     return null;
@@ -1112,7 +1114,7 @@ namespace dsmodels
         {
             try
             {
-                var sellerprofile = await this.SellerProfiles.AsNoTracking().FirstOrDefaultAsync(r => r.Seller == seller);
+                var sellerprofile = await Context.SellerProfiles.AsNoTracking().FirstOrDefaultAsync(r => r.Seller == seller);
                 return sellerprofile;
             }
             catch (Exception exc)
@@ -1129,7 +1131,7 @@ namespace dsmodels
             bool ret = false;
             try
             {
-                var rec = await this.Listings.SingleOrDefaultAsync(r => r.ID == listing.ID);
+                var rec = await Context.Listings.SingleOrDefaultAsync(r => r.ID == listing.ID);
                 if (rec != null)
                 {
                     ret = true;
@@ -1140,28 +1142,28 @@ namespace dsmodels
                     rec.Ended = null;
                     rec.EndedBy = null;
 
-                    this.Entry(rec).Property(x => x.ListedItemID).IsModified = true;
+                    Context.Entry(rec).Property(x => x.ListedItemID).IsModified = true;
                     if (updated.HasValue)
                     {
                         rec.ListedUpdatedBy = userId;
-                        this.Entry(rec).Property(x => x.ListedUpdatedBy).IsModified = true;
+                        Context.Entry(rec).Property(x => x.ListedUpdatedBy).IsModified = true;
                         rec.ListedUpdated = DateTime.Now;
-                        this.Entry(rec).Property(x => x.ListedUpdated).IsModified = true;
+                        Context.Entry(rec).Property(x => x.ListedUpdated).IsModified = true;
                     }
                     else
                     {
                         rec.ListedBy = userId;
-                        this.Entry(rec).Property(x => x.ListedBy).IsModified = true;
+                        Context.Entry(rec).Property(x => x.ListedBy).IsModified = true;
                         rec.Listed = listing.Listed;
-                        this.Entry(rec).Property(x => x.Listed).IsModified = true;
+                        Context.Entry(rec).Property(x => x.Listed).IsModified = true;
                     }
 
                     rec.ListedWithAPI = listedWithAPI;
-                    this.Entry(rec).Property(x => x.ListedWithAPI).IsModified = true;
+                    Context.Entry(rec).Property(x => x.ListedWithAPI).IsModified = true;
                     rec.ListedResponse = listedResponse;
-                    this.Entry(rec).Property(x => x.ListedResponse).IsModified = true;
+                    Context.Entry(rec).Property(x => x.ListedResponse).IsModified = true;
 
-                    this.SaveChanges();
+                    Context.SaveChanges();
                 }
             }
             catch (DbEntityValidationException e)
@@ -1197,7 +1199,7 @@ namespace dsmodels
         {
             bool ret = false;
             //var settings =GetUserSettings(userid);
-            var sellerrec = this.SearchHistory.Where(r => r.Seller == seller).ToList();
+            var sellerrec = Context.SearchHistory.Where(r => r.Seller == seller).ToList();
             if (sellerrec.Count > 0)
             {
                 var rec = sellerrec.Where(r => r.UserId == userid).Count();
@@ -1213,7 +1215,7 @@ namespace dsmodels
             else
             {
                 // didn't find SearchHistory records (no scans) but still might be in SellerProfile
-                var profiles = this.SellerProfiles.Where(r => r.Seller == seller).ToList();
+                var profiles = Context.SellerProfiles.Where(r => r.Seller == seller).ToList();
                 if (profiles.Count > 0)
                 {
                     var rec = profiles.Where(r => r.UserID == userid).Count();
@@ -1334,7 +1336,7 @@ namespace dsmodels
 
         protected IQueryable<TimesSold> GetSalesDataAll(DateTime dateFrom, int storeID)
         {
-            var data = Database.SqlQuery<TimesSold>(
+            var data = Context.Database.SqlQuery<TimesSold>(
                 "exec sp_Report @dateFrom, @storeID, @minSoldQty",
                 new SqlParameter("dateFrom", dateFrom),
                 new SqlParameter("storeID", storeID),
@@ -1344,7 +1346,7 @@ namespace dsmodels
         }
         public IQueryable<ListingView> GetListings(int storeID, bool unlisted, bool listed)
         {
-            var data = Database.SqlQuery<ListingView>(
+            var data = Context.Database.SqlQuery<ListingView>(
                 "exec sp_Listings @storeID",
                 new SqlParameter("storeID", storeID)
                 ).AsQueryable().AsNoTracking();
@@ -1384,7 +1386,7 @@ namespace dsmodels
             {
                 p.Value = DBNull.Value;
             }
-            var data = Database.SqlQuery<TimesSold>(
+            var data = Context.Database.SqlQuery<TimesSold>(
                 "exec sp_GetScanReport @rptNumber, @dateFrom, @storeID, @itemID",
                 new SqlParameter("rptNumber", rptNumber),
                 new SqlParameter("dateFrom", dateFrom),
@@ -1419,7 +1421,7 @@ namespace dsmodels
                 ISupplierItem found = null;
                 if (!string.IsNullOrEmpty(UPC))
                 {
-                    found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == UPC);
+                    found = Context.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == UPC);
                     if (found != null)
                     {
                         found.MPN = item.MPN;
@@ -1429,7 +1431,7 @@ namespace dsmodels
                 {
                     if (!string.IsNullOrEmpty(MPN))
                     {
-                        found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.MPN == MPN);
+                        found = Context.SupplierItems.AsNoTracking().FirstOrDefault(p => p.MPN == MPN);
                         if (found != null)
                         {
                             found.UPC = item.UPC;
@@ -1437,7 +1439,7 @@ namespace dsmodels
                         else
                         {
                             // if the MPN isn't in SupplierItem, the UPC might already be there
-                            found = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == item.UPC);
+                            found = Context.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == item.UPC);
                             if (found != null)
                             {
                                 found.MPN = item.MPN;
@@ -1456,20 +1458,20 @@ namespace dsmodels
                         * have not yet received database-generated key values. In this case use the 'Add' method or the 'Added' entity state to
                         * track the graph and then set the state of non-new entities to 'Unchanged' or 'Modified' as appropriate."}
                         */
-                    this.SupplierItems.Attach(item);
+                    Context.SupplierItems.Attach(item);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(item).Property(propertyName).IsModified = true;
+                        Context.Entry(item).Property(propertyName).IsModified = true;
                     }
-                    this.SaveChanges();
-                    Entry(item).State = EntityState.Detached;
+                    Context.SaveChanges();
+                    Context.Entry(item).State = EntityState.Detached;
                 }
                 else
                 {
                     item.Updated = DateTime.Now;
-                    this.SupplierItems.Add(item);
-                    this.SaveChanges();
-                    Entry(item).State = EntityState.Detached;
+                    Context.SupplierItems.Add(item);
+                    Context.SaveChanges();
+                    Context.Entry(item).State = EntityState.Detached;
                 }
             }
             catch (DbEntityValidationException e)
@@ -1493,17 +1495,17 @@ namespace dsmodels
         }
         protected bool SupplierItemExists(ISupplierItem item)
         {
-            var found = this.SupplierItems.AsNoTracking().Where(p => p.ItemID == item.ItemID).FirstOrDefault();
+            var found = Context.SupplierItems.AsNoTracking().Where(p => p.ItemID == item.ItemID).FirstOrDefault();
             if (found != null)
             {
                 return true;
             }
-            found = this.SupplierItems.AsNoTracking().Where(p => p.UPC == item.UPC).FirstOrDefault();
+            found = Context.SupplierItems.AsNoTracking().Where(p => p.UPC == item.UPC).FirstOrDefault();
             if (found != null)
             {
                 return true;
             }
-            found = this.SupplierItems.AsNoTracking().Where(p => p.MPN == item.MPN).FirstOrDefault();
+            found = Context.SupplierItems.AsNoTracking().Where(p => p.MPN == item.MPN).FirstOrDefault();
             if (found != null)
             {
                 return true;
@@ -1515,7 +1517,7 @@ namespace dsmodels
             string ret = null;
             try
             {
-                var found = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.ID == item.ID);
+                var found = Context.SupplierItems.AsNoTracking().SingleOrDefault(p => p.ID == item.ID);
                 if (found == null)
                 {
                     // Probably should also be a validation trigger in the database.
@@ -1528,20 +1530,20 @@ namespace dsmodels
                         }
                         throw new Exception(msg);
                     }
-                    this.SupplierItems.Add(item);
-                    this.SaveChanges();
+                    Context.SupplierItems.Add(item);
+                    Context.SaveChanges();
                 }
                 else
                 {
                     item.ID = found.ID;
-                    this.SupplierItems.Attach(item);
+                    Context.SupplierItems.Attach(item);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(item).Property(propertyName).IsModified = true;
+                        Context.Entry(item).Property(propertyName).IsModified = true;
                     }
-                    this.SaveChanges();
+                    Context.SaveChanges();
                 }
-                Entry(item).State = EntityState.Detached;
+                Context.Entry(item).State = EntityState.Detached;
             }
             catch (DbEntityValidationException e)
             {
@@ -1565,17 +1567,17 @@ namespace dsmodels
 
         public bool IsVERO(string brand)
         {
-            var exists = this.VEROBrands.AsNoTracking().SingleOrDefault(p => p.Brand == brand);
+            var exists = Context.VEROBrands.AsNoTracking().SingleOrDefault(p => p.Brand == brand);
             return (exists != null);
         }
         public bool SalesOrderExists(string supplierOrderNumber)
         {
-            var exists = this.SalesOrders.AsNoTracking().SingleOrDefault(p => p.SupplierOrderNumber == supplierOrderNumber);
+            var exists = Context.SalesOrders.AsNoTracking().SingleOrDefault(p => p.SupplierOrderNumber == supplierOrderNumber);
             return (exists != null);
         }
         public bool SalesExists(int listingID)
         {
-            var exists = this.SalesOrders.AsNoTracking().FirstOrDefault(p => p.ListingID == listingID);
+            var exists = Context.SalesOrders.AsNoTracking().FirstOrDefault(p => p.ListingID == listingID);
             return (exists != null);
         }
 
@@ -1583,9 +1585,9 @@ namespace dsmodels
         {
             try
             {
-                var rpt = this.SearchHistory.AsNoTracking().Where(p => p.Seller == seller).OrderByDescending(item => item.ID).FirstOrDefault();
-                //var items = from t1 in this.SearchHistory.Where(p => p.Seller == seller)
-                //            join t2 in this.OrderHistory on t1.ID equals t2.RptNumber into notes
+                var rpt = Context.SearchHistory.AsNoTracking().Where(p => p.Seller == seller).OrderByDescending(item => item.ID).FirstOrDefault();
+                //var items = from t1 in db.SearchHistory.Where(p => p.Seller == seller)
+                //            join t2 in db.OrderHistory on t1.ID equals t2.RptNumber into notes
                 //            select notes.Max(x => (int?)x.RptNumber);
                 //var rpt = items.FirstOrDefault();
                 if (rpt != null)
@@ -1606,18 +1608,18 @@ namespace dsmodels
         }
         public ISupplierItem GetSupplierItemByURL(string URL)
         {
-            var item = this.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
+            var item = Context.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
             return item;
         }
         public IQueryable<ListingView> GetListingBySupplierURL(int storeID, string URL)
         {
-            var item = this.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).AsQueryable();
+            var item = Context.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).AsQueryable();
             return item;
         }
 
         public ISupplierItem GetSupplierItem(int id)
         {
-            var item = this.SupplierItems.AsNoTracking().Where(p => p.ID == id).First();
+            var item = Context.SupplierItems.AsNoTracking().Where(p => p.ID == id).First();
             return item;
         }
 
@@ -1630,10 +1632,10 @@ namespace dsmodels
         {
             ISupplierItem supplierItem = null;
             bool isUPC = false;
-            var spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
+            var spec = Context.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "UPC");
             if (spec == null)
             {
-                spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                spec = Context.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
             }
             else
             {
@@ -1647,29 +1649,29 @@ namespace dsmodels
                     // an MPN which might have various versions that lead back to same UPC
                     // Need to decide how to handle.
                     // For now, use FirstOrdDefault instead of SingleOrDefault.
-                    supplierItem = this.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == spec.ItemValue);
+                    supplierItem = Context.SupplierItems.AsNoTracking().FirstOrDefault(p => p.UPC == spec.ItemValue);
                     // seller might supply both UPC and MPN (in ItemSpecifics) but both were not collected off supplier website
                     if (supplierItem == null)
                     {
-                        spec = this.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
+                        spec = Context.OrderHistoryItemSpecifics.AsNoTracking().FirstOrDefault(p => p.SellerItemID == itemID && p.ItemName == "MPN");
                         if (spec != null)
                         {
-                            supplierItem = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.MPN == spec.ItemValue);
+                            supplierItem = Context.SupplierItems.AsNoTracking().SingleOrDefault(p => p.MPN == spec.ItemValue);
                         }
                     }
                 }
                 else
                 {
-                    supplierItem = this.SupplierItems.AsNoTracking().SingleOrDefault(p => p.MPN == spec.ItemValue);
+                    supplierItem = Context.SupplierItems.AsNoTracking().SingleOrDefault(p => p.MPN == spec.ItemValue);
                 }
             }
             return supplierItem;
         }
         public List<SellerProfile> GetSellers()
         {
-            //var sellers = this.SearchHistory.AsNoTracking().Where(p => p.SellerProfile.Active).ToList();
+            //var sellers = db.SearchHistory.AsNoTracking().Where(p => p.SellerProfile.Active).ToList();
             //var sellers = SellerProfiles.AsNoTracking().Where(p => p.Active).ToList();
-            var sellers = this.SellerProfiles.AsNoTracking().Include(p => p.SearchHistory).Where(o => o.Active).ToList();
+            var sellers = Context.SellerProfiles.AsNoTracking().Include(p => p.SearchHistory).Where(o => o.Active).ToList();
             return sellers;
         }
 
@@ -1683,7 +1685,7 @@ namespace dsmodels
         public string ProdIDExists(string UPC, string MPN, int storeID)
         {
             //var x = SellerListings.Where(p => p.Listings.sto)
-            var listings = Listings.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
+            var listings = Context.Listings.AsNoTracking().Where(p => p.StoreID == storeID).ToList();
 
             // 04.08.2020 come back to this - don't need it right now
             //foreach (var listing in listings)
@@ -1712,7 +1714,7 @@ namespace dsmodels
             {
                 // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
                 // by I will get an error trying to save the same itemId/rptNumber so remove 
-                var itemExists = UserSettings.AsNoTracking().SingleOrDefault(r => r.UserID == settings.UserID && r.StoreID == settings.StoreID);
+                var itemExists = Context.UserSettings.AsNoTracking().SingleOrDefault(r => r.UserID == settings.UserID && r.StoreID == settings.StoreID);
                 if (itemExists == null)
                 {
                     if (settings.KeysID == 0)   // particularly true when first setting up
@@ -1724,18 +1726,18 @@ namespace dsmodels
                         }
                         settings.KeysID = x.ID;
                     }
-                    UserSettings.Add(settings);
-                    await this.SaveChangesAsync();
+                    Context.UserSettings.Add(settings);
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
-                    this.UserSettings.Attach(settings);
+                    Context.UserSettings.Attach(settings);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(settings).Property(propertyName).IsModified = true;
+                        Context.Entry(settings).Property(propertyName).IsModified = true;
                     }
-                    await SaveChangesAsync();
-                    Entry(settings).State = EntityState.Detached;
+                    await Context.SaveChangesAsync();
+                    Context.Entry(settings).State = EntityState.Detached;
                 }
                 view = GetUserSettingsView(connStr, settings.UserID, settings.StoreID);
                 return view;
@@ -1756,13 +1758,13 @@ namespace dsmodels
         }
         public List<UserStoreView> GetUserStores(string userID)
         {
-            var ret = UserStoreView.Where(p => p.UserID == userID).ToList();
+            var ret = Context.UserStoreView.Where(p => p.UserID == userID).ToList();
             return ret;
         }
 
         public SellerListing GetSellerListing(string itemID)
         {
-            var found = SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
+            var found = Context.SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
             return found;
         }
         /// <summary>
@@ -1775,7 +1777,7 @@ namespace dsmodels
             // UserToken contains a user as a PK but not sure why I did it this way.
             // So just get first matching store.
             string token = null;
-            var result = UserTokens.Where(p => p.StoreID == settings.StoreID && p.UserID == settings.UserID).FirstOrDefault();
+            var result = Context.UserTokens.Where(p => p.StoreID == settings.StoreID && p.UserID == settings.UserID).FirstOrDefault();
             if (result != null)
             {
                 token = result.Token;
@@ -1787,7 +1789,7 @@ namespace dsmodels
             // UserToken contains a user as a PK but not sure why I did it this way.
             // So just get first matching store.
             string token = null;
-            var result = UserTokens.AsNoTracking().Where(p => p.StoreID == storeID && p.UserID == userID).SingleOrDefault();
+            var result = Context.UserTokens.AsNoTracking().Where(p => p.StoreID == storeID && p.UserID == userID).SingleOrDefault();
             if (result != null)
             {
                 token = result.Token;
@@ -1801,22 +1803,22 @@ namespace dsmodels
             {
                 // Looks like case where variations on same listing sold and returned individually by GetCompletedItems
                 // by I will get an error trying to save the same itemId/rptNumber so remove 
-                var itemExists = UpdateToListing.AsNoTracking().SingleOrDefault(r => r.ItemID == updateToList.ItemID && r.StoreID == updateToList.StoreID);
+                var itemExists = Context.UpdateToListing.AsNoTracking().SingleOrDefault(r => r.ItemID == updateToList.ItemID && r.StoreID == updateToList.StoreID);
                 if (itemExists == null)
                 {
-                    UpdateToListing.Add(updateToList);
-                    await this.SaveChangesAsync();
+                    Context.UpdateToListing.Add(updateToList);
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
                     updateToList.ID = itemExists.ID;
-                    this.UpdateToListing.Attach(updateToList);
+                    Context.UpdateToListing.Attach(updateToList);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(updateToList).Property(propertyName).IsModified = true;
+                        Context.Entry(updateToList).Property(propertyName).IsModified = true;
                     }
-                    await SaveChangesAsync();
-                    Entry(updateToList).State = EntityState.Detached;
+                    await Context.SaveChangesAsync();
+                    Context.Entry(updateToList).State = EntityState.Detached;
                     return null;
                 }
             }
@@ -1835,7 +1837,7 @@ namespace dsmodels
         }
         public bool SellerExists(string seller)
         {
-            var exists = SellerProfiles.Where(p => p.Seller == seller).SingleOrDefault();
+            var exists = Context.SellerProfiles.Where(p => p.Seller == seller).SingleOrDefault();
             return (exists == null) ? false : true;
         }
 
@@ -1844,7 +1846,7 @@ namespace dsmodels
             string ret = string.Empty;
             try
             {
-                var report = OrderHistory.Where(p => p.RptNumber == rptNumber).ToList();
+                var report = Context.OrderHistory.Where(p => p.RptNumber == rptNumber).ToList();
                 report.ForEach(a =>
                     {
                         a.MatchCount = null;
@@ -1853,7 +1855,7 @@ namespace dsmodels
                         a.SupplierItemID = null;
                     }
                 );
-                SaveChanges();
+                Context.SaveChanges();
             }
             catch (DbEntityValidationException e)
             {
@@ -1872,22 +1874,22 @@ namespace dsmodels
         {
             try
             {
-                var found = await this.SalesOrders.AsNoTracking().SingleOrDefaultAsync(r => r.SupplierOrderNumber == salesOrder.SupplierOrderNumber);
+                var found = await Context.SalesOrders.AsNoTracking().SingleOrDefaultAsync(r => r.SupplierOrderNumber == salesOrder.SupplierOrderNumber);
                 if (found == null)
                 {
-                    SalesOrders.Add(salesOrder);
+                    Context.SalesOrders.Add(salesOrder);
                 }
                 else
                 {
                     salesOrder.ID = found.ID;
-                    this.SalesOrders.Attach(salesOrder);
+                    Context.SalesOrders.Attach(salesOrder);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(salesOrder).Property(propertyName).IsModified = true;
+                        Context.Entry(salesOrder).Property(propertyName).IsModified = true;
                     }
                 }
-                await this.SaveChangesAsync();
-                Entry(salesOrder).State = EntityState.Detached;
+                await Context.SaveChangesAsync();
+                Context.Entry(salesOrder).State = EntityState.Detached;
             }
             catch (Exception exc)
             {
@@ -1897,12 +1899,12 @@ namespace dsmodels
         }
         public string GetAppSetting(IUserSettingsView settings, string settingName)
         {
-            var settingValue = AppSettings.Where(p => p.SettingName == settingName).Select(s => s.SettingValue).Single();
+            var settingValue = Context.AppSettings.Where(p => p.SettingName == settingName).Select(s => s.SettingValue).Single();
             return settingValue;
         }
         public StoreProfile GetStoreProfile(int storeID)
         {
-            var r = this.StoreProfiles.Where(p => p.ID == storeID).First();
+            var r = Context.StoreProfiles.Where(p => p.ID == storeID).First();
             return r;
         }
 
@@ -1910,8 +1912,8 @@ namespace dsmodels
         {
             try
             {
-                ListingLogs.Add(log);
-                await this.SaveChangesAsync();
+                Context.ListingLogs.Add(log);
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -1924,7 +1926,7 @@ namespace dsmodels
         {
             try
             {
-                var log = this.ListingLogViews.Where(p => p.ListingID == listingID).OrderByDescending(o => o.Created).ToList();
+                var log = Context.ListingLogViews.Where(p => p.ListingID == listingID).OrderByDescending(o => o.Created).ToList();
                 return log;
             }
             catch (Exception exc)
@@ -1958,20 +1960,20 @@ namespace dsmodels
         {
             try
             {
-                var found = this.UserProfileKeys.AsNoTracking().SingleOrDefault(p => p.ID == keys.ID);
+                var found = Context.UserProfileKeys.AsNoTracking().SingleOrDefault(p => p.ID == keys.ID);
                 if (found != null)
                 {
-                    this.UserProfileKeys.Attach(keys);
+                    Context.UserProfileKeys.Attach(keys);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(keys).Property(propertyName).IsModified = true;
+                        Context.Entry(keys).Property(propertyName).IsModified = true;
                     }
-                    await this.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
-                    UserProfileKeys.Add(keys);
-                    await this.SaveChangesAsync();
+                    Context.UserProfileKeys.Add(keys);
+                    await Context.SaveChangesAsync();
                 }
                 return keys;
             }
@@ -1986,20 +1988,20 @@ namespace dsmodels
         {
             try
             {
-                var found = this.UserTokens.AsNoTracking().SingleOrDefault(p => p.UserID == userToken.UserID && p.StoreID == userToken.StoreID);
+                var found = Context.UserTokens.AsNoTracking().SingleOrDefault(p => p.UserID == userToken.UserID && p.StoreID == userToken.StoreID);
                 if (found != null)
                 {
-                    this.UserTokens.Attach(userToken);
+                    Context.UserTokens.Attach(userToken);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(userToken).Property(propertyName).IsModified = true;
+                        Context.Entry(userToken).Property(propertyName).IsModified = true;
                     }
-                    await this.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
-                    UserTokens.Add(userToken);
-                    await this.SaveChangesAsync();
+                    Context.UserTokens.Add(userToken);
+                    await Context.SaveChangesAsync();
                 }
             }
             catch (Exception exc)
@@ -2013,8 +2015,8 @@ namespace dsmodels
         {
             try
             {
-                this.StoreProfiles.Add(profile);
-                await this.SaveChangesAsync();
+                Context.StoreProfiles.Add(profile);
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -2027,20 +2029,20 @@ namespace dsmodels
         {
             try
             {
-                var found = this.StoreProfiles.AsNoTracking().SingleOrDefault(p => p.ID == storeProfile.ID);
+                var found = Context.StoreProfiles.AsNoTracking().SingleOrDefault(p => p.ID == storeProfile.ID);
                 if (found != null)
                 {
-                    this.StoreProfiles.Attach(storeProfile);
+                    Context.StoreProfiles.Attach(storeProfile);
                     foreach (var propertyName in changedPropertyNames)
                     {
-                        this.Entry(storeProfile).Property(propertyName).IsModified = true;
+                        Context.Entry(storeProfile).Property(propertyName).IsModified = true;
                     }
-                    await this.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
                 }
                 else
                 {
-                    StoreProfiles.Add(storeProfile);
-                    await this.SaveChangesAsync();
+                    Context.StoreProfiles.Add(storeProfile);
+                    await Context.SaveChangesAsync();
                 }
             }
             catch (Exception exc)
@@ -2054,8 +2056,8 @@ namespace dsmodels
         {
             try
             {
-                this.UserStores.Add(userStore);
-                await this.SaveChangesAsync();
+                Context.UserStores.Add(userStore);
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -2074,13 +2076,13 @@ namespace dsmodels
         {
             try
             {
-                this.StoreProfiles.Add(profile);
-                await this.SaveChangesAsync();
+                Context.StoreProfiles.Add(profile);
+                await Context.SaveChangesAsync();
 
                 var userStore = new UserStore { StoreID = profile.ID, UserID = userID };
 
-                this.UserStores.Add(userStore);
-                await this.SaveChangesAsync();
+                Context.UserStores.Add(userStore);
+                await Context.SaveChangesAsync();
             }
             catch (Exception exc)
             {
@@ -2093,8 +2095,8 @@ namespace dsmodels
         {
             try
             {
-                this.SalesOrders.Add(salesOrder);
-                await this.SaveChangesAsync();
+                Context.SalesOrders.Add(salesOrder);
+                await Context.SaveChangesAsync();
                 return salesOrder;
             }
             catch (Exception exc)
@@ -2103,6 +2105,23 @@ namespace dsmodels
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
                 throw;
             }
+        }
+        protected void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Context != null)
+                {
+                    Context.Dispose();
+                    Context = null;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
