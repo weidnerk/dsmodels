@@ -93,4 +93,17 @@ namespace dsmodels
         decimal Total { get; set; }
         string TrackingNumber { get; set; }
     }
+    public interface IShippingPolicy
+    {
+        bool GlobalShipping { get; set; }
+        int HandlingTime { get; set; }
+        string Name { get; set; }
+        string ShippingService { get; set; }
+    }
+    public interface IStoreAnalysis
+    {
+        List<string> DBIsMissingItems { get; set; }
+        int InActive { get; set; }
+        List<string> QtyMismatch { get; set; }
+    }
 }

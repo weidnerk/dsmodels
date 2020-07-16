@@ -357,7 +357,7 @@ namespace dsmodels
     /// <summary>
     /// Pull more extensive metrics from actual eBay store.
     /// </summary>
-    public class StoreAnalysis
+    public class StoreAnalysis : IStoreAnalysis
     {
         [JsonProperty(PropertyName = "dbIsMissingItems")]
         public List<string> DBIsMissingItems { get; set; }
@@ -762,7 +762,7 @@ namespace dsmodels
         [JsonProperty(PropertyName = "paymentPolicies")]
         public List<PaymentPolicy> PaymentPolicies { get; set; }
     }
-    public class ShippingPolicy
+    public class ShippingPolicy : IShippingPolicy
     {
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
