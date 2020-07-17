@@ -220,4 +220,12 @@ namespace dsmodels
         Task UserTokenUpdate(UserToken userToken, params string[] changedPropertyNames);
         DataContext Context { get; set; }
     }
+    public interface IDashboard
+    {
+        int Listed { get; set; }
+        int NotListed { get; set; }
+        int OOS { get; set; }
+        double? RepricerElapsedTime { get; set; }
+        DateTime? RepricerLastRan { get; set; }
+    }
 }
