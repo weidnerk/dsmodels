@@ -821,7 +821,7 @@ namespace dsmodels
             }
             return target;
         }
-        public static List<ListingItemSpecific> CopyItemSpecificFromSellerListing(Listing listing, List<SellerListingItemSpecific> specifics)
+        public List<ListingItemSpecific> CopyItemSpecificFromSellerListing(Listing listing, List<SellerListingItemSpecific> specifics)
         {
             var target = new List<ListingItemSpecific>();
             foreach (var i in specifics)

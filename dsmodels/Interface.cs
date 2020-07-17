@@ -219,6 +219,8 @@ namespace dsmodels
         Task UserStoreAddAsync(UserStore userStore);
         Task UserTokenUpdate(UserToken userToken, params string[] changedPropertyNames);
         DataContext Context { get; set; }
+
+        List<ListingItemSpecific> CopyItemSpecificFromSellerListing(Listing listing, List<SellerListingItemSpecific> itemSpecifics);
     }
     public interface IDashboard
     {
