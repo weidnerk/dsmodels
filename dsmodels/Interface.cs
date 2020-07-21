@@ -197,7 +197,7 @@ namespace dsmodels
         Task<SearchHistory> SearchHistoryAdd(SearchHistory sh);
         SearchHistory SearchHistoryUpdate(SearchHistory sh, params string[] changedPropertyNames);
         bool SellerExists(string seller);
-        Task<string> SellerListingItemSpecificSave(SellerListing sellerListing);
+        Task<string> SellerListingItemSpecificSave(ISellerListing sellerListing);
         void SellerListingItemSpecificUpdate_notused(SellerListingItemSpecific specific);
         Task<SellerProfile> SellerProfileGet(string seller);
         Task SellerProfileSave(SellerProfile sellerProfile, params string[] changedPropertyNames);
@@ -221,6 +221,7 @@ namespace dsmodels
         DataContext Context { get; set; }
 
         List<ListingItemSpecific> CopyItemSpecificFromSellerListing(Listing listing, List<SellerListingItemSpecific> itemSpecifics);
+        List<SellerListingItemSpecific> CopyFromOrderHistory(List<OrderHistoryItemSpecific> itemSpecifics);
     }
     public interface IDashboard
     {
@@ -229,5 +230,25 @@ namespace dsmodels
         int OOS { get; set; }
         double? RepricerElapsedTime { get; set; }
         DateTime? RepricerLastRan { get; set; }
+    }
+    public interface ISellerListing
+    {
+        string Description { get; set; }
+        string EbayURL { get; set; }
+        string ItemID { get; set; }
+        List<SellerListingItemSpecific> ItemSpecifics { get; set; }
+        string ListingStatus { get; set; }
+        string PictureURL { get; set; }
+        string PrimaryCategoryID { get; set; }
+        string PrimaryCategoryName { get; set; }
+        int? Qty { get; set; }
+        string Seller { get; set; }
+        decimal SellerPrice { get; set; }
+        byte SellerSold { get; set; }
+        string Title { get; set; }
+        DateTime Updated { get; set; }
+        bool Variation { get; set; }
+        string VariationName { get; set; }
+        List<Variation> Variations { get; set; }
     }
 }

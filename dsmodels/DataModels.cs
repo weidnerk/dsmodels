@@ -114,7 +114,7 @@ namespace dsmodels
     /// Can exist independant of a Listing
     /// </summary>
     [Table("SellerListing")]
-    public class SellerListing
+    public class SellerListing : ISellerListing
     {
         [Key]
         public string ItemID { get; set; }                      // ebay eller listing id
@@ -128,7 +128,7 @@ namespace dsmodels
         public bool Variation { get; set; }
 
         // This value can also be found in Variation.VariationSpecifics.NameValueList.Name for each variation since that is how it arrives from eBay
-        public string VariationName { get; set; }    
+        public string VariationName { get; set; }
 
         public virtual List<SellerListingItemSpecific> ItemSpecifics { get; set; }
         //[ForeignKey("ItemID")]

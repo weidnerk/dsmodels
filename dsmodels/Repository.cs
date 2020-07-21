@@ -551,7 +551,7 @@ namespace dsmodels
             return ret;
         }
 
-        protected static string GetValidationErr(DbEntityValidationException e)
+        protected string GetValidationErr(DbEntityValidationException e)
         {
             string ret = null;
             foreach (var eve in e.EntityValidationErrors)
@@ -697,7 +697,7 @@ namespace dsmodels
         /// </summary>
         /// <param name="specifics"></param>
         /// <returns></returns>
-        public async Task<string> SellerListingItemSpecificSave(SellerListing sellerListing)
+        public async Task<string> SellerListingItemSpecificSave(ISellerListing sellerListing)
         {
             string output = null;
             try
@@ -791,7 +791,7 @@ namespace dsmodels
             }
             return output;
         }
-        public static List<OrderHistoryItemSpecific> CopyFromSellerListing(List<SellerListingItemSpecific> specifics)
+        public List<OrderHistoryItemSpecific> CopyFromSellerListing(List<SellerListingItemSpecific> specifics)
         {
             var target = new List<OrderHistoryItemSpecific>();
             foreach (var i in specifics)
@@ -806,7 +806,7 @@ namespace dsmodels
             }
             return target;
         }
-        public static List<SellerListingItemSpecific> CopyFromOrderHistory(List<OrderHistoryItemSpecific> specifics)
+        public List<SellerListingItemSpecific> CopyFromOrderHistory(List<OrderHistoryItemSpecific> specifics)
         {
             var target = new List<SellerListingItemSpecific>();
             foreach (var i in specifics)
@@ -846,7 +846,7 @@ namespace dsmodels
             //target.Add(new ListingItemSpecific { ItemName = "Assembled Product Dimensions (L x W x H)", ItemValue = "10.30 x 9.80 x 12.50 Inches" });
             return target;
         }
-        public static string DumpSellerListingItemSpecifics(List<SellerListingItemSpecific> specifics)
+        public string DumpSellerListingItemSpecifics(List<SellerListingItemSpecific> specifics)
         {
             string output = null;
             if (specifics.Count > 0)
@@ -859,7 +859,7 @@ namespace dsmodels
             }
             return output;
         }
-        public static string DumpOrderHistoryItemSpecifics(List<OrderHistoryItemSpecific> specifics)
+        public string DumpOrderHistoryItemSpecifics(List<OrderHistoryItemSpecific> specifics)
         {
             string output = null;
             if (specifics.Count > 0)
@@ -1243,7 +1243,7 @@ namespace dsmodels
         /// <param name="userId"></param>
         /// <param name="applicationId"></param>
         /// <returns></returns>
-        public static UserSettingsView GetUserSettingView(string connStr, string userId, int applicationId, int storeID)
+        public UserSettingsView GetUserSettingView(string connStr, string userId, int applicationId, int storeID)
         {
             try
             {
@@ -1296,7 +1296,7 @@ namespace dsmodels
             }
         }
 
-        public static bool OrderHistoryItemSpecificRemove(string connStr, int rptNumber)
+        public bool OrderHistoryItemSpecificRemove(string connStr, int rptNumber)
         {
             try
             {
