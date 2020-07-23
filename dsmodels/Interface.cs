@@ -155,7 +155,7 @@ namespace dsmodels
         IQueryable<ListingView> GetListingBySupplierURL(int storeID, string URL);
         IQueryable<ListingView> GetListings(int storeID, bool unlisted, bool listed);
         IQueryable<TimesSold> GetSalesData(int rptNumber, DateTime dateFrom, int storeID, string itemID);
-        SellerListing GetSellerListing(string itemID);
+        ISellerListing GetSellerListing(string itemID);
         List<SellerProfile> GetSellers();
         StoreProfile GetStoreProfile(int storeID);
         ISupplierItem GetSupplierItem(int id);

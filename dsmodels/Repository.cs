@@ -887,7 +887,7 @@ namespace dsmodels
                     var sellerListingfound = await Context.SellerListings.AsNoTracking().SingleOrDefaultAsync(r => r.ItemID == listing.SellerListing.ItemID);
                     if (sellerListingfound is null)
                     {
-                        Context.SellerListings.Add(listing.SellerListing);
+                        Context.SellerListings.Add(listing.SellerListing as SellerListing);
                     }
                     else
                     {
@@ -1053,7 +1053,7 @@ namespace dsmodels
             // if use AsNoTracking, get error on client about cannot deserialize
             try
             {
-                var listing = Context.Listings.Include(p => p.SellerListing).AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
+                var listing = Context.Listings.AsNoTracking().Where(r => r.ID == listingID).SingleOrDefault();
 
                 // 02.20.2020
                 // Say you save and list and then update qty and save and list again.  New Qty isn't fetched w/out Reload. 
@@ -1070,7 +1070,7 @@ namespace dsmodels
             {
                 string msg = dsutil.DSUtil.ErrMsg("ListingGet, listingID: " + listingID, exc);
                 dsutil.DSUtil.WriteFile(_logfile, msg, "admin");
-                return null;
+                throw;
             }
         }
         public ISupplierItem SupplierItemGet(int ID)
@@ -1762,7 +1762,7 @@ namespace dsmodels
             return ret;
         }
 
-        public SellerListing GetSellerListing(string itemID)
+        public ISellerListing GetSellerListing(string itemID)
         {
             var found = Context.SellerListings.AsNoTracking().Where(p => p.ItemID == itemID).SingleOrDefault();
             return found;
