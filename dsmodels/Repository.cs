@@ -1409,7 +1409,7 @@ namespace dsmodels
         /// <param name="MPN"></param>
         /// <param name="item"></param>
         /// <param name="changedPropertyNames"></param>
-        public void SupplierItemUpdateByProdID(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames)
+        public void SupplierItemUpdateByProdID(string UPC, string MPN, ISupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
             try
@@ -1458,7 +1458,7 @@ namespace dsmodels
                         * have not yet received database-generated key values. In this case use the 'Add' method or the 'Added' entity state to
                         * track the graph and then set the state of non-new entities to 'Unchanged' or 'Modified' as appropriate."}
                         */
-                    Context.SupplierItems.Attach(item);
+                    Context.SupplierItems.Attach(item as SupplierItem);
                     foreach (var propertyName in changedPropertyNames)
                     {
                         Context.Entry(item).Property(propertyName).IsModified = true;
@@ -1469,7 +1469,7 @@ namespace dsmodels
                 else
                 {
                     item.Updated = DateTime.Now;
-                    Context.SupplierItems.Add(item);
+                    Context.SupplierItems.Add(item as SupplierItem);
                     Context.SaveChanges();
                     Context.Entry(item).State = EntityState.Detached;
                 }
@@ -1512,7 +1512,7 @@ namespace dsmodels
             }
             return false;
         }
-        public void SupplierItemUpdateByID(SupplierItem item, params string[] changedPropertyNames)
+        public void SupplierItemUpdateByID(ISupplierItem item, params string[] changedPropertyNames)
         {
             string ret = null;
             try
@@ -1530,13 +1530,13 @@ namespace dsmodels
                         }
                         throw new Exception(msg);
                     }
-                    Context.SupplierItems.Add(item);
+                    Context.SupplierItems.Add(item as SupplierItem);
                     Context.SaveChanges();
                 }
                 else
                 {
                     item.ID = found.ID;
-                    Context.SupplierItems.Attach(item);
+                    Context.SupplierItems.Attach(item as SupplierItem);
                     foreach (var propertyName in changedPropertyNames)
                     {
                         Context.Entry(item).Property(propertyName).IsModified = true;

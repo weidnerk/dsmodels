@@ -438,6 +438,8 @@ namespace dsmodels
         public List<string> Warning { get; set; }
         [NotMapped]
         public int ArrivalDateFlag { get; set; }    // Indicates if Selenium was started.
+        [NotMapped]
+        public bool? LowInventory { get; set; }
     }
     
     [Table("SalesOrder")]

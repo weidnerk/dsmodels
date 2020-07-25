@@ -34,6 +34,7 @@ namespace dsmodels
         string VariationName { get; set; }
         List<string> VariationPicURL { get; set; }
         List<string> Warning { get; set; }
+        bool? LowInventory { get; set; }
     }
     public interface IUserSettingsView
     {
@@ -207,8 +208,8 @@ namespace dsmodels
         Task StoreProfileUpdate(StoreProfile storeProfile, params string[] changedPropertyNames);
         Task<string> SupplierItemDelete(IUserSettingsView settings, int ID);
         ISupplierItem SupplierItemGet(int ID);
-        void SupplierItemUpdateByID(SupplierItem item, params string[] changedPropertyNames);
-        void SupplierItemUpdateByProdID(string UPC, string MPN, SupplierItem item, params string[] changedPropertyNames);
+        void SupplierItemUpdateByID(ISupplierItem item, params string[] changedPropertyNames);
+        void SupplierItemUpdateByProdID(string UPC, string MPN, ISupplierItem item, params string[] changedPropertyNames);
         Task<bool> UpdatePrice(Listing listing, decimal price, decimal supplierPrice);
         Task UpdateToListingRemove(UpdateToListing obj);
         Task<string> UpdateToListingSave(UpdateToListing updateToList, params string[] changedPropertyNames);
