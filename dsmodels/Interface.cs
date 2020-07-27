@@ -112,40 +112,6 @@ namespace dsmodels
     }
     public interface IRepository
     {
-        //DbSet<AppSettings> AppSettings { get; set; }
-        //DbSet<AspNetUser> AspNetUsers { get; set; }
-        //DbSet<ListingItemSpecific> ListingItemSpecifics { get; set; }
-        //DbSet<ListingLog> ListingLogs { get; set; }
-        //DbSet<ListingLogView> ListingLogViews { get; set; }
-        //DbSet<ListingNote> ListingNotes { get; set; }
-        //DbSet<ListingNoteView> ListingNotesView { get; set; }
-        //DbSet<Listing> Listings { get; set; }
-        //DbSet<ListingView> ListingsView { get; set; }
-        //DbSet<OrderHistory> OrderHistory { get; set; }
-        //DbSet<OrderHistoryDetail> OrderHistoryDetails { get; set; }
-        //DbSet<OrderHistoryItemSpecific> OrderHistoryItemSpecifics { get; set; }
-        //DbSet<SalesOrder> SalesOrders { get; set; }
-        //DbSet<SearchHistory> SearchHistory { get; set; }
-        //DbSet<SearchHistoryView> SearchHistoryView { get; set; }
-        //DbSet<SellerListingItemSpecific> SellerListingItemSpecifics { get; set; }
-        //DbSet<SellerListing> SellerListings { get; set; }
-        //DbSet<SellerOrderHistory> SellerOrderHistory { get; set; }
-        //DbSet<SellerProfile> SellerProfiles { get; set; }
-        //DbSet<SourceCategories> SourceCategories { get; set; }
-        //DbSet<StoreProfile> StoreProfiles { get; set; }
-        //DbSet<SupplierItem> SupplierItems { get; set; }
-        //DbSet<UpdateToListing> UpdateToListing { get; set; }
-        //DbSet<UserProfileKeys> UserProfileKeys { get; set; }
-        //DbSet<UserProfileKeysView> UserProfileKeysView { get; set; }
-        //DbSet<UserProfile> UserProfiles { get; set; }
-        //DbSet<UserProfileView> UserProfileViews { get; set; }
-        //DbSet<UserSettings> UserSettings { get; set; }
-        //DbSet<UserSettingsView> UserSettingsView { get; set; }
-        //DbSet<UserStore> UserStores { get; set; }
-        //DbSet<UserStoreView> UserStoreView { get; set; }
-        //DbSet<UserToken> UserTokens { get; set; }
-        //DbSet<VEROBrands> VEROBrands { get; set; }
-
         bool CanRunScan(string userid, string seller);
         string ClearOrderHistory(int rptNumber);
         Task<string> DeleteListingRecordAsync(IUserSettingsView settings, int listingID, bool force);
@@ -168,7 +134,7 @@ namespace dsmodels
         string GetUserIDFromName(string username);
         UserProfile GetUserProfile(string userid);
         UserProfileKeys GetUserProfileKeys(int id);
-        UserProfileKeysView GetUserProfileKeysView(int storeID, string userID);
+        Task<UserProfileKeysView> GetUserProfileKeysViewAsync(int storeID, string userID);
         UserProfileView GetUserProfileView(string userid);
         IUserSettingsView GetUserSettingsView(string connStr, string userID);
         UserSettingsView GetUserSettingsView(string connStr, string userID, int storeID);

@@ -131,9 +131,9 @@ namespace dsmodels
             var profile = Context.UserProfileKeys.AsNoTracking().Where(r => r.ID == id).SingleOrDefault();
             return profile;
         }
-        public UserProfileKeysView GetUserProfileKeysView(int storeID, string userID)
+        public async Task<UserProfileKeysView> GetUserProfileKeysViewAsync(int storeID, string userID)
         {
-            var profile = Context.UserProfileKeysView.AsNoTracking().Where(r => r.StoreID == storeID && r.UserID == userID).SingleOrDefault();
+            var profile = await Context.UserProfileKeysView.AsNoTracking().Where(r => r.StoreID == storeID && r.UserID == userID).SingleOrDefaultAsync();
             return profile;
         }
         public UserProfileView GetUserProfileView(string userid)
@@ -1719,7 +1719,7 @@ namespace dsmodels
                 {
                     if (settings.KeysID == 0)   // particularly true when first setting up
                     {
-                        var x = GetUserProfileKeysView(settings.StoreID, settings.UserID);
+                        var x = await GetUserProfileKeysViewAsync(settings.StoreID, settings.UserID);
                         if (x is null)
                         {
                             throw new Exception("No API Keys found.");
