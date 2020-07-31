@@ -36,7 +36,7 @@ namespace dsmodels
         public string Token { get; set; }
         public int StoreID { get; set; }
     }
-   
+
 
     /// <summary>
     /// Used on listings page.
@@ -50,7 +50,7 @@ namespace dsmodels
     {
         // Returned by view as read/only
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public string ListedByName { get; set;}
+        public string ListedByName { get; set; }
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
         public string CreatedByName { get; set; }
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)] 
@@ -100,7 +100,7 @@ namespace dsmodels
         public DateTime? Created { get; set; }
         //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string UpdatedByName { get; set; }
-        public string  SupplierPicURL { get; set; }
+        public string SupplierPicURL { get; set; }
         public bool InActive { get; set; }
         public string ItemURL { get; set; }
         public int QtySold { get; set; }
@@ -228,11 +228,11 @@ namespace dsmodels
 
         [JsonProperty(PropertyName = "sellerItemId")]
         public string SellerItemID { get; set; }
-        
-        [JsonProperty(PropertyName = "itemName")] 
+
+        [JsonProperty(PropertyName = "itemName")]
         public string ItemName { get; set; }
-        
-        [JsonProperty(PropertyName = "itemValue")] 
+
+        [JsonProperty(PropertyName = "itemValue")]
         public string ItemValue { get; set; }
 
         [ForeignKey("SellerItemID")]
@@ -257,7 +257,7 @@ namespace dsmodels
         public string ItemValue { get; set; }
 
         // reads "SellerItemID in this class is the FK to the PK in OrderHistory"
-        [ForeignKey("SellerItemID")]    
+        [ForeignKey("SellerItemID")]
         [JsonProperty(PropertyName = "orderHistory")]
         public OrderHistory OrderHistory { get; set; }
         public bool? Flags { get; set; }
@@ -343,15 +343,15 @@ namespace dsmodels
         public string Seller { get; set; }
         [JsonProperty(PropertyName = "note")]
         public string Note { get; set; }
-        [JsonProperty(PropertyName = "updated")] 
+        [JsonProperty(PropertyName = "updated")]
         public DateTime Updated { get; set; }
-        [JsonProperty(PropertyName = "updatedBy")] 
+        [JsonProperty(PropertyName = "updatedBy")]
         public string UpdatedBy { get; set; }
         public string UserID { get; set; }
         public bool Active { get; set; }
         public virtual List<SearchHistory> SearchHistory { get; set; }
     }
- 
+
 
     public class UserProfileVM
     {
@@ -441,7 +441,7 @@ namespace dsmodels
         [NotMapped]
         public bool? LowInventory { get; set; }
     }
-    
+
     [Table("SalesOrder")]
     public class SalesOrder : ISalesOrder
     {

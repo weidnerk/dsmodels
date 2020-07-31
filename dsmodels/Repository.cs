@@ -1848,12 +1848,12 @@ namespace dsmodels
             {
                 var report = Context.OrderHistory.Where(p => p.RptNumber == rptNumber).ToList();
                 report.ForEach(a =>
-                    {
-                        a.MatchCount = null;
-                        a.MatchType = null;
-                        a.SourceID = null;
-                        a.SupplierItemID = null;
-                    }
+                {
+                    a.MatchCount = null;
+                    a.MatchType = null;
+                    a.SourceID = null;
+                    a.SupplierItemID = null;
+                }
                 );
                 Context.SaveChanges();
             }
