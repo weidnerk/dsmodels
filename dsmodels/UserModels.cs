@@ -251,7 +251,6 @@ namespace dsmodels
         public string eBayUserID { get; set; }
         public DateTime? RepricerLastRan { get; set; }
         public double? ElapsedTime { get; set; }
-        public bool SalesPermission { get; set; }
     }
     public class eBayStore
     {
