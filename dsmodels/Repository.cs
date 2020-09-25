@@ -1611,10 +1611,20 @@ namespace dsmodels
             var item = Context.SupplierItems.AsNoTracking().Where(p => p.ItemURL == URL).SingleOrDefault();
             return item;
         }
-        public IQueryable<ListingView> GetListingBySupplierURL(int storeID, string URL)
+        public Task<ListingView> GetListingBySupplierURL(int storeID, string URL)
         {
-            var item = Context.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).AsQueryable();
-            return item;
+            try
+            {
+                var item = Context.ListingsView.AsNoTracking().Where(p => p.ItemURL == URL && p.StoreID == storeID).AsQueryable();
+
+                // might exist but if not listed or Ended, then can use
+                var listingsExist = item.Where(p => p.StoreID == storeID && (p.Listed != null || p.Ended == null)).SingleOrDefaultAsync();
+
+                return listingsExist;
+            } catch
+            {
+                return null;
+            }
         }
 
         public ISupplierItem GetSupplierItem(int id)

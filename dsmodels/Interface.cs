@@ -119,7 +119,7 @@ namespace dsmodels
         void DetachAllEntities();
         DateTime? fromDateToScan(int rptNumber);
         string GetAppSetting(IUserSettingsView settings, string settingName);
-        IQueryable<ListingView> GetListingBySupplierURL(int storeID, string URL);
+        Task<ListingView> GetListingBySupplierURL(int storeID, string URL);
         IQueryable<ListingView> GetListings(int storeID, bool unlisted, bool listed);
         IQueryable<TimesSold> GetSalesData(int rptNumber, DateTime dateFrom, int storeID, string itemID);
         ISellerListing GetSellerListing(string itemID);
